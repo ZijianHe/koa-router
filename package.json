@@ -1,0 +1,19 @@
+{
+  "name": "koa-router",
+  "description": "Router middleware for koa. Provides RESTful resource routing.",
+  "repository": "alexmingoia/koa-router",
+  "author": "Alex Mingoia <talk@alexmingoia.com>",
+  "version": "1.0.0",
+  "keywords": ["koa", "middleware", "router", "route"],
+  "dependencies": {
+    "koa": "0.0.1"
+  },
+  "devDependencies": {
+    "should": "1.2.2",
+    "mocha": "1.12.0"
+  },
+  "engines": {
+    "node": "> 0.11.4"
+  },
+  "license": "MIT"
+}
