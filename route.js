@@ -1,21 +1,22 @@
 /**
- * Create new Route with given `method`, `pattern`, and `callbacks`.
+ * Create new Route with given `methods`, `pattern`, and `callback`.
  *
  * @param {String} method
  * @param {String} pattern
- * @param {Array} callbacks
+ * @param {Function} callback
  * @return {Route}
  * @api public
  */
 
-function Route(methods, pattern, callbacks) {
+function Route(methods, pattern, callback) {
   if (typeof methods === 'string') methods = [methods];
-  if (typeof callbacks === 'function') callbacks = [callbacks];
   this.methods = methods;
   this.pattern = pattern;
   this.regexp = patternToRegExp(pattern);
-  this.params = [];
-  this.callbacks = callbacks;
+  this.paramsArray = [];
+  this.paramNames = patternToParamNames(pattern);
+  this.params = {};
+  this.callback = callback;
 };
 
 /**
@@ -45,7 +46,12 @@ route.match = function(method, path) {
     // Populate route params
     var matches = path.match(this.regexp);
     if (matches && matches.length > 1) {
-      this.params = matches.slice(1);
+      this.paramsArray = matches.slice(1);
+    }
+    for (var len = this.paramsArray.length, i=0; i<len; i++) {
+      if (this.paramNames[i]) {
+        this.params[this.paramNames[i]] = this.paramsArray[i];
+      }
     }
     return true;
   }
@@ -65,4 +71,23 @@ function patternToRegExp(pattern) {
     .replace(/\//g, '\\/')
     .replace(/:\w+/g, '([^\/]+)');
   return new RegExp('^' + pattern + '$', 'i');
+};
+
+/**
+ * Extract parameter names from given `pattern`
+ *
+ * @param {String} pattern
+ * @return {Array}
+ * @api private
+ */
+
+function patternToParamNames(pattern) {
+  var params = [];
+  var matches = pattern.match(/(:\w+)/g);
+  if (matches && matches.length > 1) {
+    for (var len = matches.length, i=0; i<len; i++) {
+      params.push(matches[i].substr(1));
+    }
+  }
+  return params;
 };

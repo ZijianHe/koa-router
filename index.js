@@ -34,14 +34,14 @@ function Router(app) {
   app.map = router.route;
   // Alias methods for `router.route`
   methods.forEach(function(method) {
-    app[method] = function(pattern, callbacks) {
-      app.map([method.toUpperCase()], pattern, callbacks);
+    app[method] = function(pattern, callback) {
+      app.map([method.toUpperCase()], pattern, callback);
     };
   });
 };
 
 /**
- * Router middleware. Dispatches route callbacks corresponding to the request.
+ * Router middleware. Dispatches route callback corresponding to the request.
  *
  * @param {Application} app
  * @return {Function}
@@ -54,17 +54,16 @@ Router.middleware = function(app) {
   // Return middleware
   return function(next) {
     return function *() {
-      var context = this;
-      var method = this.req.method;
-      var path = parse(this.req.url).path;
-      var routes = app.routes[method];
       // Find matching route and dispatch it
+      var routes = app.routes[this.req.method];
       for (var len = routes.length, i=0; i<len; i++) {
-        if (routes[i].match(this.req.method, path)) {
-          return app.router.dispatch(context, routes[i], 0, next);
+        var route = routes[i];
+        if (route.match(this.req.method, parse(this.req.url).path)) {
+          app.context({params: route.params});
+          return yield route.callback.apply(this, route.paramsArray.concat([next]));
         }
       }
-      return next();
+      yield next;
     };
   };
 };
@@ -82,52 +81,36 @@ module.exports = Router.middleware;
 var router = Router.prototype;
 
 /**
- * Dispatch given `route` callbacks.
+ * Match given `method` and `path` and return corresponding route.
  *
- * @param {Context} context
- * @param {Route} route
- * @param {Number} index Route callback index
- * @param {Function} next
+ * @param {String} method
+ * @param {String} path
+ * @return {Route}
  * @api public
  */
 
-router.dispatch = function(context, route, index, next) {
-  var self = this;
-  var callback = route.callbacks[index];
-  if (!callback) return next();
-  var gen = callback.apply(context, route.params.concat([function() {
-    return self.dispatch(route, index++, next);
-  }]));
-  return isGenerator(gen) ? co.call(context, gen) : gen;
+router.match = function(method, path) {
+  var routes = this.routes[method];
+  for (var len = routes.length, i=0; i<len; i++) {
+    if (routes[i].match(method, path)) return routes[i];
+  }
 };
+
 
 /**
  * Route given `callbacks` to request `method` and path `pattern` combination.
  *
  * @param {Array} methods Array of HTTP methods/verbs
  * @param {String} pattern
- * @param {Array} callbacks Array of route functions
+ * @param {Function} callback
  * @return {Route}
  * @api public
  */
 
-router.route = function(methods, pattern, callbacks) {
-  var route = new Route(methods, pattern, callbacks);
+router.route = function(methods, pattern, callback) {
+  var route = new Route(methods, pattern, callback);
   for (var len = methods.length, i=0; i<len; i++) {
     this.routes[methods[i]].push(route);
   }
   return route;
-};
-
-
-/**
- * Check if `obj` is a generator.
- *
- * @param {Mixed} obj
- * @return {Boolean}
- * @api private
- */
-
-function isGenerator(obj) {
-  return obj && toString.call(obj) === '[object Generator]';
 };

@@ -27,25 +27,29 @@ describe('Router', function() {
     done();
   });
 
-  it('.dispatch() should match corresponding requests', function(done) {
+  it('should match corresponding requests', function(done) {
     var app = koa();
     app.use(router(app));
-    app.use(function(next) {
+    app.get('/match/this', function *(next) {
+      this.status = 204;
       done();
-    });
-    app.get('/match/this', function(next) {
-      next();
     });
     request(http.createServer(app.callback()))
     .get('/match/this')
-    .end(function(err) {
+    .expect(204)
+    .end(function(err, res) {
       if (err) return done(err);
     });
   });
 
-  it('.route() should support generators', function(done) {
+  it('should support generators', function(done) {
     var app = koa();
     app.use(router(app));
+    app.use(function(next) {
+      return function *() {
+        done();
+      };
+    });
     var readVersion = function() {
       return function(fn) {
         var packagePath = path.join(__dirname, '..', 'package.json');
@@ -57,36 +61,13 @@ describe('Router', function() {
     };
     app.get('/match/this', function *(next) {
       var version = yield readVersion();
-      done();
+      this.status = 204;
+      return yield next;
     });
     request(http.createServer(app.callback()))
     .get('/match/this')
-    .end(function(err) {
-      if (err) return done(err);
-    });
-  });
-
-  it('.route() should support multiple callbacks', function(done) {
-    var app = koa();
-    app.use(router(app));
-    app.use(function(next) {
-      done();
-    });
-    app.get(
-      '/multiple/callbacks',
-      function(next) {
-        next();
-      },
-      function(next) {
-        next();
-      },
-      function(next) {
-        next();
-      }
-    );
-    request(http.createServer(app.callback()))
-    .get('/multiple/callbacks')
-    .end(function(err) {
+    .expect(204)
+    .end(function(err, res) {
       if (err) return done(err);
     });
   });
