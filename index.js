@@ -53,8 +53,8 @@ Router.middleware = function(app) {
   new Router(app);
   // Return middleware
   return function(next) {
-    var context = this;
     return function *() {
+      var context = this;
       var method = this.req.method;
       var path = parse(this.req.url).path;
       var routes = app.routes[method];

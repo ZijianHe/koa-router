@@ -6,6 +6,7 @@
   "version": "1.0.0",
   "keywords": ["koa", "middleware", "router", "route"],
   "dependencies": {
+    "co": "1.5.1",
     "koa": "0.0.1",
     "methods": "0.0.1"
   },
