@@ -11,7 +11,10 @@
 function Route(methods, pattern, callbacks) {
   if (typeof methods == 'string') methods = [methods];
   if (typeof callbacks == 'function') callbacks = [callbacks];
-  this.methods = methods;
+  this.methods = [];
+  for (var len = methods.length, i=0; i<len; i++) {
+    this.methods.push(methods[i].toUpperCase());
+  }
   this.pattern = pattern instanceof RegExp ? pattern.source : pattern;
   this.regexp = Route.patternToRegExp(pattern);
   this.paramsArray = [];

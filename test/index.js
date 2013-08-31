@@ -32,7 +32,7 @@ describe('Router', function() {
     var app = koa();
     app.use(router(app));
     methods.forEach(function(method) {
-      app.should.have.property(method.toLowerCase());
+      app.should.have.property(method);
     });
     app.get('/:category/:title', function *(category, title, next) {
       category.should.equal('programming');
@@ -96,7 +96,6 @@ describe('Router', function() {
       this.status = 204;
     });
     methods.forEach(function(method) {
-      method = method.toUpperCase();
       app.routes.should.have.property(method);
       app.routes[method].should.include(route);
     });

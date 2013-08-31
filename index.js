@@ -15,11 +15,6 @@ var Route = require('./route');
 var Resource = require('./resource');
 var parse = require('url').parse;
 
-// Transform methods to uppercase
-methods.forEach(function(method, i, arr) {
-  arr[i] = method.toUpperCase();
-});
-
 /**
  * Initialize Router with given `app`.
  *
@@ -40,7 +35,7 @@ function Router(app) {
   app.map = router.route;
   // Alias methods for `router.route`
   methods.forEach(function(method) {
-    app[method.toLowerCase()] = function() {
+    app[method] = function() {
       var args = Array.prototype.slice.call(arguments);
       args.unshift([method]);
       return app.map.apply(app, args);
@@ -80,7 +75,7 @@ Router.middleware = function(app) {
     return function *() {
       // Find matching route
       var route;
-      var routes = app.routes[this.req.method];
+      var routes = app.routes[this.req.method.toLowerCase()];
       for (var len = routes.length, i=0; i<len; i++) {
         if (routes[i].match(this.req.method, parse(this.req.url).path)) {
           route = routes[i];
