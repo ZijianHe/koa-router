@@ -13,9 +13,9 @@ function Route(methods, pattern, callbacks) {
   if (typeof callbacks === 'function') callbacks = [callbacks];
   this.methods = methods;
   this.pattern = pattern;
-  this.regexp = patternToRegExp(pattern);
+  this.regexp = Route.patternToRegExp(pattern);
   this.paramsArray = [];
-  this.paramNames = patternToParamNames(pattern);
+  this.paramNames = Route.patternToParamNames(pattern);
   this.params = {};
   this.callbacks = callbacks;
 };
@@ -46,7 +46,7 @@ route.match = function(method, path) {
   if (this.methods.indexOf(method) !== -1 && this.regexp.test(path)) {
     // Populate route params
     var matches = path.match(this.regexp);
-    if (matches && matches.length > 1) {
+    if (matches && matches.length > 0) {
       this.paramsArray = matches.slice(1);
     }
     for (var len = this.paramsArray.length, i=0; i<len; i++) {
@@ -60,22 +60,6 @@ route.match = function(method, path) {
 };
 
 /**
- * Convert given `pattern` to regular expression.
- *
- * @param {String} pattern
- * @return {RegExp}
- * @api private
- */
-
-function patternToRegExp(pattern) {
-  pattern = pattern
-    .replace(/\//g, '\\/') // Escape slashes.
-    .replace(/:\w+/g, '([^\/]+)') // Replace patterns with capture groups.
-    .replace(/^(.+)\/$/, '$1\/?'); // Make trailing slashes optional.
-  return new RegExp('^' + pattern + '$', 'i');
-};
-
-/**
  * Extract parameter names from given `pattern`
  *
  * @param {String} pattern
@@ -83,13 +67,29 @@ function patternToRegExp(pattern) {
  * @api private
  */
 
-function patternToParamNames(pattern) {
+Route.patternToParamNames = function(pattern) {
   var params = [];
   var matches = pattern.match(/(:\w+)/g);
-  if (matches && matches.length > 1) {
+  if (matches && matches.length > 0) {
     for (var len = matches.length, i=0; i<len; i++) {
       params.push(matches[i].substr(1));
     }
   }
   return params;
+};
+
+/**
+ * Convert given `pattern` to regular expression.
+ *
+ * @param {String} pattern
+ * @return {RegExp}
+ * @api private
+ */
+
+Route.patternToRegExp = function(pattern) {
+  pattern = pattern
+    .replace(/\//g, '\\/') // Escape slashes.
+    .replace(/:\w+/g, '([^\/]+)') // Replace patterns with capture groups.
+    .replace(/^(.+)\/$/, '$1\/?'); // Make trailing slashes optional.
+  return new RegExp('^' + pattern + '$', 'i');
 };

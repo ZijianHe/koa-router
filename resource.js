@@ -2,6 +2,7 @@
  * Dependencies
  */
 
+var Route = require('./route');
 var lingo = require('lingo');
 
 /**
@@ -11,25 +12,33 @@ var lingo = require('lingo');
  *
  * @param {String} name
  * @param {Function} controller
+ * @param {Object} opts
  * @param {Application} app
  * @return {Resource}
  * @api public
  */
 
-function Resource(name, controller, app) {
+function Resource(name, controller, opts, app) {
   if (typeof name === 'function') {
-    app = controller, controller = name, name = null;
+    app = opts, opts = controller, controller = name, name = null;
+  }
+  if (opts.env) {
+    app = opts, opts = {};
   }
   this.app = app;
+  this.opts = opts;
   this.name = name || lingo.en.pluralize(name);
   this.id = name ? lingo.en.singularize(name) : 'id';
   this.base = this.name ? '/' + this.name + '/' : '/';
   this.actions = controller;
   this.routes = [];
+  this.load = controller.load || opts.load;
   // Map controller actions
   for (var action in this.actions) {
     this.mapControllerAction(action, this.actions[action]);
   }
+  this.app.resources = this.app.resources || [];
+  this.app.resources.push(this);
 };
 
 /**
@@ -55,29 +64,50 @@ var resource = Resource.prototype;
 
 resource.mapControllerAction = function(name, action) {
   var app = this.app, base = this.base, id = this.id;
+  var load = this.load;
+  if (load) {
+    // Auto-load resource and populate route params
+    load = function *() {
+      var next = Array.prototype.pop.call(arguments);
+      var params = Route.patternToParamNames(base + ':' + id);
+      for (var len = params.length, i=0; i<len; i++) {
+        var param = params[i], paramIdx = i;
+        for (var len = app.resources.length, i=0; i<len; i++) {
+          if (app.resources[i].id === param && app.resources[i].load) {
+            this.route.paramsArray[paramIdx] = yield app.resources[i].load.apply(
+              this, this.route.paramsArray.concat([next])
+            );
+            this.route.params[param] = this.route.paramsArray[paramIdx];
+          }
+        }
+      }
+    };
+  }
+  // Create routes for controller actions
   switch (name) {
     case 'index':
-      this.routes.push(app.get(base, action));
+      route = app.get(base, action);
       break;
     case 'new':
-      this.routes.push(app.get(base + 'new', action));
+      route = app.get(base + 'new', action);
       break;
     case 'create':
-      this.routes.push(app.post(base, action));
+      route = app.post(base, action);
       break;
     case 'show':
-      this.routes.push(app.get(base + ':' + id, action));
+      route = app.get(base + ':' + id, load ? [load, action] : action);
       break;
     case 'edit':
-      this.routes.push(app.get(base + ':' + id + '/edit', action));
+      route = app.get(base + ':' + id + '/edit', load ? [load, action] : action);
       break;
     case 'update':
-      this.routes.push(app.put(base + ':' + id, action));
+      route = app.put(base + ':' + id, load ? [load, action] : action);
       break;
     case 'destroy':
-      this.routes.push(app.delete(base + ':' + id, action));
+      route = app.delete(base + ':' + id, load ? [load, action] : action);
       break;
   }
+  if (route) this.routes.push(route);
   return this;
 };
 

@@ -1,9 +1,5 @@
 # Router middleware for [koa](https://github.com/koajs/koa)
 
-RESTful resource routing for [koa](https://github.com/koajs/koa).
-
-## Features
-
 * REST routing using `app.get`, `app.post`, etc.
 * Rails-like resource routing, with nested resources.
 * Named parameters.
@@ -39,7 +35,10 @@ You can map specific routes using methods corresponding to the HTTP verb, such a
 Named route parameters are captured and passed as arguments to the route callback. They are also available in the app context using `this.params`.
 
     app.get('/:category/:title', function *(category, title, next) {
-      console.log(this.params); // Also available in app context
+      console.log(this.params);
+      // { category: 'programming', title: 'How to Node' }
+      console.log(this.paramsArray);
+      // [ 'category', 'title' ]
     });
 
 ### Multiple methods
@@ -93,21 +92,24 @@ Top-level controller actions are mapped as follows:
 
 #### Auto-loading
 
-Requested resources can be automatically loaded by specifying the `load` action
+Automatically load requested resources by specifying the `load` action
 on your controller:
 
-    var actions = require('./user');
-    
-    actions.load = function(req, id, done) {
-      done(null, users[id]);
+    var actions = {
+      show: function *(user) {
+        this.body = user;
+      },
+      load: function *(id) {
+        return users[id];
+      }
     };
     
     app.resource('users', actions);
 
-The `req.user` object will then be available to the controller actions
-automatically. You can also pass the load method as an option:
+The `user` object will then be available to the relevant controller actions.
+You can also pass the load method as an option:
 
-    app.resource('users', require('./user'), { load: User.load });
+    app.resource('users', require('./users'), { load: User.findOne });
 
 #### Nesting
 
