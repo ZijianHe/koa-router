@@ -1,5 +1,5 @@
 /**
- * Router test
+ * Router tests
  */
 
 var fs = require('fs');

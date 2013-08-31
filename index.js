@@ -12,6 +12,7 @@
 var co = require('co');
 var methods = require('methods');
 var Route = require('./route');
+var Resource = require('./resource');
 var parse = require('url').parse;
 
 /**
@@ -34,14 +35,24 @@ function Router(app) {
   app.map = router.route;
   // Alias methods for `router.route`
   methods.forEach(function(method) {
-    app[method] = function(pattern, callback) {
-      app.map([method.toUpperCase()], pattern, callback);
+    app[method] = function() {
+      var args = Array.prototype.slice.call(arguments);
+      args.unshift([method.toUpperCase()]);
+      app.map.apply(app, args);
     };
   });
+  // `Resource` factory
+  app.resource = function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.push(this);
+    var resource = Object.create(Resource.prototype);
+    Resource.apply(resource, args);
+    return resource;
+  };
 };
 
 /**
- * Router middleware. Dispatches route callback corresponding to the request.
+ * Router middleware. Dispatches route callbacks corresponding to the request.
  *
  * @param {Application} app
  * @return {Function}
@@ -54,16 +65,27 @@ Router.middleware = function(app) {
   // Return middleware
   return function(next) {
     return function *() {
-      // Find matching route and dispatch it
+      // Find matching route
+      var route;
       var routes = app.routes[this.req.method];
       for (var len = routes.length, i=0; i<len; i++) {
-        var route = routes[i];
-        if (route.match(this.req.method, parse(this.req.url).path)) {
-          app.context({params: route.params});
-          return yield route.callback.apply(this, route.paramsArray.concat([next]));
+        if (routes[i].match(this.req.method, parse(this.req.url).path)) {
+          route = routes[i];
         }
       }
-      yield next;
+      // Dispatch route callbacks
+      if (route) {
+        app.context({ route: route, params: route.params });
+        for (var len = route.callbacks.length, i=0; i<len; i++) {
+          yield route.callbacks[i].apply(
+            this,
+            route.paramsArray.concat([next])
+          );
+        }
+      }
+      else {
+        yield next;
+      }
     };
   };
 };
@@ -102,13 +124,16 @@ router.match = function(method, path) {
  *
  * @param {Array} methods Array of HTTP methods/verbs
  * @param {String} pattern
- * @param {Function} callback
+ * @param {Function} callbacks
  * @return {Route}
  * @api public
  */
 
-router.route = function(methods, pattern, callback) {
-  var route = new Route(methods, pattern, callback);
+router.route = function(methods, pattern, callbacks) {
+  if (arguments.length > 3) {
+    callbacks = Array.prototype.slice.call(arguments, 2);
+  }
+  var route = new Route(methods, pattern, callbacks);
   for (var len = methods.length, i=0; i<len; i++) {
     this.routes[methods[i]].push(route);
   }

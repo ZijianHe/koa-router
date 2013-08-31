@@ -1,5 +1,5 @@
 /**
- * Route test
+ * Route tests
  */
 
 var request = require('supertest');
@@ -47,6 +47,27 @@ describe('Route', function() {
     .expect(204)
     .end(function(err) {
       if (err) return done(err);
+    });
+  });
+
+  it('should support multiple callbacks', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get(
+      '/:category/:title',
+      function *(category, title) {
+        this.status = 500;
+      },
+      function *(category, title) {
+        this.status = 204
+      }
+    );
+    request(http.createServer(app.callback()))
+    .get('/match/this')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
     });
   });
 });

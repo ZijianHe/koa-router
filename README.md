@@ -2,6 +2,13 @@
 
 RESTful resource routing for [koa](https://github.com/koajs/koa).
 
+## Features
+
+* REST routing using `app.get`, `app.post`, etc.
+* Rails-like resource routing, with nested resources.
+* Named parameters.
+* Multiple route callbacks.
+
 ## Install
 
 koa-router is available using [npm](https://npmjs.org):
@@ -42,6 +49,74 @@ You can map routes to multiple HTTP methods using `app.map`:
     app.map(['GET', 'POST', '/come/get/some', function *(next) {
       this.body = 'Here it is!';
     });
+
+### Resource routing
+
+Resource routing is provided by the `app.resource()` method. `app.resource()`
+registers routes for corresponding controller actions, and returns a
+`Resource` object that can be used to further nest resources.
+
+    var app    = require('koa')()
+      , router = require('koa-router')(app);
+    
+    app.use(router);
+    
+    app.resource('users', require('./user'));
+
+#### Action mapping
+
+Actions are then mapped accordingly:
+
+    GET     /users             ->  index
+    GET     /users/new         ->  new
+    POST    /users             ->  create
+    GET     /users/:user       ->  show
+    GET     /users/:user/edit  ->  edit
+    PUT     /users/:user       ->  update
+    DELETE  /users/:user       ->  destroy
+
+#### Top-level resource
+
+Omit the resource name to specify a top-level resource:
+
+    app.resource(require('./frontpage'));
+
+Top-level controller actions are mapped as follows:
+
+    GET     /          ->  index
+    GET     /new       ->  new
+    POST    /          ->  create
+    GET     /:id       ->  show
+    GET     /:id/edit  ->  edit
+    PUT     /:id       ->  update
+    DELETE  /:id       ->  destroy
+
+#### Auto-loading
+
+Requested resources can be automatically loaded by specifying the `load` action
+on your controller:
+
+    var actions = require('./user');
+    
+    actions.load = function(req, id, done) {
+      done(null, users[id]);
+    };
+    
+    app.resource('users', actions);
+
+The `req.user` object will then be available to the controller actions
+automatically. You can also pass the load method as an option:
+
+    app.resource('users', require('./user'), { load: User.load });
+
+#### Nesting
+
+Resources can be nested using `resource.add()`:
+
+    var forums = app.resource('forums', require('./forum'), { load: Forum.findOne });
+    var theads = app.resource('threads', require('./threads'), { load: Thread.findOne });
+    
+    forums.add(threads);
 
 ## Tests
 

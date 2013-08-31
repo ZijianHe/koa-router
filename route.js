@@ -1,22 +1,23 @@
 /**
- * Create new Route with given `methods`, `pattern`, and `callback`.
+ * Initialize a new Route with given `methods`, `pattern`, and `callbacks`.
  *
  * @param {String} method
  * @param {String} pattern
- * @param {Function} callback
+ * @param {Function} callbacks
  * @return {Route}
  * @api public
  */
 
-function Route(methods, pattern, callback) {
+function Route(methods, pattern, callbacks) {
   if (typeof methods === 'string') methods = [methods];
+  if (typeof callbacks === 'function') callbacks = [callbacks];
   this.methods = methods;
   this.pattern = pattern;
   this.regexp = patternToRegExp(pattern);
   this.paramsArray = [];
   this.paramNames = patternToParamNames(pattern);
   this.params = {};
-  this.callback = callback;
+  this.callbacks = callbacks;
 };
 
 /**
@@ -68,8 +69,9 @@ route.match = function(method, path) {
 
 function patternToRegExp(pattern) {
   pattern = pattern
-    .replace(/\//g, '\\/')
-    .replace(/:\w+/g, '([^\/]+)');
+    .replace(/\//g, '\\/') // Escape slashes.
+    .replace(/:\w+/g, '([^\/]+)') // Replace patterns with capture groups.
+    .replace(/^(.+)\/$/, '$1\/?'); // Make trailing slashes optional.
   return new RegExp('^' + pattern + '$', 'i');
 };
 
