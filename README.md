@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router)
 
-* REST routing using `app.get`, `app.post`, etc.
+* REST routing using `app.get`, `app.put`, `app.post`, etc.
 * Rails-like resource routing, with nested resources.
 * Named parameters.
 * Multiple route callbacks.
@@ -11,44 +11,67 @@
 
 koa-router is available using [npm](https://npmjs.org):
 
-    npm install koa-router
+    npm install --global koa-router
 
 ## Usage
 
 First, require the middleware and mount it:
 
-    var koa = require('koa');
-    var router = require('koa-router');
+    var koa = require('koa')
+      , router = require('koa-router')
+      , app = koa();
     
-    var app = koa();
     app.use(router(app));
     
-
-### Map specific routes
-
-You can map specific routes using methods corresponding to the HTTP verb, such as `app.get` or `app.post`.
-
-    app.get('/', function *(next) {
-      this.body = 'Hello world!';
+    app.get('/users/:id', function *(id) {
+      var user = yield User.findOne(id);
+      this.body = user;
     });
 
-### Named parameters
+### app.verb(path, callback, [callback...])
 
-Named route parameters are captured and passed as arguments to the route callback. They are also available in the app context using `this.params`.
+`app.verb()` methods are created for the app used to create the router,
+where **verb** is one of the HTTP verbs, such as `app.get()` or `app.post()`.
+
+Multiple callbacks may be given, and each one will be called sequentially.
+This allows you to modify the context or route parameters for subsequent
+callbacks.
+
+Route paths will be translated to regular expressions used to match requests.
+Query strings will not be considered when matching requests.
+
+##### Named parameters
+
+Named route parameters are captured and passed as arguments to the route callback.
+They are also available in the app context using `this.params`.
 
     app.get('/:category/:title', function *(category, title, next) {
       console.log(this.params);
-      // { category: 'programming', title: 'How to Node' }
-      console.log(this.paramsArray);
-      // [ 'category', 'title' ]
+      // => { category: 'programming', title: 'how-to-node' }
     });
 
-### Multiple methods
+##### Regular expressions
 
-You can map routes to multiple HTTP methods using `app.map`:
+Control route matching exactly by specifying a regular expression instead of
+a path string when creating the route. For example, it might be useful to match
+date formats for a blog, such as `/blog/2013-09-04`:
 
-    app.map(['GET', 'POST', '/come/get/some', function *(next) {
-      this.body = 'Here it is!';
+    app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
+      // ...
+    });
+
+##### Multiple methods
+
+You can map routes to multiple HTTP methods using `app.map()`:
+
+    app.map(['GET', 'POST'], '/', function *(next) {
+      // ...
+    });
+
+You can map to all methods use `app.all()`:
+
+    app.all('/', function *(next) {
+      // ...
     });
 
 ### Resource routing
@@ -64,7 +87,7 @@ registers routes for corresponding controller actions, and returns a
     
     app.resource('users', require('./user'));
 
-#### Action mapping
+##### Action mapping
 
 Actions are then mapped accordingly:
 
@@ -76,7 +99,7 @@ Actions are then mapped accordingly:
     PUT     /users/:user       ->  update
     DELETE  /users/:user       ->  destroy
 
-#### Top-level resource
+##### Top-level resource
 
 Omit the resource name to specify a top-level resource:
 
@@ -92,7 +115,7 @@ Top-level controller actions are mapped as follows:
     PUT     /:id       ->  update
     DELETE  /:id       ->  destroy
 
-#### Auto-loading
+##### Auto-loading
 
 Automatically load requested resources by specifying the `load` action
 on your controller:
@@ -113,7 +136,7 @@ You can also pass the load method as an option:
 
     app.resource('users', require('./users'), { load: User.findOne });
 
-#### Nesting
+##### Nesting
 
 Resources can be nested using `resource.add()`:
 
