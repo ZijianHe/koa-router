@@ -104,7 +104,7 @@ resource.mapControllerAction = function(name, action) {
       route = app.put(base + ':' + id, load ? [load, action] : action);
       break;
     case 'destroy':
-      route = app.delete(base + ':' + id, load ? [load, action] : action);
+      route = app.del(base + ':' + id, load ? [load, action] : action);
       break;
   }
   if (route) this.routes.push(route);

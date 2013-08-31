@@ -37,9 +37,9 @@ describe('Resource', function() {
     var threads = app.resource('threads', { index: function *() {} });
     forums.add(threads);
     threads.base.should.equal('/forums/:forum/threads/');
-    should.exist(app.routes.GET[2]);
-    app.routes.GET[2].should.be.a('object');
-    app.routes.GET[2].should.have.property('pattern', '/forums/:forum/threads/');
+    should.exist(app.routes.GET[1]);
+    app.routes.GET[1].should.be.a('object');
+    app.routes.GET[1].should.have.property('pattern', '/forums/:forum/threads/');
     done();
   });
 

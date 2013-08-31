@@ -15,6 +15,11 @@ var Route = require('./route');
 var Resource = require('./resource');
 var parse = require('url').parse;
 
+// Transform methods to uppercase
+methods.forEach(function(method, i, arr) {
+  arr[i] = method.toUpperCase();
+});
+
 /**
  * Initialize Router with given `app`.
  *
@@ -29,18 +34,26 @@ function Router(app) {
   // Create container for routes
   this.routes = app.routes = {};
   for (var len = methods.length, i=0; i<len; i++) {
-    this.routes[methods[i].toUpperCase()] = [];
+    this.routes[methods[i]] = [];
   }
   // Expose `router.route` as `app.map`
   app.map = router.route;
   // Alias methods for `router.route`
   methods.forEach(function(method) {
-    app[method] = function() {
+    app[method.toLowerCase()] = function() {
       var args = Array.prototype.slice.call(arguments);
-      args.unshift([method.toUpperCase()]);
-      app.map.apply(app, args);
+      args.unshift([method]);
+      return app.map.apply(app, args);
     };
   });
+  // Alias `app.delete` as `app.del`
+  app.del = app['delete'];
+  // Register route with all methods
+  app.all = function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(methods);
+    return app.map.apply(app, args);
+  };
   // `Resource` factory
   app.resource = function() {
     var args = Array.prototype.slice.call(arguments);

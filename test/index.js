@@ -9,6 +9,7 @@ var router = require('..');
 var should = require('should');
 var koa = require('koa');
 var http = require('http');
+var methods = require('methods');
 
 describe('module', function() {
   it('should expose middleware', function(done) {
@@ -30,15 +31,31 @@ describe('Router', function() {
   it('should match corresponding requests', function(done) {
     var app = koa();
     app.use(router(app));
-    app.get('/match/this', function *(next) {
-      this.status = 204;
-      done();
+    methods.forEach(function(method) {
+      app.should.have.property(method.toLowerCase());
     });
-    request(http.createServer(app.callback()))
-    .get('/match/this')
+    app.get('/:category/:title', function *(category, title, next) {
+      category.should.equal('programming');
+      title.should.equal('how-to-node');
+      this.status = 204;
+    });
+    app.post('/:category', function *(category, next) {
+      category.should.equal('programming');
+      this.status = 204;
+    });
+    var server = http.createServer(app.callback());
+    request(server)
+    .get('/programming/how-to-node')
     .expect(204)
     .end(function(err, res) {
       if (err) return done(err);
+      request(server)
+      .post('/programming')
+      .expect(204)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
     });
   });
 
@@ -59,16 +76,30 @@ describe('Router', function() {
         });
       };
     };
-    app.get('/match/this', function *(next) {
+    app.get('/', function *(next) {
       var version = yield readVersion();
       this.status = 204;
       return yield next;
     });
     request(http.createServer(app.callback()))
-    .get('/match/this')
+    .get('/')
     .expect(204)
     .end(function(err, res) {
       if (err) return done(err);
     });
+  });
+
+  it('should provide `app.all()` to route all methods', function(done) {
+    var app = koa();
+    app.use(router(app));
+    var route = app.all('/', function *(next) {
+      this.status = 204;
+    });
+    methods.forEach(function(method) {
+      method = method.toUpperCase();
+      app.routes.should.have.property(method);
+      app.routes[method].should.include(route);
+    });
+    done();
   });
 });
