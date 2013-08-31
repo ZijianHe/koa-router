@@ -1,21 +1,21 @@
 /**
  * Initialize a new Route with given `methods`, `pattern`, and `callbacks`.
  *
- * @param {String} method
- * @param {String} pattern
- * @param {Function} callbacks
+ * @param {Mixed} method HTTP verb string or array of verbs.
+ * @param {Mixed} pattern Path string or regular expression.
+ * @param {Mixed} callbacks Route callback function or array of functions.
  * @return {Route}
  * @api public
  */
 
 function Route(methods, pattern, callbacks) {
-  if (typeof methods === 'string') methods = [methods];
-  if (typeof callbacks === 'function') callbacks = [callbacks];
+  if (typeof methods == 'string') methods = [methods];
+  if (typeof callbacks == 'function') callbacks = [callbacks];
   this.methods = methods;
-  this.pattern = pattern;
+  this.pattern = pattern instanceof RegExp ? pattern.source : pattern;
   this.regexp = Route.patternToRegExp(pattern);
   this.paramsArray = [];
-  this.paramNames = Route.patternToParamNames(pattern);
+  this.paramNames = Route.patternToParamNames(this.pattern);
   this.params = {};
   this.callbacks = callbacks;
 };
@@ -87,6 +87,7 @@ Route.patternToParamNames = function(pattern) {
  */
 
 Route.patternToRegExp = function(pattern) {
+  if (pattern instanceof RegExp) return pattern;
   pattern = pattern
     .replace(/\//g, '\\/') // Escape slashes.
     .replace(/:\w+/g, '([^\/]+)') // Replace patterns with capture groups.

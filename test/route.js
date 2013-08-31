@@ -50,6 +50,21 @@ describe('Route', function() {
     });
   });
 
+  it('should support regular expression route paths', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/blog/2013-04-20')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
   it('should support multiple callbacks', function(done) {
     var app = koa();
     app.use(router(app));
