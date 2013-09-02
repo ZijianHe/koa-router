@@ -74,13 +74,7 @@ Router.middleware = function(app) {
   return function(next) {
     return function *() {
       // Find matching route
-      var route;
-      var routes = app.routes[this.req.method.toLowerCase()];
-      for (var len = routes.length, i=0; i<len; i++) {
-        if (routes[i].match(this.req.method, parse(this.req.url).path)) {
-          route = routes[i];
-        }
-      }
+      var route = app.router.match(this.req.method, parse(this.req.url).path);
       // Dispatch route callbacks
       if (route) {
         app.context({ route: route, params: route.params });
@@ -120,12 +114,11 @@ var router = Router.prototype;
  */
 
 router.match = function(method, path) {
-  var routes = this.routes[method];
+  var routes = this.routes[method.toLowerCase()];
   for (var len = routes.length, i=0; i<len; i++) {
     if (routes[i].match(method, path)) return routes[i];
   }
 };
-
 
 /**
  * Route given `callbacks` to request `method` and path `pattern` combination.
