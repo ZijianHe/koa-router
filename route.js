@@ -1,4 +1,10 @@
 /**
+ * Dependencies
+ */
+
+var pathToRegexp = require('path-to-regexp');
+
+/**
  * Initialize a new Route with given `methods`, `pattern`, and `callbacks`.
  *
  * @param {Mixed} method HTTP verb string or array of verbs.
@@ -15,11 +21,17 @@ function Route(methods, pattern, callbacks) {
   for (var len = methods.length, i=0; i<len; i++) {
     this.methods.push(methods[i].toUpperCase());
   }
-  this.pattern = pattern instanceof RegExp ? pattern.source : pattern;
-  this.regexp = Route.patternToRegExp(pattern);
+  this.paramNames = [];
   this.paramsArray = [];
-  this.paramNames = Route.patternToParamNames(this.pattern);
   this.params = {};
+  if (pattern instanceof RegExp) {
+    this.pattern = pattern.source;
+    this.regexp = pattern;
+  }
+  else {
+    this.pattern = pattern;
+    this.regexp = pathToRegexp(pattern, this.paramNames);
+  }
   this.callbacks = callbacks;
 };
 
@@ -54,46 +66,10 @@ route.match = function(method, path) {
     }
     for (var len = this.paramsArray.length, i=0; i<len; i++) {
       if (this.paramNames[i]) {
-        this.params[this.paramNames[i]] = this.paramsArray[i];
+        this.params[this.paramNames[i].name] = this.paramsArray[i];
       }
     }
     return true;
   }
   return false;
-};
-
-/**
- * Extract parameter names from given `pattern`
- *
- * @param {String} pattern
- * @return {Array}
- * @api private
- */
-
-Route.patternToParamNames = function(pattern) {
-  var params = [];
-  var matches = pattern.match(/(:\w+)/g);
-  if (matches && matches.length > 0) {
-    for (var len = matches.length, i=0; i<len; i++) {
-      params.push(matches[i].substr(1));
-    }
-  }
-  return params;
-};
-
-/**
- * Convert given `pattern` to regular expression.
- *
- * @param {String} pattern
- * @return {RegExp}
- * @api private
- */
-
-Route.patternToRegExp = function(pattern) {
-  if (pattern instanceof RegExp) return pattern;
-  pattern = pattern
-    .replace(/\//g, '\\/') // Escape slashes.
-    .replace(/:\w+/g, '([^\/]+)') // Replace patterns with capture groups.
-    .replace(/^(.+)\/$/, '$1\/?'); // Make trailing slashes optional.
-  return new RegExp('^' + pattern + '$', 'i');
 };

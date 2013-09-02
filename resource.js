@@ -4,6 +4,7 @@
 
 var Route = require('./route');
 var lingo = require('lingo');
+var pathToRegexp = require('path-to-regexp');
 
 /**
  * Initialize a new Resource using given `name` and `controller`.
@@ -69,9 +70,10 @@ resource.mapControllerAction = function(name, action) {
     // Auto-load resource and populate route params
     load = function *() {
       var next = Array.prototype.pop.call(arguments);
-      var params = Route.patternToParamNames(base + ':' + id);
+      var params = [];
+      pathToRegexp(base + ':' + id, params);
       for (var len = params.length, i=0; i<len; i++) {
-        var param = params[i], paramIdx = i;
+        var param = params[i].name, paramIdx = i;
         for (var len = app.resources.length, i=0; i<len; i++) {
           if (app.resources[i].id === param && app.resources[i].load) {
             this.route.paramsArray[paramIdx] = yield app.resources[i].load.apply(
