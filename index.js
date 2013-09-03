@@ -9,11 +9,10 @@
  * Dependencies
  */
 
-var co = require('co');
-var methods = require('methods');
-var Route = require('./route');
-var Resource = require('./resource');
-var parse = require('url').parse;
+var methods = require('methods')
+  , parse = require('url').parse
+  , Resource = require('./resource')
+  , Route = require('./route');
 
 /**
  * Initialize Router with given `app`.
@@ -24,6 +23,10 @@ var parse = require('url').parse;
  */
 
 function Router(app) {
+  if (!(this instanceof Router)) {
+    var router = new Router(app);
+    return router.middleware();
+  }
   app.router = this;
   this.app = app;
   // Create container for routes
@@ -32,7 +35,7 @@ function Router(app) {
     this.routes[methods[i]] = [];
   }
   // Expose `router.route` as `app.map`
-  app.map = router.route;
+  app.map = this.route;
   // Alias methods for `router.route`
   methods.forEach(function(method) {
     app[method] = function() {
@@ -60,24 +63,35 @@ function Router(app) {
 };
 
 /**
- * Router middleware. Dispatches route callbacks corresponding to the request.
+ * Expose `Router`
+ */
+
+module.exports = Router;
+
+/**
+ * Router prototype
+ */
+
+var router = Router.prototype;
+
+/**
+ * Router middleware factory. Returns router middleware which dispatches route
+ * callbacks corresponding to the request.
  *
- * @param {Application} app
+ * @param {Function} next
  * @return {Function}
  * @api public
  */
 
-Router.middleware = function(app) {
-  // Initialize Router
-  new Router(app);
-  // Return middleware
+router.middleware = function() {
+  var router = this;
   return function(next) {
     return function *() {
       // Find matching route
-      var route = app.router.match(this.req.method, parse(this.req.url).path);
+      var route = router.match(this.req.method, parse(this.req.url).path);
       // Dispatch route callbacks
       if (route) {
-        app.context({ route: route, params: route.params });
+        router.app.context({ route: route, params: route.params });
         for (var len = route.callbacks.length, i=0; i<len; i++) {
           yield route.callbacks[i].apply(
             this,
@@ -91,18 +105,6 @@ Router.middleware = function(app) {
     };
   };
 };
-
-/**
- * Expose `Router.middleware`
- */
-
-module.exports = Router.middleware;
-
-/**
- * Router prototype
- */
-
-var router = Router.prototype;
 
 /**
  * Match given `method` and `path` and return corresponding route.

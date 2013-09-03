@@ -5,17 +5,17 @@
 var fs = require('fs');
 var path = require('path');
 var request = require('supertest');
-var router = require('..');
+var Router = require('..');
 var should = require('should');
 var koa = require('koa');
 var http = require('http');
 var methods = require('methods');
 
 describe('module', function() {
-  it('should expose middleware', function(done) {
+  it('should expose Router', function(done) {
     var app = koa();
-    should.exist(router);
-    router.should.be.a('function');
+    should.exist(Router);
+    Router.should.be.a('function');
     done();
   });
 });
@@ -23,14 +23,26 @@ describe('module', function() {
 describe('Router', function() {
   it('should create new router with koa app', function(done) {
     var app = koa();
-    var middleware = router(app);
+    Router.should.be.a('function');
+    var router = new Router(app);
+    router.should.be.instanceOf(Router);
+    done();
+  });
+
+  it('should expose middleware factory', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    router.should.have.property('middleware');
+    router.middleware.should.be.a('function');
+    var middleware = router.middleware();
+    should.exist(middleware);
     middleware.should.be.a('function');
     done();
   });
 
   it('should match corresponding requests', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     methods.forEach(function(method) {
       app.should.have.property(method);
     });
@@ -61,7 +73,7 @@ describe('Router', function() {
 
   it('should support generators', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.use(function(next) {
       return function *() {
         done();
@@ -91,7 +103,7 @@ describe('Router', function() {
 
   it('should provide `app.all()` to route all methods', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     var route = app.all('/', function *(next) {
       this.status = 204;
     });

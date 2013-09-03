@@ -15,18 +15,28 @@ koa-router is available using [npm](https://npmjs.org):
 
 ## Usage
 
-First, require the middleware and mount it:
+Require the router and mount the middleware:
 
     var koa = require('koa')
       , router = require('koa-router')
       , app = koa();
     
     app.use(router(app));
-    
+
+After the router has been initialized, you can register routes or resources:
+
     app.get('/users/:id', function *(id) {
       var user = yield User.findOne(id);
       this.body = user;
     });
+    
+    app.resource('forums', require('./controllers/forums'));
+
+You may also instantiate the router separately from mounting the middleware:
+
+    var router = new Router(app);
+    
+    app.use(router.middleware());
 
 ### app.verb(path, callback, [callback...])
 
