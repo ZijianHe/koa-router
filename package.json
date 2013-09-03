@@ -6,7 +6,7 @@
     "url": "https://github.com/alexmingoia/koa-router.git"
   },
   "author": "Alex Mingoia <talk@alexmingoia.com>",
-  "version": "1.3.3",
+  "version": "1.4.3",
   "keywords": ["koa", "middleware", "router", "route"],
   "dependencies": {
     "lingo": "0.0.5",
