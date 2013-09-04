@@ -6,6 +6,7 @@
 * Rails-like resource routing, with nested resources.
 * Named parameters.
 * Multiple route callbacks.
+* Multiple routers.
 
 ## Install
 
@@ -32,23 +33,50 @@ After the router has been initialized, you can register routes or resources:
     
     app.resource('forums', require('./controllers/forums'));
 
-You may also instantiate the router separately from mounting the middleware:
+You can use multiple routers and sets of routes by omitting the `app`
+argument. For example, separate routers for two versions of an API:
 
-    var router = new Router(app);
+    var APIv1 = new Router();
+    var APIv2 = new Router();
     
-    app.use(router.middleware());
+    APIv1.get('/sign-in', function *() {
+      // ...
+    });
+    
+    APIv2.get('/sign-in', function *() {
+      // ...
+    });
+    
+    app.use(mount('/v1', APIv1.middleware()));
+    app.use(mount('/v2', APIv2.middleware()));
 
 ### app.verb(path, callback, [callback...])
 
-`app.verb()` methods are created for the app used to create the router,
-where **verb** is one of the HTTP verbs, such as `app.get()` or `app.post()`.
+`app.verb()` methods are provided to create routes, where **verb** is one of
+the HTTP verbs, such as `app.get()` or `app.post()`.
 
-Multiple callbacks may be given, and each one will be called sequentially.
-This allows you to modify the context or route parameters for subsequent
-callbacks.
+    app.get('/', function *(next) {
+      // ...
+    });
 
 Route paths will be translated to regular expressions used to match requests.
 Query strings will not be considered when matching requests.
+
+Multiple callbacks may be given, and each one will be called sequentially.
+
+    app.get(
+      '/users/:id',
+      function *(id) {
+        user = yield User.findOne(id);
+        return [user];
+      }, function *(user) {
+        console.log(user);
+        // => { id: 17, name: "Alex" }
+      }
+    );
+
+You can modify the route parameters for subsequent callbacks by returning an
+array of arguments to apply, as shown in the example above.
 
 ##### Named parameters
 
@@ -84,7 +112,20 @@ You can map to all methods use `app.all()`:
       // ...
     });
 
-### Resource routing
+### app.redirect(path, destination, [code])
+
+Redirect `path` to `destination` URL with optional 30x status `code`.
+
+    app.redirect('/login', 'sign-in');
+
+This is equivalent to:
+
+    app.all('/login', function *() {
+      this.redirect('/sign-in');
+      this.status = 301;
+    });
+
+### app.resource(path, actions)
 
 Resource routing is provided by the `app.resource()` method. `app.resource()`
 registers routes for corresponding controller actions, and returns a
