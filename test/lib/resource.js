@@ -2,16 +2,16 @@
  * Resource tests
  */
 
-var request = require('supertest');
-var router = require('..');
-var should = require('should');
-var koa = require('koa');
-var http = require('http');
+var koa = require('koa')
+  , http = require('http')
+  , request = require('supertest')
+  , Router = require('../../lib/router')
+  , should = require('should');
 
 describe('Resource', function() {
   it('should be exposed using `app.resource()`', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.should.have.property('resource');
     app.resource.should.be.a('function');
     done();
@@ -19,7 +19,7 @@ describe('Resource', function() {
 
   it('should create new resource', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     var resource = app.resource('forums', {
       index: function *() {},
       show: function *() {}
@@ -32,20 +32,21 @@ describe('Resource', function() {
 
   it('should nest resources', function(done) {
     var app = koa();
-    app.use(router(app));
+    var router = new Router(app);
+    app.use(router.middleware());
     var forums = app.resource('forums', { index: function *() {} });
     var threads = app.resource('threads', { index: function *() {} });
     forums.add(threads);
     threads.base.should.equal('/forums/:forum/threads/');
-    should.exist(app.routes.get[1]);
-    app.routes.get[1].should.be.a('object');
-    app.routes.get[1].should.have.property('pattern', '/forums/:forum/threads/');
+    should.exist(router.routes.get[1]);
+    router.routes.get[1].should.be.a('object');
+    router.routes.get[1].should.have.property('path', '/forums/:forum/threads/');
     done();
   });
 
   it('should auto-load resources', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.use(function(next) {
       return function *() {
         done();

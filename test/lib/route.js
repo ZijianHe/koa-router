@@ -2,11 +2,11 @@
  * Route tests
  */
 
-var request = require('supertest');
-var router = require('..');
-var should = require('should');
-var koa = require('koa');
-var http = require('http');
+var koa = require('koa')
+  , http = require('http')
+  , request = require('supertest')
+  , router = require('../../lib/router')
+  , should = require('should');
 
 describe('Route', function() {
   it('should execute callbacks using `app.context`', function(done) {
@@ -78,11 +78,35 @@ describe('Route', function() {
       }
     );
     request(http.createServer(app.callback()))
-    .get('/match/this')
+    .get('/programming/how-to-node')
     .expect(204)
     .end(function(err) {
       if (err) return done(err);
       done();
+    });
+  });
+
+  it('should support modifying arguments for next callback', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get(
+      '/:category/:title',
+      function *(category, title) {
+        should.exist(title);
+        title.should.equal('how-to-node');
+        title = 'how-to-node-vol2';
+        return [category, title];
+      },
+      function *(category, title) {
+        should.exist(title);
+        title.should.equal('how-to-node-vol2');
+        done();
+      }
+    );
+    request(http.createServer(app.callback()))
+    .get('/programming/how-to-node')
+    .end(function(err) {
+      if (err) return done(err);
     });
   });
 });
