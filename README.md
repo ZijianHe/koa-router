@@ -52,17 +52,17 @@ argument. For example, separate routers for two versions of an API:
 
 ### app.verb(path, callback, [callback...])
 
-`app.verb()` methods are provided to create routes, where **verb** is one of
-the HTTP verbs, such as `app.get()` or `app.post()`.
+Match URL patterns to callback functions or controller actions using `app.verb()`,
+where **verb** is one of the HTTP verbs such as `app.get()` or `app.post()`.
 
     app.get('/', function *(next) {
-      // ...
+      this.body = 'Hello World!';
     });
 
 Route paths will be translated to regular expressions used to match requests.
 Query strings will not be considered when matching requests.
 
-Multiple callbacks may be given, and each one will be called sequentially.
+Multiple callbacks may be given, and each one will be called sequentially:
 
     app.get(
       '/users/:id',
@@ -78,7 +78,7 @@ Multiple callbacks may be given, and each one will be called sequentially.
 You can modify the route parameters for subsequent callbacks by returning an
 array of arguments to apply, as shown in the example above.
 
-##### Named parameters
+#### Named parameters
 
 Named route parameters are captured and passed as arguments to the route callback.
 They are also available in the app context using `this.params`.
@@ -88,7 +88,7 @@ They are also available in the app context using `this.params`.
       // => { category: 'programming', title: 'how-to-node' }
     });
 
-##### Regular expressions
+#### Regular expressions
 
 Control route matching exactly by specifying a regular expression instead of
 a path string when creating the route. For example, it might be useful to match
@@ -98,7 +98,7 @@ date formats for a blog, such as `/blog/2013-09-04`:
       // ...
     });
 
-##### Multiple methods
+#### Multiple methods
 
 You can map routes to multiple HTTP methods using `app.map()`:
 
@@ -110,19 +110,6 @@ You can map to all methods use `app.all()`:
 
     app.all('/', function *(next) {
       // ...
-    });
-
-### app.redirect(path, destination, [code])
-
-Redirect `path` to `destination` URL with optional 30x status `code`.
-
-    app.redirect('/login', 'sign-in');
-
-This is equivalent to:
-
-    app.all('/login', function *() {
-      this.redirect('/sign-in');
-      this.status = 301;
     });
 
 ### app.resource(path, actions)
@@ -138,7 +125,7 @@ registers routes for corresponding controller actions, and returns a
     
     app.resource('users', require('./user'));
 
-##### Action mapping
+#### Action mapping
 
 Actions are then mapped accordingly:
 
@@ -150,7 +137,7 @@ Actions are then mapped accordingly:
     PUT     /users/:user       ->  update
     DELETE  /users/:user       ->  destroy
 
-##### Top-level resource
+#### Top-level resource
 
 Omit the resource name to specify a top-level resource:
 
@@ -166,7 +153,7 @@ Top-level controller actions are mapped as follows:
     PUT     /:id       ->  update
     DELETE  /:id       ->  destroy
 
-##### Auto-loading
+#### Auto-loading
 
 Automatically load requested resources by specifying the `load` action
 on your controller:
@@ -187,7 +174,7 @@ You can also pass the load method as an option:
 
     app.resource('users', require('./users'), { load: User.findOne });
 
-##### Nesting
+#### Nesting
 
 Resources can be nested using `resource.add()`:
 
@@ -195,6 +182,19 @@ Resources can be nested using `resource.add()`:
     var theads = app.resource('threads', require('./threads'), { load: Thread.findOne });
     
     forums.add(threads);
+
+### app.redirect(path, destination, [code])
+
+Redirect `path` to `destination` URL with optional 30x status `code`.
+
+    app.redirect('/login', 'sign-in');
+
+This is equivalent to:
+
+    app.all('/login', function *() {
+      this.redirect('/sign-in');
+      this.status = 301;
+    });
 
 ## Tests
 
