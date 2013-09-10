@@ -1,6 +1,7 @@
 # Router middleware for [koa](https://github.com/koajs/koa)
 
-[![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router)
+[![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router) 
+[![Dependency Status](https://david-dm.org/alexmingoia/koa-router.png)](http://david-dm.org/alexmingoia/koa-router)
 
 * REST routing using `app.get`, `app.put`, `app.post`, etc.
 * Rails-like resource routing, with nested resources.
