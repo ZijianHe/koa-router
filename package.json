@@ -9,13 +9,12 @@
   "version": "1.5.5",
   "keywords": ["koa", "middleware", "router", "route"],
   "dependencies": {
-    "extend": "1.2.0",
     "lingo": "0.0.5",
     "methods": "0.0.1",
     "path-to-regexp": "0.0.2"
   },
   "devDependencies": {
-    "koa": "0.0.1",
+    "koa": "0.0.2",
     "mocha": "1.12.0",
     "should": "1.2.2",
     "supertest": "0.7.1"
