@@ -49,32 +49,4 @@ describe('Resource', function() {
     router.routes.get[1].should.have.property('path', '/forums/:forum/threads');
     done();
   });
-
-  it('should auto-load resources', function(done) {
-    var app = koa();
-    app.use(Router(app));
-    app.use(function(next) {
-      return function *() {
-        done();
-      };
-    });
-    var resource = app.resource('forums', {
-      index: function *(forum) {},
-      show: function *(forum, next) {
-        forum.should.be.a('string');
-        forum.should.equal('lounge-loaded');
-        this.status = 204;
-        yield next;
-      },
-      load: function *(forum, next) {
-        return forum + '-loaded';
-      }
-    });
-    request(http.createServer(app.callback()))
-    .get('/forums/lounge')
-    .expect(204)
-    .end(function(err, res) {
-      if (err) return done(err);
-    });
-  });
 });

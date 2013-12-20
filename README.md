@@ -6,7 +6,7 @@
 * REST routing using `app.get`, `app.put`, `app.post`, etc.
 * Rails-like resource routing, with nested resources.
 * Named parameters.
-* Multiple route callbacks.
+* Multiple route middleware.
 * Multiple routers.
 
 ## Install
@@ -32,8 +32,8 @@ app.use(router(app));
 After the router has been initialized, you can register routes or resources:
 
 ```javascript
-app.get('/users/:id', function *(id) {
-  var user = yield User.findOne(id);
+app.get('/users/:id', function *(next) {
+  var user = yield User.findOne(this.query.id);
   this.body = user;
 });
 
@@ -59,7 +59,7 @@ app.use(mount('/v1', APIv1.middleware()));
 app.use(mount('/v2', APIv2.middleware()));
 ```
 
-### app.verb(path, callback, [callback...])
+### app.verb(path, middleware, [middleware...])
 
 Match URL patterns to callback functions or controller actions using `app.verb()`,
 where **verb** is one of the HTTP verbs such as `app.get()` or `app.post()`.
@@ -73,31 +73,30 @@ app.get('/', function *(next) {
 Route paths will be translated to regular expressions used to match requests.
 Query strings will not be considered when matching requests.
 
-Multiple callbacks may be given, and each one will be called sequentially:
+### Multiple route callbacks / middleware
+
+Multiple middleware may be given:
 
 ```javascript
 app.get(
   '/users/:id',
-  function *(id) {
-    user = yield User.findOne(id);
-    return [user];
-  }, function *(user) {
-    console.log(user);
+  function *(next) {
+    this.user = yield User.findOne(id);
+    yield next;
+  },
+  function *(next) {
+    console.log(this.user);
     // => { id: 17, name: "Alex" }
   }
 );
 ```
 
-You can modify the route parameters for subsequent callbacks by returning an
-array of arguments to apply, as shown in the example above.
-
 #### Named parameters
 
-Named route parameters are captured and passed as arguments to the route callback.
-They are also available in the app context using `this.params`.
+Named route parameters are captured and added to `ctx.params`.
 
 ```javascript
-app.get('/:category/:title', function *(category, title, next) {
+app.get('/:category/:title', function *(next) {
   console.log(this.params);
   // => { category: 'programming', title: 'how-to-node' }
 });
@@ -182,38 +181,13 @@ PUT     /:id       ->  update
 DELETE  /:id       ->  destroy
 ```
 
-#### Auto-loading
-
-Automatically load requested resources by specifying the `load` action
-on your controller:
-
-```javascript
-var actions = {
-  show: function *(user) {
-    this.body = user;
-  },
-  load: function *(id) {
-    return users[id];
-  }
-};
-
-app.resource('users', actions);
-```
-
-The `user` object will then be available to the relevant controller actions.
-You can also pass the load method as an option:
-
-```javascript
-app.resource('users', require('./users'), { load: User.findOne });
-```
-
 #### Nesting
 
 Resources can be nested using `resource.add()`:
 
 ```javascript
-var forums = app.resource('forums', require('./forum'), { load: Forum.findOne });
-var theads = app.resource('threads', require('./threads'), { load: Thread.findOne });
+var forums = app.resource('forums', require('./forum'));
+var theads = app.resource('threads', require('./threads'));
 
 forums.add(threads);
 ```

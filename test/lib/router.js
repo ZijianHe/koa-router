@@ -33,13 +33,15 @@ describe('Router', function() {
   it('should match corresponding requests', function(done) {
     var app = koa();
     app.use(Router(app));
-    app.get('/:category/:title', function *(category, title, next) {
-      category.should.equal('programming');
-      title.should.equal('how-to-node');
+    app.get('/:category/:title', function *(next) {
+      this.should.have.property('params');
+      this.params.should.have.property('category', 'programming');
+      this.params.should.have.property('title', 'how-to-node');
       this.status = 204;
     });
-    app.post('/:category', function *(category, next) {
-      category.should.equal('programming');
+    app.post('/:category', function *(next) {
+      this.should.have.property('params');
+      this.params.should.have.property('category', 'programming');
       this.status = 204;
     });
     var server = http.createServer(app.callback());

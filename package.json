@@ -17,7 +17,8 @@
     "lingo": "0.0.5",
     "methods": "0.0.1",
     "path-to-regexp": "0.0.2",
-    "debug": "~0.7.4"
+    "debug": "~0.7.4",
+    "koa-compose": "~2.0.0"
   },
   "devDependencies": {
     "koa": "0.0.2",

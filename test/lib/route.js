@@ -9,10 +9,10 @@ var koa = require('koa')
   , should = require('should');
 
 describe('Route', function() {
-  it('should execute callbacks using `app.context`', function(done) {
+  it('executes route middleware using `app.context`', function(done) {
     var app = koa();
     app.use(router(app));
-    app.get('/:category/:title', function *(category, title) {
+    app.get('/:category/:title', function *(next) {
       this.should.have.property('app');
       this.should.have.property('req');
       this.should.have.property('res');
@@ -27,14 +27,10 @@ describe('Route', function() {
     });
   });
 
-  it('should capture URL path parameters', function(done) {
+  it('captures URL path parameters', function(done) {
     var app = koa();
     app.use(router(app));
-    app.get('/:category/:title', function *(category, title) {
-      category.should.be.a('string');
-      title.should.be.a('string');
-      category.should.equal('match');
-      title.should.equal('this');
+    app.get('/:category/:title', function *(next) {
       this.should.have.property('params');
       this.params.should.be.a('object');
       this.params.should.have.property('category', 'match');
@@ -50,7 +46,7 @@ describe('Route', function() {
     });
   });
 
-  it('should support regular expression route paths', function(done) {
+  it('supports regular expression route paths', function(done) {
     var app = koa();
     app.use(router(app));
     app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
@@ -65,15 +61,16 @@ describe('Route', function() {
     });
   });
 
-  it('should support multiple callbacks', function(done) {
+  it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
     app.use(router(app));
     app.get(
       '/:category/:title',
-      function *(category, title) {
+      function *(next) {
         this.status = 500;
+        yield next;
       },
-      function *(category, title) {
+      function *(next) {
         this.status = 204
       }
     );
@@ -83,30 +80,6 @@ describe('Route', function() {
     .end(function(err) {
       if (err) return done(err);
       done();
-    });
-  });
-
-  it('should support modifying arguments for next callback', function(done) {
-    var app = koa();
-    app.use(router(app));
-    app.get(
-      '/:category/:title',
-      function *(category, title) {
-        should.exist(title);
-        title.should.equal('how-to-node');
-        title = 'how-to-node-vol2';
-        return [category, title];
-      },
-      function *(category, title) {
-        should.exist(title);
-        title.should.equal('how-to-node-vol2');
-        done();
-      }
-    );
-    request(http.createServer(app.callback()))
-    .get('/programming/how-to-node')
-    .end(function(err) {
-      if (err) return done(err);
     });
   });
 });
