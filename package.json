@@ -6,7 +6,7 @@
     "url": "https://github.com/alexmingoia/koa-router.git"
   },
   "author": "Alex Mingoia <talk@alexmingoia.com>",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "keywords": [
     "koa",
     "middleware",
