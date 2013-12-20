@@ -2,6 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router) 
 [![Dependency Status](https://david-dm.org/alexmingoia/koa-router.png)](http://david-dm.org/alexmingoia/koa-router)
+[![NPM version](https://badge.fury.io/js/koa-router.png)](http://badge.fury.io/js/koa-router)
 
 * REST routing using `app.get`, `app.put`, `app.post`, etc.
 * Rails-like resource routing, with nested resources.
@@ -33,7 +34,7 @@ After the router has been initialized, you can register routes or resources:
 
 ```javascript
 app.get('/users/:id', function *(next) {
-  var user = yield User.findOne(this.query.id);
+  var user = yield User.findOne(this.params.id);
   this.body = user;
 });
 
