@@ -15,7 +15,7 @@
 koa-router is available using [npm](https://npmjs.org):
 
 ```
-npm install --global koa-router
+npm install koa-router
 ```
 
 ## Usage
@@ -82,7 +82,7 @@ Multiple middleware may be given:
 app.get(
   '/users/:id',
   function *(next) {
-    this.user = yield User.findOne(id);
+    this.user = yield User.findOne(this.params.id);
     yield next;
   },
   function *(next) {
