@@ -7,11 +7,17 @@
   },
   "author": "Alex Mingoia <talk@alexmingoia.com>",
   "version": "1.6.1",
-  "keywords": ["koa", "middleware", "router", "route"],
+  "keywords": [
+    "koa",
+    "middleware",
+    "router",
+    "route"
+  ],
   "dependencies": {
     "lingo": "0.0.5",
     "methods": "0.0.1",
-    "path-to-regexp": "0.0.2"
+    "path-to-regexp": "0.0.2",
+    "debug": "~0.7.4"
   },
   "devDependencies": {
     "koa": "0.0.2",
