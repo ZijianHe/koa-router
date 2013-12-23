@@ -15,10 +15,10 @@
   ],
   "dependencies": {
     "lingo": "0.0.5",
-    "methods": "0.0.1",
+    "methods": "0.1.0",
     "path-to-regexp": "0.0.2",
     "debug": "~0.7.4",
-    "koa-compose": "~2.0.0"
+    "koa-compose": "~2.1.0"
   },
   "devDependencies": {
     "koa": "0.0.2",
