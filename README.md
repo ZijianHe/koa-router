@@ -145,7 +145,29 @@ var app    = require('koa')()
 
 app.use(router);
 
-app.resource('users', require('./user'));
+app.resource('users', {
+  // GET /users
+  index: function *(next) {
+  },
+  // GET /users/new
+  new: function *(next) {
+  },
+  // POST /users
+  create: function *(next) {
+  },
+  // GET /users/:id
+  show: function *(next) {
+  },
+  // GET /users/:id/edit
+  edit: function *(next) {
+  },
+  // PUT /users/:id
+  update: function *(next) {
+  },
+  // DELETE /users/:id
+  destroy: function *(next) {
+  }
+});
 ```
 
 #### Action mapping
