@@ -36,6 +36,26 @@ describe('Resource', function() {
     done();
   });
 
+  it('should skip non functions', function(done) {
+    var app = koa();
+    app.use(Router(app));
+    var resource = app.resource('forums', {
+      index: function *() {},
+      show: function *() {},
+      config: { port: 8080 }
+    });
+    resource.should.be.a('object');
+    resource.should.have.property('name', 'forums');
+    resource.should.have.property('id', 'forum');
+    resource.should.have.property('routes');
+    resource.routes.should.be.an.instanceOf(Array);
+    resource.routes.should.have.property(0);
+    resource.routes.should.have.property(1);
+    resource.routes[0].should.have.property('path', '/forums');
+    resource.routes[1].should.have.property('path', '/forums/:forum');
+    done();
+  });
+
   it('should nest resources', function(done) {
     var app = koa();
     var router = new Router(app);
