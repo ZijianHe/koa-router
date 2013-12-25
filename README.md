@@ -210,7 +210,7 @@ Resources can be nested using `resource.add()`:
 
 ```javascript
 var forums = app.resource('forums', require('./forum'));
-var theads = app.resource('threads', require('./threads'));
+var threads = app.resource('threads', require('./threads'));
 
 forums.add(threads);
 ```
