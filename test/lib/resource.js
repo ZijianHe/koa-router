@@ -9,7 +9,7 @@ var koa = require('koa')
   , should = require('should');
 
 describe('Resource', function() {
-  it('should be exposed using `app.resource()`', function(done) {
+  it('creates `app.resource()` alias', function(done) {
     var app = koa();
     app.use(Router(app));
     app.should.have.property('resource');
@@ -17,7 +17,7 @@ describe('Resource', function() {
     done();
   });
 
-  it('should create new resource', function(done) {
+  it('creates new resource', function(done) {
     var app = koa();
     app.use(Router(app));
     var resource = app.resource('forums', {
@@ -36,7 +36,7 @@ describe('Resource', function() {
     done();
   });
 
-  it('should skip non functions', function(done) {
+  it('skips non-functions', function(done) {
     var app = koa();
     app.use(Router(app));
     var resource = app.resource('forums', {
@@ -56,7 +56,7 @@ describe('Resource', function() {
     done();
   });
 
-  it('should nest resources', function(done) {
+  it('nests resources', function(done) {
     var app = koa();
     var router = new Router(app);
     app.use(router.middleware());
