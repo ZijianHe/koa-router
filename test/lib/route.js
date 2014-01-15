@@ -71,7 +71,8 @@ describe('Route', function() {
         yield next;
       },
       function *(next) {
-        this.status = 204
+        this.status = 204;
+        yield next;
       }
     );
     request(http.createServer(app.callback()))

@@ -92,9 +92,11 @@ app.get(
 );
 ```
 
-#### Named parameters
+#### Named parameters / Capture groups
 
-Named route parameters are captured and added to `ctx.params`.
+Named route parameters are captured and added to `ctx.params`. Capture groups
+from regular expression routes are also added to `ctx.params`, which is an
+array.
 
 ```javascript
 app.get('/:category/:title', function *(next) {
