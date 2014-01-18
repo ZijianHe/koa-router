@@ -4,7 +4,7 @@ test:
 	  --reporter spec \
 	  --require should \
 	  --harmony \
-	  test/*/*.js \
-	  test/*.js
+	  --recursive \
+	  test
 
 .PHONY: test
