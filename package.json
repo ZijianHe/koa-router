@@ -27,7 +27,7 @@
     "supertest": "0.7.1"
   },
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha --harmony-generators --recursive"
+    "test": "NODE_ENV=test node_modules/mocha/bin/mocha --harmony-generators --recursive"
   },
   "engines": {
     "node": "> 0.11.4"
