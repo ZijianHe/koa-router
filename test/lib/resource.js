@@ -60,13 +60,26 @@ describe('Resource', function() {
     var app = koa();
     var router = new Router(app);
     app.use(router.middleware());
-    var forums = app.resource('forums', { index: function *() {} });
-    var threads = app.resource('threads', { index: function *() {} });
+    var forums = app.resource('forums', {
+      index: function *() {}
+    });
+    var threads = app.resource('threads', {
+      index: function *() {},
+      show: function *() {
+        should.exist(this.params);
+        this.params.should.have.property('forum', '54');
+        this.params.should.have.property('thread', '12');
+        this.status = 200;
+      }
+    });
     forums.add(threads);
     threads.base.should.equal('/forums/:forum/threads');
-    should.exist(router.routes.get[1]);
-    router.routes.get[1].should.be.a('object');
-    router.routes.get[1].should.have.property('path', '/forums/:forum/threads');
-    done();
+    request(http.createServer(app.callback()))
+      .get('/forums/54/threads/12')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
   });
 });

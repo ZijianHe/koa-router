@@ -21,7 +21,7 @@
     "koa-compose": "~2.1.0"
   },
   "devDependencies": {
-    "koa": "0.0.2",
+    "koa": "0.3.0",
     "mocha": "1.12.0",
     "should": "1.2.2",
     "supertest": "0.7.1"

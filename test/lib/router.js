@@ -112,10 +112,8 @@ describe('Router', function() {
   it('supports generators for route middleware', function(done) {
     var app = koa();
     app.use(Router(app));
-    app.use(function(next) {
-      return function *() {
-        done();
-      };
+    app.use(function *() {
+      done();
     });
     var readVersion = function() {
       return function(fn) {
