@@ -82,4 +82,69 @@ describe('Resource', function() {
         done();
       });
   });
+
+  it('doesn\'t call multiple controller actions', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    var counter = 0;
+    function *increaseCounter() {
+      counter++;
+      this.status = 204;
+    }
+    app.resource('threads', {
+      index: increaseCounter,
+      new: increaseCounter,
+      create: increaseCounter,
+      show: increaseCounter,
+      edit: increaseCounter,
+      update: increaseCounter,
+      destroy: increaseCounter,
+    });
+    var server = http.createServer(app.callback());
+    request(server)
+    .get('/threads')
+    .expect(204)
+    .end(function(err, res) {
+      if (err) return done(err);
+      request(server)
+      .get('/threads/new')
+      .expect(204)
+      .end(function(err, res) {
+        if (err) return done(err);
+        request(server)
+        .post('/threads')
+        .expect(204)
+        .end(function(err, res) {
+          if (err) return done(err);
+          request(server)
+          .get('/threads/1234')
+          .expect(204)
+          .end(function(err, res) {
+            if (err) return done(err);
+            request(server)
+            .get('/threads/1234/edit')
+            .expect(204)
+            .end(function(err, res) {
+              if (err) return done(err);
+              request(server)
+              .put('/threads/1234')
+              .expect(204)
+              .end(function(err, res) {
+                if (err) return done(err);
+                request(server)
+                .get('/threads/1234')
+                .expect(204)
+                .end(function(err, res) {
+                  if (err) return done(err);
+                  counter.should.equal(7);
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
 });
