@@ -83,6 +83,24 @@ describe('Resource', function() {
       });
   });
 
+  it('routes top-level resource', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.resource({
+      index: function *() {
+        this.status = 200;
+      }
+    });
+    request(http.createServer(app.callback()))
+      .get('/')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
   it('doesn\'t call multiple controller actions', function(done) {
     var app = koa();
     var router = new Router(app);
