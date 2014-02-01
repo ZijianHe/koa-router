@@ -110,6 +110,54 @@ describe('Router', function() {
     });
   });
 
+  it('responds to OPTIONS requests', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.get('/users', function *() {});
+    app.put('/users', function *() {});
+    request(http.createServer(app.callback()))
+    .options('/users')
+    .expect(204)
+    .end(function(err, res) {
+      if (err) return done(err);
+      res.header.should.have.property('allow', 'GET, PUT');
+      done();
+    });
+  });
+
+  it('responds with 405 Method Not Allowed', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.get('/users', function *() {});
+    app.put('/users', function *() {});
+    app.post('/events', function *() {});
+    request(http.createServer(app.callback()))
+    .post('/users')
+    .expect(405)
+    .end(function(err, res) {
+      if (err) return done(err);
+      res.header.should.have.property('allow', 'GET, PUT');
+      done();
+    });
+  });
+
+  it('responds with 501 Not Implemented', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.get('/users', function *() {});
+    app.put('/users', function *() {});
+    request(http.createServer(app.callback()))
+    .del('/users')
+    .expect(501)
+    .end(function(err, res) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
   describe('Router#[verb]()', function() {
     it('registers route specific to HTTP verb', function(done) {
       var app = koa();
@@ -119,7 +167,7 @@ describe('Router', function() {
         app.should.have.property(method);
         app[method].should.be.a('function');
         var route = app[method]('/', function *() {});
-        router.routes[method].should.include(route);
+        router.routes.should.include(route);
       });
       done();
     });
@@ -133,11 +181,8 @@ describe('Router', function() {
       var route = app.all('/', function *(next) {
         this.status = 204;
       });
-      methods.forEach(function(method) {
-        router.should.have.property('routes');
-        router.routes.should.have.property(method);
-        router.routes[method].should.include(route);
-      });
+      router.should.have.property('routes');
+      router.routes.should.include(route);
       done();
     });
   });
@@ -150,8 +195,7 @@ describe('Router', function() {
       app.should.have.property('map');
       app.map.should.be.a('function');
       var route = app.map(['get', 'post'], '/', function *() {});
-      router.routes.get.should.include(route);
-      router.routes.post.should.include(route);
+      router.routes.should.include(route);
       done();
     });
   });
@@ -164,7 +208,7 @@ describe('Router', function() {
       app.should.have.property('redirect');
       app.redirect.should.be.a('function');
       var route = app.redirect('/source', '/destination', 302);
-      router.routes.get.should.include(route);
+      router.routes.should.include(route);
       done();
     });
   });
