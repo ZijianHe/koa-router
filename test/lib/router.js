@@ -195,32 +195,4 @@ describe('Router', function() {
       done();
     });
   });
-
-  describe('Router#resource()', function() {
-    it('registers routes for a resource', function(done) {
-      var app = koa();
-      var router = new Router(app);
-      app.use(router.middleware());
-      app.should.have.property('resource');
-      app.resource.should.be.a('function');
-      app.resource('forums', {
-        'options': function *() {},
-        'index': function *() {},
-        'show': function*() {},
-        'new': function*() {},
-        'create': function*() {},
-        'show': function*() {},
-        'read': function*() {},
-        'edit': function*() {},
-        'update': function*() {},
-        'destroy': function*() {},
-      });
-      router.routes.options.length.should.equal(1);
-      router.routes.get.length.should.equal(5);
-      router.routes.put.length.should.equal(1);
-      router.routes.post.length.should.equal(1);
-      router.routes['delete'].length.should.equal(1);
-      done();
-    });
-  });
 });
