@@ -69,7 +69,6 @@ describe('Router', function() {
       this.params.should.have.property('lastname', 'smith');
       this.status = 204;
       counter++;
-
       yield next;
     });
     app.get('/:surname', function *(next) {
@@ -77,8 +76,6 @@ describe('Router', function() {
       this.params.should.have.property('surname', 'smith');
       this.status = 204;
       counter++;
-
-      yield next;
     });
     var server = http.createServer(app.callback());
       request(server)

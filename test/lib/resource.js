@@ -69,14 +69,14 @@ describe('Resource', function() {
         should.exist(this.params);
         this.params.should.have.property('forum', '54');
         this.params.should.have.property('thread', '12');
-        this.status = 200;
+        this.status = 204;
       }
     });
     forums.add(threads);
     threads.base.should.equal('/forums/:forum/threads');
     request(http.createServer(app.callback()))
       .get('/forums/54/threads/12')
-      .expect(200)
+      .expect(204)
       .end(function(err, res) {
         if (err) return done(err);
         done();
@@ -89,12 +89,12 @@ describe('Resource', function() {
     app.use(router.middleware());
     app.resource({
       index: function *() {
-        this.status = 200;
+        this.status = 204;
       }
     });
     request(http.createServer(app.callback()))
       .get('/')
-      .expect(200)
+      .expect(204)
       .end(function(err, res) {
         if (err) return done(err);
         done();
