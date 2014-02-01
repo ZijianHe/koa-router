@@ -60,33 +60,6 @@ describe('Router', function() {
     });
   });
 
-  it('matches multiple routes', function(done) {
-    var app = koa();
-    var counter = 0;
-    app.use(Router(app));
-    app.get('/:lastname', function *(next) {
-      this.should.have.property('params');
-      this.params.should.have.property('lastname', 'smith');
-      this.status = 204;
-      counter++;
-    });
-    app.get('/:surname', function *(next) {
-      this.should.have.property('params');
-      this.params.should.have.property('surname', 'smith');
-      this.status = 204;
-      counter++;
-    });
-    var server = http.createServer(app.callback());
-      request(server)
-      .get('/smith')
-      .expect(204)
-      .end(function(err, res) {
-        if (err) return done(err);
-        counter.should.equal(2);
-        done();
-    });
-  });
-
   it('no matches after throw', function(done) {
     var app = koa();
     var counter = 0;
