@@ -60,7 +60,25 @@ describe('Router', function() {
     });
   });
 
-  it('no matches after throw', function(done) {
+  it('executes route middleware using `app.context`', function(done) {
+    var app = koa();
+    app.use(Router(app));
+    app.get('/:category/:title', function *(next) {
+      this.should.have.property('app');
+      this.should.have.property('req');
+      this.should.have.property('res');
+      this.status = 204;
+      done();
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+    });
+  });
+
+  it('does not match after ctx.throw()', function(done) {
     var app = koa();
     var counter = 0;
     app.use(Router(app));
@@ -187,14 +205,14 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#map()', function() {
-    it('registers route specific to array of HTTP verbs', function(done) {
+  describe('Router#register()', function() {
+    it('registers new routes', function(done) {
       var app = koa();
       var router = new Router(app);
       app.use(router.middleware());
-      app.should.have.property('map');
-      app.map.should.be.a('function');
-      var route = app.map(['get', 'post'], '/', function *() {});
+      app.should.have.property('register');
+      app.register.should.be.a('function');
+      var route = app.register('/', ['GET', 'POST'], function *() {});
       router.routes.should.include(route);
       done();
     });
@@ -209,6 +227,21 @@ describe('Router', function() {
       app.redirect.should.be.a('function');
       var route = app.redirect('/source', '/destination', 302);
       router.routes.should.include(route);
+      done();
+    });
+  });
+
+  describe('Router#url()', function() {
+    it('generates URL for given route', function(done) {
+      var app = koa();
+      app.use(Router(app));
+      app.get('books', '/:category/:title', function *(next) {
+        this.status = 204;
+      });
+      var url = app.url('books', { category: 'programming', title: 'how to node' });
+      url.should.equal('/programming/how%20to%20node');
+      url = app.url('books', 'programming', 'how to node');
+      url.should.equal('/programming/how%20to%20node');
       done();
     });
   });
