@@ -4,9 +4,12 @@
 [![Dependency Status](https://david-dm.org/alexmingoia/koa-router.png)](http://david-dm.org/alexmingoia/koa-router)
 [![NPM version](https://badge.fury.io/js/koa-router.png)](http://badge.fury.io/js/koa-router)
 
-* REST routing using `app.get`, `app.put`, `app.post`, etc.
-* Named parameters.
-* String or regexp route matching.
+* Express-style routing using `app.get`, `app.put`, `app.post`, etc.
+* Named URL parameters and regexp captures.
+* String or regular expression route matching.
+* Named routes with URL generation.
+* Responds to `OPTIONS` requests with allowed methods.
+* Support for `405 Method Not Allowed` and `501 Not Implemented`.
 * Multiple route middleware.
 * Multiple routers.
 
@@ -60,23 +63,59 @@ app.use(mount('/v1', APIv1.middleware()));
 app.use(mount('/v2', APIv2.middleware()));
 ```
 
-### app.verb(path, middleware, [middleware...])
+## API
 
-Match URL patterns to callback functions or controller actions using `app.verb()`,
-where **verb** is one of the HTTP verbs such as `app.get()` or `app.post()`.
+### Migrating from 2.x to 3.x
+
+Resource routing was separated into the
+[koa-resource-router](https://github.com/alexmingoia/koa-resource-router)
+module.
+
+### Router#verb([name, ]path, middleware[, middleware...])
+
+Match URL patterns to callback functions or controller actions using `router.verb()`,
+where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
 
 ```javascript
 app.get('/', function *(next) {
   this.body = 'Hello World!';
 });
+
+app.post('/users', function *(next) {
+  // ...
+});
+
+app.put('/users/:id', function *(next) {
+  // ...
+});
+
+app.del('/users/:id', function *(next) {
+  // ...
+});
 ```
 
 Route paths will be translated to regular expressions used to match requests.
+
 Query strings will not be considered when matching requests.
 
-### Multiple route callbacks / middleware
+#### Named routes
 
-Multiple middleware may be given:
+Routes can optionally have names. This allows generation of URLs and easy
+renaming of URLs during development.
+
+```javascript
+app.get('user', '/users/:id', function *(next) {
+ // ...
+});
+
+app.url('user', 3);
+// => "/users/3"
+```
+
+#### Multiple middleware
+
+Multiple middleware may be given and are composed using
+[koa-compose](https://github.com/koajs/koa-compose):
 
 ```javascript
 app.get(
@@ -92,16 +131,28 @@ app.get(
 );
 ```
 
-#### Named parameters / Capture groups
+#### URL parameters
 
-Named route parameters are captured and added to `ctx.params`. Capture groups
-from regular expression routes are also added to `ctx.params`, which is an
-array.
+Named route parameters are captured and added to `ctx.params`.
+
+Capture groups from regular expression routes are also added to
+`ctx.params`, which is an array.
+
+##### Named parameters
 
 ```javascript
 app.get('/:category/:title', function *(next) {
   console.log(this.params);
-  // => { category: 'programming', title: 'how-to-node' }
+  // => [ category: 'programming', title: 'how-to-node' ]
+});
+```
+
+##### Regular expression captures
+
+```javascript
+app.get(^\/([^\/]+)\/([^\/]+)\/?$, function *(next) {
+  console.log(this.params);
+  // => [ 'programming', 'how-to-node' ]
 });
 ```
 
@@ -119,15 +170,15 @@ app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
 
 #### Multiple methods
 
-You can map routes to multiple HTTP methods using `app.map()`:
+Create routes with multiple HTTP methods using `router.register()`:
 
 ```javascript
-app.map(['GET', 'POST'], '/', function *(next) {
+app.register('/', ['get', 'post'], function *(next) {
   // ...
 });
 ```
 
-You can map to all methods use `app.all()`:
+Create route for all methods using `router.all()`:
 
 ```javascript
 app.all('/', function *(next) {
@@ -135,9 +186,11 @@ app.all('/', function *(next) {
 });
 ```
 
-### app.redirect(path, destination, [code])
+### Router#redirect(source, destination, [code])
 
-Redirect `path` to `destination` URL with optional 30x status `code`.
+Redirect `source` to `destination` URL with optional 30x status `code`.
+
+Both `source` and `destination` can be route names.
 
 ```javascript
 app.redirect('/login', 'sign-in');
@@ -150,6 +203,29 @@ app.all('/login', function *() {
   this.redirect('/sign-in');
   this.status = 301;
 });
+```
+
+### Router#route(name)
+
+Lookup route with given `name`. Returns the route or `false`.
+
+### Router#url(name, params)
+
+Generate URL for route. Takes either map of named `params` or series of
+arguments (for regular expression routes).
+
+Returns `Error` if no route is found with given `name`.
+
+```javascript
+app.get('user', '/users/:id', function *(next) {
+ // ...
+});
+
+app.url('user', 3);
+// => "/users/3"
+
+app.url('user', { id: 3 });
+// => "/users/3"
 ```
 
 ## Tests
