@@ -9,7 +9,7 @@ describe('module', function() {
   it('should expose Router', function(done) {
     var Router = require('..');
     should.exist(Router);
-    Router.should.be.a('function');
+    Router.should.be.type('function');
     done();
   });
 });

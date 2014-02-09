@@ -23,10 +23,21 @@ describe('Router', function() {
     var app = koa();
     var router = new Router(app);
     router.should.have.property('middleware');
-    router.middleware.should.be.a('function');
+    router.middleware.should.be.type('function');
     var middleware = router.middleware();
     should.exist(middleware);
-    middleware.should.be.a('function');
+    middleware.should.be.type('function');
+    done();
+  });
+
+  it('extends app with router methods', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.should.have.properties(
+      'all', 'redirect', 'url', 'get',
+      'put', 'patch', 'post', 'del', 'delete'
+    );
     done();
   });
 
@@ -183,7 +194,7 @@ describe('Router', function() {
       app.use(router.middleware());
       methods.forEach(function(method) {
         app.should.have.property(method);
-        app[method].should.be.a('function');
+        app[method].should.be.type('function');
         var route = app[method]('/', function *() {});
         router.routes.should.include(route);
       });
@@ -211,7 +222,7 @@ describe('Router', function() {
       var router = new Router(app);
       app.use(router.middleware());
       app.should.have.property('register');
-      app.register.should.be.a('function');
+      app.register.should.be.type('function');
       var route = app.register('/', ['GET', 'POST'], function *() {});
       router.routes.should.include(route);
       done();
@@ -224,7 +235,7 @@ describe('Router', function() {
       var router = new Router(app);
       app.use(router.middleware());
       app.should.have.property('redirect');
-      app.redirect.should.be.a('function');
+      app.redirect.should.be.type('function');
       var route = app.redirect('/source', '/destination', 302);
       router.routes.should.include(route);
       done();

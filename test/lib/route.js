@@ -53,7 +53,7 @@ describe('Route', function() {
       app.use(router(app));
       app.get('/:category/:title', function *(next) {
         this.should.have.property('params');
-        this.params.should.be.a('object');
+        this.params.should.be.type('object');
         this.params.should.have.property('category', 'match');
         this.params.should.have.property('title', 'this');
         this.status = 204;
@@ -72,12 +72,12 @@ describe('Route', function() {
       app.use(router(app));
       app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
         this.should.have.property('params');
-        this.params.should.be.a('object');
+        this.params.should.be.type('object');
         this.params.should.have.property(0, '1');
         yield next;
       }, function *(next) {
         this.should.have.property('params');
-        this.params.should.be.a('object');
+        this.params.should.be.type('object');
         this.params.should.have.property(0, '1');
         this.status = 204;
       });
