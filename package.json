@@ -17,12 +17,13 @@
     "methods": "0.1.0",
     "path-to-regexp": "0.0.2",
     "debug": "~0.7.4",
-    "koa-compose": "~2.2.0",
-    "should": "~3.1.2",
-    "mocha": "~1.17.1"
+    "koa-compose": "~2.2.0"
   },
   "devDependencies": {
-    "koa": "0.3.0"
+    "koa": "0.3.0",
+    "should": "~3.1.2",
+    "mocha": "~1.17.1",
+    "supertest": "~0.9.0"
   },
   "scripts": {
     "test": "NODE_ENV=test node_modules/mocha/bin/mocha --harmony-generators --recursive --reporter spec"
