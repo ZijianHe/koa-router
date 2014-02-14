@@ -55,6 +55,12 @@ describe('Router', function() {
       this.params.should.have.property('category', 'programming');
       this.status = 204;
     });
+	  app.put('/:category/not-a-title', function *(next) {
+		  this.should.have.property('params');
+		  this.params.should.have.property('category', 'programming');
+		  this.params.should.not.have.property('title');
+		  this.status = 204;
+	  });
     var server = http.createServer(app.callback());
     request(server)
     .get('/programming/how-to-node')
@@ -66,7 +72,12 @@ describe('Router', function() {
       .expect(204)
       .end(function(err, res) {
         if (err) return done(err);
-        done();
+	      request(server)
+		      .put('/programming/not-a-title')
+		      .expect(204)
+		      .end(function (err, res) {
+			      done(err);
+		      });
       });
     });
   });
