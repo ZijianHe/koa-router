@@ -1,6 +1,6 @@
 # Router middleware for [koa](https://github.com/koajs/koa)
 
-[![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router) 
+[![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router)
 [![Dependency Status](https://david-dm.org/alexmingoia/koa-router.png)](http://david-dm.org/alexmingoia/koa-router)
 [![NPM version](https://badge.fury.io/js/koa-router.png)](http://badge.fury.io/js/koa-router)
 
@@ -61,6 +61,20 @@ APIv2.get('/sign-in', function *() {
 
 app.use(mount('/v1', APIv1.middleware()));
 app.use(mount('/v2', APIv2.middleware()));
+```
+
+### Chaining
+
+The various methods (get, post, etc) return their Router instance,
+so routes can be chained:
+
+```js
+var api = new Router();
+
+api
+  .get('/foo', showFoo)
+  .get('/bar', showBar)
+  .post('/foo', createFoo);
 ```
 
 ## API
@@ -230,7 +244,7 @@ app.url('user', { id: 3 });
 
 ## Tests
 
-Tests use [mocha](https://github.com/visionmedia/mocha) and can be run 
+Tests use [mocha](https://github.com/visionmedia/mocha) and can be run
 with [npm](https://npmjs.org):
 
 ```
