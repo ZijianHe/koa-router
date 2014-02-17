@@ -6,7 +6,8 @@ var koa = require('koa')
   , http = require('http')
   , request = require('supertest')
   , router = require('../../lib/router')
-  , should = require('should');
+  , should = require('should')
+  , Route = require('../../lib/route');
 
 describe('Route', function() {
   it('supports regular expression route paths', function(done) {
@@ -92,28 +93,18 @@ describe('Route', function() {
   });
 
   describe('Route#url()', function() {
-    it('generates route URL', function(done) {
-      var app = koa();
-      app.use(router(app));
-      var route = app.get('books', '/:category/:title', function *(next) {
-        this.status = 204;
-      });
+    it('generates route URL', function() {
+      var route = new Route('/:category/:title', ['get'], function* () {}, 'books');
       var url = route.url({ category: 'programming', title: 'how-to-node' });
       url.should.equal('/programming/how-to-node');
       url = route.url('programming', 'how-to-node');
       url.should.equal('/programming/how-to-node');
-      done();
     });
 
-    it('escapes using encodeURIComponent()', function(done) {
-      var app = koa();
-      app.use(router(app));
-      var route = app.get('books', '/:category/:title', function *(next) {
-        this.status = 204;
-      });
+    it('escapes using encodeURIComponent()', function() {
+      var route = new Route('/:category/:title', ['get'], function *() {}, 'books');
       var url = route.url({ category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
-      done();
     });
   });
 });
