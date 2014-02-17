@@ -199,17 +199,23 @@ describe('Router', function() {
   });
 
   describe('Router#[verb]()', function() {
-    it('registers route specific to HTTP verb', function(done) {
+    it('registers route specific to HTTP verb', function() {
       var app = koa();
       var router = new Router(app);
       app.use(router.middleware());
       methods.forEach(function(method) {
         app.should.have.property(method);
         app[method].should.be.type('function');
-        var route = app[method]('/', function *() {});
-        router.routes.should.include(route);
+        app[method]('/', function *() {});
       });
-      done();
+      router.routes.should.have.length(methods.length);
+    });
+
+    it('enables route chaining', function() {
+      var router = new Router();
+      methods.forEach(function(method) {
+        router[method]('/', function *() {}).should.equal(router);
+      });
     });
   });
 
