@@ -65,8 +65,8 @@ app.use(mount('/v2', APIv2.middleware()));
 
 ### Chaining
 
-The various methods (get, post, etc) return their Router instance,
-so routes can be chained:
+The http methods (get, post, etc) return their `Router` instance,
+so routes can be chained as you're used to with express:
 
 ```js
 var api = new Router();
