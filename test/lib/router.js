@@ -257,6 +257,23 @@ describe('Router', function() {
       router.routes.should.include(route);
       done();
     });
+
+    it('redirects using route names', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      app.use(router.middleware());
+      app.get('home', '/', function *() {});
+      app.get('sign-up-form', '/sign-up-form', function *() {});
+      var route = app.redirect('home', 'sign-up-form');
+      request(http.createServer(app.callback()))
+        .post('/')
+        .expect(301)
+        .end(function(err, res) {
+          if (err) return done(err);
+          res.header.should.have.property('location', '/sign-up-form');
+          done();
+        });
+    });
   });
 
   describe('Router#url()', function() {
