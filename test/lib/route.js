@@ -98,12 +98,12 @@ describe('Route', function() {
       app.get(/^\/api(\/.+)?/i, function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
-        this.params.should.have.property(0, '');
+        this.params.should.have.property(0, undefined);
         yield next;
       }, function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
-        this.params.should.have.property(0, '');
+        this.params.should.have.property(0, undefined);
         this.status = 204;
       });
       request(http.createServer(app.callback()))
