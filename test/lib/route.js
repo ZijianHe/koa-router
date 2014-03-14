@@ -90,6 +90,30 @@ describe('Route', function() {
         done();
       });
     });
+
+    it('should populates ctx.params with regexp captures include undefiend', function(done) {
+
+      var app = koa();
+      app.use(router(app));
+      app.get(/^\/api(\/.+)?/i, function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property(0, '');
+        yield next;
+      }, function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property(0, '');
+        this.status = 204;
+      });
+      request(http.createServer(app.callback()))
+      .get('/api')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+    })
   });
 
   describe('Route#url()', function() {
