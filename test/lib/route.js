@@ -131,4 +131,59 @@ describe('Route', function() {
       url.should.equal('/programming/how%20to%20node');
     });
   });
+
+  it('supports regular expression validation of single param and populates ctx.params', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:id', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('id', '255');
+        this.params.should.have.property('id').above(0);
+        this.status = 204;
+      }).validate('articles_find', { id: '[0-9]+' });
+      request(http.createServer(app.callback()))
+      .get('/articles/255')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('supports regular expression validation of multiple params and populates ctx.params', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:id/:name', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('id', '255');
+        this.params.should.have.property('id').above(0);
+        this.params.should.have.property('name', 'john');
+        this.status = 204;
+      }).validate('articles_find', { id: '[0-9]+', name: '[a-z]+' });
+      request(http.createServer(app.callback()))
+      .get('/articles/255/john')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('fails regular expression validation of param when param doesn\'t match', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:id/:name', function *(next) {
+        this.status = 204;
+      }).validate('articles_find', { id: '[0-9]+', name: '[a-z]+' });
+      request(http.createServer(app.callback()))
+      .get('/articles/10/11')
+      .expect(404)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
 });
