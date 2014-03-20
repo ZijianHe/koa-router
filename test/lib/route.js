@@ -171,6 +171,25 @@ describe('Route', function() {
       });
   });
 
+  it('supports regular expression validation of single param and populates ctx.params when a RegExp object is used', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:id', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('id', '255');
+        this.params.should.have.property('id').above(0);
+        this.status = 204;
+      }).validate('articles_find', { id: /[0-9]+/ });
+      request(http.createServer(app.callback()))
+      .get('/articles/255')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
   it('supports regular expression validation of multiple params and populates ctx.params', function(done) {
     var app = koa();
       app.use(router(app));
@@ -206,4 +225,178 @@ describe('Route', function() {
       });
   });
 
+  it('fails to match because extension validation fails', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { ext: /^js$/ });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(404)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches because extension validation fails', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.should.have.property('params');
+      this.params.should.be.type('object');
+      this.params.should.have.property('category', 'match');
+      this.params.should.have.property('title', 'this');
+      this.params.should.have.property('ext', 'json');
+      this.status = 204;
+    }).validate('category_route', { ext: /^js|json|xml|csv$/ });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches when ext validation is set to false and no extension is given', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { ext: false });
+    request(http.createServer(app.callback()))
+    .get('/match/this')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches when ext validation is set to true and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { ext: true });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('returns a not found when ext validation is set to false and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { ext: false });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(404)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches when ext validation is set to true globally and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions(true);
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches when ext validation is set to a regex globally and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions(/^xml|csv$/);
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this.csv')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('matches when ext validation is set to a string regex globally and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions('^xml|csv$');
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this.csv')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('returns a not found when ext validation is set to false globally and an extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions(false);
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(404)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('returns a not found when ext validation is set to a regex globally and an invalid extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions(/^xml|csv$/);
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(404)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('Using a boolean validator on any field besides ext throws an exception', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { title: true });
+    request(http.createServer(app.callback()))
+    .get('/match/this.json')
+    .expect(500)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
 });
