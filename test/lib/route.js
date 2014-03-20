@@ -68,6 +68,26 @@ describe('Route', function() {
       });
     });
 
+    it('captures URL path parameters and extensions', function(done) {
+      var app = koa();
+      app.use(router(app));
+      app.get('/:category/:title', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('category', 'match');
+        this.params.should.have.property('title', 'this');
+        this.params.should.have.property('ext', 'json')
+        this.status = 204;
+        done();
+      });
+      request(http.createServer(app.callback()))
+      .get('/match/this.json')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+      });
+    });
+
     it('populates ctx.params with regexp captures', function(done) {
       var app = koa();
       app.use(router(app));
