@@ -385,6 +385,22 @@ describe('Route', function() {
     });
   });
 
+  it('matches when ext validation is set to a string regex globally and an no extension is used', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions('^xml|csv$', true);
+    app.get('/:category/:title', function *(next) {
+      this.status = 204;
+    });
+    request(http.createServer(app.callback()))
+    .get('/match/this')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
   it('Using a boolean validator on any field besides ext throws an exception', function(done) {
     var app = koa();
     app.use(router(app));
