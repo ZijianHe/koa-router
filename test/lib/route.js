@@ -171,6 +171,39 @@ describe('Route', function() {
       });
   });
 
+  it('supports array validation of single param and populates ctx.params', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:section', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('section', 'computers');
+        this.status = 204;
+      }).validate('articles_find', { section: ['computers', 'programming'] });
+      request(http.createServer(app.callback()))
+      .get('/articles/computers')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
+  it('supports array validation of single param and fails when param is not in array', function(done) {
+    var app = koa();
+      app.use(router(app));
+      app.get('articles_find', '/articles/:section', function *(next) {
+        this.status = 204;
+      }).validate('articles_find', { section: ['computers', 'programming'] });
+      request(http.createServer(app.callback()))
+      .get('/articles/monitors')
+      .expect(404)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+  });
+
   it('supports regular expression validation of single param and populates ctx.params when a RegExp object is used', function(done) {
     var app = koa();
       app.use(router(app));
@@ -230,7 +263,7 @@ describe('Route', function() {
     app.use(router(app));
     app.get('category_route', '/:category/:title', function *(next) {
       this.status = 204;
-    }).validate('category_route', { ext: /^js$/ });
+    }).validate('category_route', { ext: ['js'] });
     request(http.createServer(app.callback()))
     .get('/match/this.json')
     .expect(404)
@@ -250,7 +283,7 @@ describe('Route', function() {
       this.params.should.have.property('title', 'this');
       this.params.should.have.property('ext', 'json');
       this.status = 204;
-    }).validate('category_route', { ext: /^js|json|xml|csv$/ });
+    }).validate('category_route', { ext: ['js', 'json', 'xml', 'csv'] });
     request(http.createServer(app.callback()))
     .get('/match/this.json')
     .expect(204)
@@ -324,7 +357,7 @@ describe('Route', function() {
   it('matches when ext validation is set to a regex globally and an extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions(/^xml|csv$/);
+    app.allowExtensions(['xml', 'csv']);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
@@ -340,7 +373,7 @@ describe('Route', function() {
   it('matches when ext validation is set to a string regex globally and an extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions('^xml|csv$');
+    app.allowExtensions(['xml', 'csv']);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
@@ -372,7 +405,7 @@ describe('Route', function() {
   it('returns a not found when ext validation is set to a regex globally and an invalid extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions(/^xml|csv$/);
+    app.allowExtensions(['xml', 'csv']);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
@@ -388,7 +421,7 @@ describe('Route', function() {
   it('matches when ext validation is set to a string regex globally and an no extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions('^xml|csv$', true);
+    app.allowExtensions(['xml', 'csv'], true);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
