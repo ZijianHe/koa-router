@@ -298,7 +298,7 @@ describe('Route', function() {
     app.use(router(app));
     app.get('category_route', '/:category/:title', function *(next) {
       this.status = 204;
-    }).validate('category_route', { ext: false });
+    }).validate('category_route', { ext: [false] });
     request(http.createServer(app.callback()))
     .get('/match/this')
     .expect(204)
@@ -308,15 +308,32 @@ describe('Route', function() {
     });
   });
 
-  it('matches when ext validation is set to true and an extension is used', function(done) {
+  it('match when global extension matching passes and route-specific rule matches', function(done) {
     var app = koa();
     app.use(router(app));
+    app.allowExtensions([false, 'csv', 'json']);
     app.get('category_route', '/:category/:title', function *(next) {
       this.status = 204;
-    }).validate('category_route', { ext: true });
+    }).validate('category_route', { ext: ['json'] });
     request(http.createServer(app.callback()))
     .get('/match/this.json')
     .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
+  it('return a 404 when global extension matching passes but route-specific matching does not', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.allowExtensions([false, 'csv', 'json']);
+    app.get('category_route', '/:category/:title', function *(next) {
+      this.status = 204;
+    }).validate('category_route', { ext: ['json'] });
+    request(http.createServer(app.callback()))
+    .get('/match/this.csv')
+    .expect(404)
     .end(function(err) {
       if (err) return done(err);
       done();
@@ -328,7 +345,7 @@ describe('Route', function() {
     app.use(router(app));
     app.get('category_route', '/:category/:title', function *(next) {
       this.status = 204;
-    }).validate('category_route', { ext: false });
+    }).validate('category_route', { ext: [false] });
     request(http.createServer(app.callback()))
     .get('/match/this.json')
     .expect(404)
@@ -338,23 +355,7 @@ describe('Route', function() {
     });
   });
 
-  it('matches when ext validation is set to true globally and an extension is used', function(done) {
-    var app = koa();
-    app.use(router(app));
-    app.allowExtensions(true);
-    app.get('/:category/:title', function *(next) {
-      this.status = 204;
-    });
-    request(http.createServer(app.callback()))
-    .get('/match/this.json')
-    .expect(204)
-    .end(function(err) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('matches when ext validation is set to a regex globally and an extension is used', function(done) {
+  it('matches when ext validation is set globally and an extension is used', function(done) {
     var app = koa();
     app.use(router(app));
     app.allowExtensions(['xml', 'csv']);
@@ -370,26 +371,10 @@ describe('Route', function() {
     });
   });
 
-  it('matches when ext validation is set to a string regex globally and an extension is used', function(done) {
+  it('returns a not found when extensions are not allowed globally and an extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions(['xml', 'csv']);
-    app.get('/:category/:title', function *(next) {
-      this.status = 204;
-    });
-    request(http.createServer(app.callback()))
-    .get('/match/this.csv')
-    .expect(204)
-    .end(function(err) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('returns a not found when ext validation is set to false globally and an extension is used', function(done) {
-    var app = koa();
-    app.use(router(app));
-    app.allowExtensions(false);
+    app.allowExtensions([false]);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
@@ -402,7 +387,7 @@ describe('Route', function() {
     });
   });
 
-  it('returns a not found when ext validation is set to a regex globally and an invalid extension is used', function(done) {
+  it('returns a not found when ext validation is set and an invalid extension is used', function(done) {
     var app = koa();
     app.use(router(app));
     app.allowExtensions(['xml', 'csv']);
@@ -418,31 +403,16 @@ describe('Route', function() {
     });
   });
 
-  it('matches when ext validation is set to a string regex globally and an no extension is used', function(done) {
+  it('matches when ext validation is set to allowing no extension and no extension is used', function(done) {
     var app = koa();
     app.use(router(app));
-    app.allowExtensions(['xml', 'csv'], true);
+    app.allowExtensions([false, 'xml', 'csv']);
     app.get('/:category/:title', function *(next) {
       this.status = 204;
     });
     request(http.createServer(app.callback()))
     .get('/match/this')
     .expect(204)
-    .end(function(err) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('Using a boolean validator on any field besides ext throws an exception', function(done) {
-    var app = koa();
-    app.use(router(app));
-    app.get('category_route', '/:category/:title', function *(next) {
-      this.status = 204;
-    }).validate('category_route', { title: true });
-    request(http.createServer(app.callback()))
-    .get('/match/this.json')
-    .expect(500)
     .end(function(err) {
       if (err) return done(err);
       done();
