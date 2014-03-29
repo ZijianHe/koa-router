@@ -91,7 +91,7 @@ describe('Route', function() {
       });
     });
 
-    it('should populates ctx.params with regexp captures include undefiend', function(done) {
+    it('populates ctx.params with regexp captures include undefiend', function(done) {
 
       var app = koa();
       app.use(router(app));
