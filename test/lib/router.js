@@ -203,13 +203,14 @@ describe('Router', function() {
     it('invoke before advices before a route match', function(done) {
       var app = koa();
       var router = new Router(app);
+      var runOnce = false;
       router.advice('before', function*(next) {
-        this.runOnce = true;
+        runOnce = true;
         this.body = 'before';
         yield next;
       });
       router.get('/run', function*() {
-        this.runOnce.should.be.ok;
+        runOnce.should.be.ok;
       });
       app.on('error', function(e) {
         console.error(e.stack);
@@ -220,6 +221,7 @@ describe('Router', function() {
       .expect(200)
       .end(function(err, res) {
         if(err) return done(err);
+        runOnce.should.be.ok;
         res.text.should.equal('before');
         done();
       });
@@ -228,21 +230,19 @@ describe('Router', function() {
     it('invoke after advices after a route match', function(done) {
       var app = koa();
       var router = new Router(app);
+      var runOnce = false;
       router.advice('before', function*(next) {
-        should.not.exist(this.runOnce);
+        runOnce.should.not.be.ok;
         yield next;
       });
       router.advice('after', function*(next) {
-        this.runOnce.should.be.ok;
+        runOnce = true;
         yield next;
       });
       router.get('/run', function*(next) {
-        this.runOnce = true;
+        runOnce.should.not.be.ok;
         this.body = 'after';
         yield next;
-      });
-      app.on('error', function(e) {
-        console.error(e.stack);
       });
       app.use(router.middleware());
       request(http.createServer(app.callback()))
@@ -250,6 +250,7 @@ describe('Router', function() {
       .expect(200)
       .end(function(err, res) {
         if(err) return done(err);
+        runOnce.should.be.ok;
         res.text.should.equal('after');
         done();
       });
