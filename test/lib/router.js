@@ -197,6 +197,67 @@ describe('Router', function() {
       done();
     });
   });
+  
+  describe('route advice', function() {
+    
+    it('invoke before advices before a route match', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      router.advice('before', function*(next) {
+        this.runOnce = true;
+        this.body = 'before';
+        yield next;
+      });
+      router.get('/run', function*() {
+        this.runOnce.should.be.ok;
+      });
+      app.on('error', function(e) {
+        console.error(e.stack);
+      });
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        if(err) return done(err);
+        res.text.should.equal('before');
+        done();
+      });
+    });
+    
+    it('invoke after advices after a route match', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      router.advice('before', function*(next) {
+        should.not.exist(this.runOnce);
+        yield next;
+      });
+      router.advice('after', function*(next) {
+        this.runOnce.should.be.ok;
+        yield next;
+      });
+      router.get('/run', function*(next) {
+        this.runOnce = true;
+        this.body = 'after';
+        yield next;
+      });
+      app.on('error', function(e) {
+        console.error(e.stack);
+      });
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        if(err) return done(err);
+        res.text.should.equal('after');
+        done();
+      });
+    });
+    
+  });
+  
+
 
   describe('Router#[verb]()', function() {
     it('registers route specific to HTTP verb', function() {
@@ -218,7 +279,7 @@ describe('Router', function() {
       });
     });
   });
-
+  
   describe('Router#all()', function() {
     it('registers route for all HTTP verbs', function(done) {
       var app = koa();
