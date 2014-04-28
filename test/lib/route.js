@@ -68,6 +68,22 @@ describe('Route', function() {
       });
     });
 
+    it('return orginal path parameters when decodeURIComponent throw error', function(done) {
+      var app = koa();
+      app.use(router(app));
+      app.get('/:category/:title', function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property('category', '100%');
+        this.params.should.have.property('title', '101%');
+        this.status = 204;
+      });
+      request(http.createServer(app.callback()))
+      .get('/100%/101%')
+      .expect(204)
+      .end(done);
+    });
+
     it('populates ctx.params with regexp captures', function(done) {
       var app = koa();
       app.use(router(app));
@@ -91,8 +107,30 @@ describe('Route', function() {
       });
     });
 
-    it('populates ctx.params with regexp captures include undefiend', function(done) {
+    it('return orginal ctx.params when decodeURIComponent throw error', function(done) {
+      var app = koa();
+      app.use(router(app));
+      app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property(0, '101%');
+        yield next;
+      }, function *(next) {
+        this.should.have.property('params');
+        this.params.should.be.type('object');
+        this.params.should.have.property(0, '101%');
+        this.status = 204;
+      });
+      request(http.createServer(app.callback()))
+      .get('/api/101%')
+      .expect(204)
+      .end(function(err) {
+        if (err) return done(err);
+        done();
+      });
+    });
 
+    it('populates ctx.params with regexp captures include undefiend', function(done) {
       var app = koa();
       app.use(router(app));
       app.get(/^\/api(\/.+)?/i, function *(next) {
