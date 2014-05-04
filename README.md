@@ -164,7 +164,7 @@ app.get('/:category/:title', function *(next) {
 ##### Regular expression captures
 
 ```javascript
-app.get(^\/([^\/]+)\/([^\/]+)\/?$, function *(next) {
+app.get(/^\/([^\/]+)\/([^\/]+)\/?$/, function *(next) {
   console.log(this.params);
   // => [ 'programming', 'how-to-node' ]
 });
