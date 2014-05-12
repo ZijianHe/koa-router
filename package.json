@@ -17,7 +17,7 @@
     "methods": "0.1.0",
     "path-to-regexp": "0.0.2",
     "debug": "~0.7.4",
-    "koa-compose": "~2.2.0"
+    "koa-compose": "^2.3.0"
   },
   "devDependencies": {
     "koa": "0.3.0",
