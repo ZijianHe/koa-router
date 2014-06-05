@@ -48,6 +48,12 @@ You can use multiple routers and sets of routes by omitting the `app`
 argument. For example, separate routers for two versions of an API:
 
 ```javascript
+var koa = require('koa');
+  , mount = require('koa-mount')
+  , Router = require('koa-router');
+
+var app = koa();
+
 var APIv1 = new Router();
 var APIv2 = new Router();
 
@@ -59,8 +65,9 @@ APIv2.get('/sign-in', function *() {
   // ...
 });
 
-app.use(mount('/v1', APIv1.middleware()));
-app.use(mount('/v2', APIv2.middleware()));
+app
+  .use(mount('/v1', APIv1.middleware()))
+  .use(mount('/v2', APIv2.middleware()));
 ```
 
 ### Chaining
