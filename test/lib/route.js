@@ -151,7 +151,24 @@ describe('Route', function() {
         if (err) return done(err);
         done();
       });
-    })
+    });
+
+    it('should throw friendly error message when handle not exists', function() {
+      var app = koa();
+      app.use(router(app));
+      var notexistHandle = undefined;
+      (function () {
+        app.get('/foo', notexistHandle);
+      }).should.throw('register get `/foo` router error, `middleware` must be a function, not `undefined`');
+
+      (function () {
+        app.get('foo router', '/foo', notexistHandle);
+      }).should.throw('register get `foo router` router error, `middleware` must be a function, not `undefined`');
+
+      (function () {
+        app.post('/foo', function() {}, notexistHandle);
+      }).should.throw('register post `/foo` router error, `middleware` must be a function, not `undefined`');
+    });
   });
 
   describe('Route#url()', function() {
