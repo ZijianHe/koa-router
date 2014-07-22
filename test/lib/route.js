@@ -159,21 +159,21 @@ describe('Route', function() {
       var notexistHandle = undefined;
       (function () {
         app.get('/foo', notexistHandle);
-      }).should.throw('register get `/foo` router error, `middleware` must be a function, not `undefined`');
+      }).should.throw('get `/foo`: `middleware` must be a function, not `undefined`');
 
       (function () {
         app.get('foo router', '/foo', notexistHandle);
-      }).should.throw('register get `foo router` router error, `middleware` must be a function, not `undefined`');
+      }).should.throw('get `foo router`: `middleware` must be a function, not `undefined`');
 
       (function () {
         app.post('/foo', function() {}, notexistHandle);
-      }).should.throw('register post `/foo` router error, `middleware` must be a function, not `undefined`');
+      }).should.throw('post `/foo`: `middleware` must be a function, not `undefined`');
     });
   });
 
   describe('Route#url()', function() {
     it('generates route URL', function() {
-      var route = new Route('/:category/:title', ['get'], function* () {}, 'books');
+      var route = new Route('/:category/:title', ['get'], [function* () {}], 'books');
       var url = route.url({ category: 'programming', title: 'how-to-node' });
       url.should.equal('/programming/how-to-node');
       url = route.url('programming', 'how-to-node');
@@ -181,7 +181,7 @@ describe('Route', function() {
     });
 
     it('escapes using encodeURIComponent()', function() {
-      var route = new Route('/:category/:title', ['get'], function *() {}, 'books');
+      var route = new Route('/:category/:title', ['get'], [function *() {}], 'books');
       var url = route.url({ category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
     });
