@@ -25,6 +25,22 @@ describe('Route', function() {
     });
   });
 
+  it('supports named regular express routes', function(done) {
+    var app = koa();
+    app.use(router(app));
+    app.get('test', /^\/test\/?/i, function *(next) {
+      this.status = 204;
+      yield next;
+    });
+    request(http.createServer(app.callback()))
+    .get('/test')
+    .expect(204)
+    .end(function(err) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
   it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
     app.use(router(app));
