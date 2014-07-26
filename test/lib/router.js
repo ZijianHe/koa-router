@@ -182,6 +182,36 @@ describe('Router', function() {
       done();
     });
   });
+  
+  it('skip 405 response if have route matched', function(done) {
+    var app = koa();
+    var router1 = new Router();
+    var router2 = new Router();
+    
+    router1.post('/users', function *(next) { 
+      should(this.routesMatched.length).equal(1);
+      this.body="post"; 
+      yield next; 
+    });
+    router1.get('/something', function*() {});
+    router2.get('/users', function *(next) { 
+      this.body="get"; 
+      yield next;
+    });
+    router2.post('/something', function*() {});
+    
+    app.use(router1.middleware());
+    app.use(router2.middleware());
+    
+    request(http.createServer(app.callback()))
+    .post('/users')
+    .expect(200)
+    .end(function(err, res) {
+      if (err) return done(err);
+      should(res.text).equal("post");
+      done();
+    });
+  });
 
   it('responds with 501 Not Implemented', function(done) {
     var app = koa();
@@ -197,6 +227,117 @@ describe('Router', function() {
       done();
     });
   });
+  
+  describe('route records', function() {
+    it('records routes matched', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      app.use(router.middleware());
+      app.get('/run', function*(next) {
+        this.body = {routes: this.routesMatched};
+        yield next;
+      });
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        should(res.body.routes).be.ok;
+        should(res.body.routes[0].path).equal('/run');
+        done();
+      });
+    });
+    
+    it('records across multiple routers', function(done) {
+      var app = koa();
+      var router1 = new Router();
+      var router2 = new Router();
+      
+      
+      router1.get('/run', function*(next) {
+        this.body = this.routesMatched.length;
+        yield next;
+      });
+      router2.get('/run', function*(next) {
+        this.body = this.routesMatched.length;
+        yield next;
+      })
+      
+      app.use(router1.middleware());
+      app.use(router2.middleware());
+      
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        should(res.body).be.ok;
+        should(res.body).equal(2);
+        done();
+      });
+    });
+  });
+  
+  
+  describe('route advice', function() {
+    
+    it('invokes before advices before a route match', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      var runOnce = false;
+      router.advice('before', function*(next) {
+        runOnce = true;
+        this.body = 'before';
+        yield next;
+      });
+      router.get('/run', function*() {
+        runOnce.should.be.ok;
+      });
+      app.on('error', function(e) {
+        console.error(e.stack);
+      });
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        if(err) return done(err);
+        runOnce.should.be.ok;
+        res.text.should.equal('before');
+        done();
+      });
+    });
+    
+    it('invokes after advices after a route match', function(done) {
+      var app = koa();
+      var router = new Router(app);
+      var runOnce = false;
+      router.advice('before', function*(next) {
+        runOnce.should.not.be.ok;
+        yield next;
+      });
+      router.advice('after', function*(next) {
+        runOnce = true;
+        yield next;
+      });
+      router.get('/run', function*(next) {
+        runOnce.should.not.be.ok;
+        this.body = 'after';
+        yield next;
+      });
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/run')
+      .expect(200)
+      .end(function(err, res) {
+        if(err) return done(err);
+        runOnce.should.be.ok;
+        res.text.should.equal('after');
+        done();
+      });
+    });
+    
+  });
+  
+
 
   describe('Router#[verb]()', function() {
     it('registers route specific to HTTP verb', function() {
@@ -218,7 +359,7 @@ describe('Router', function() {
       });
     });
   });
-
+  
   describe('Router#all()', function() {
     it('registers route for all HTTP verbs', function(done) {
       var app = koa();
