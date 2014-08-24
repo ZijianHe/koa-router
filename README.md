@@ -75,7 +75,7 @@ app
 The http methods (get, post, etc) return their `Router` instance,
 so routes can be chained as you're used to with express:
 
-```js
+```javascript
 var api = new Router();
 
 api
@@ -98,21 +98,19 @@ Match URL patterns to callback functions or controller actions using `router.ver
 where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
 
 ```javascript
-app.get('/', function *(next) {
-  this.body = 'Hello World!';
-});
-
-app.post('/users', function *(next) {
-  // ...
-});
-
-app.put('/users/:id', function *(next) {
-  // ...
-});
-
-app.del('/users/:id', function *(next) {
-  // ...
-});
+app
+  .get('/', function *(next) {
+    this.body = 'Hello World!';
+  })
+  .post('/users', function *(next) {
+    // ...
+  })
+  .put('/users/:id', function *(next) {
+    // ...
+  })
+  .del('/users/:id', function *(next) {
+    // ...
+  });
 ```
 
 Route paths will be translated to regular expressions used to match requests.
@@ -168,16 +166,7 @@ app.get('/:category/:title', function *(next) {
 });
 ```
 
-##### Regular expression captures
-
-```javascript
-app.get(/^\/([^\/]+)\/([^\/]+)\/?$/, function *(next) {
-  console.log(this.params);
-  // => [ 'programming', 'how-to-node' ]
-});
-```
-
-#### Regular expressions
+##### Regular expressions
 
 Control route matching exactly by specifying a regular expression instead of
 a path string when creating the route. For example, it might be useful to match

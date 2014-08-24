@@ -9,6 +9,7 @@ var fs = require('fs')
   , path = require('path')
   , request = require('supertest')
   , Router = require('../../lib/router')
+  , Route = require('../../lib/route')
   , should = require('should');
 
 describe('Router', function() {
@@ -223,12 +224,14 @@ describe('Router', function() {
     it('registers route for all HTTP verbs', function(done) {
       var app = koa();
       var router = new Router(app);
-      app.use(router.middleware());
-      var route = app.all('/', function *(next) {
+      app.all('/', function *(next) {
         this.status = 204;
       });
+      app.use(router.middleware());
       router.should.have.property('routes');
-      router.routes.should.include(route);
+      router.routes.should.have.property('length', 1);
+      router.routes[0].should.be.instanceOf(Route);
+      router.routes[0].should.have.property('path', '/');
       done();
     });
   });
@@ -237,10 +240,10 @@ describe('Router', function() {
     it('registers new routes', function(done) {
       var app = koa();
       var router = new Router(app);
+      router.should.have.property('register');
+      router.register.should.be.type('function');
+      var route = router.register('/', ['GET', 'POST'], function *() {});
       app.use(router.middleware());
-      app.should.have.property('register');
-      app.register.should.be.type('function');
-      var route = app.register('/', ['GET', 'POST'], function *() {});
       router.routes.should.include(route);
       done();
     });
@@ -250,11 +253,13 @@ describe('Router', function() {
     it('registers redirect routes', function(done) {
       var app = koa();
       var router = new Router(app);
+      router.should.have.property('redirect');
+      router.redirect.should.be.type('function');
+      router.redirect('/source', '/destination', 302);
       app.use(router.middleware());
-      app.should.have.property('redirect');
-      app.redirect.should.be.type('function');
-      var route = app.redirect('/source', '/destination', 302);
-      router.routes.should.include(route);
+      router.routes.should.have.property('length', 1);
+      router.routes[0].should.be.instanceOf(Route);
+      router.routes[0].should.have.property('path', '/source');
       done();
     });
 
@@ -264,7 +269,7 @@ describe('Router', function() {
       app.use(router.middleware());
       app.get('home', '/', function *() {});
       app.get('sign-up-form', '/sign-up-form', function *() {});
-      var route = app.redirect('home', 'sign-up-form');
+      app.redirect('home', 'sign-up-form');
       request(http.createServer(app.callback()))
         .post('/')
         .expect(301)
