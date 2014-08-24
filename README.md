@@ -166,6 +166,23 @@ app.get('/:category/:title', function *(next) {
 });
 ```
 
+##### Parameter middleware
+
+Run middleware for named route parameters. Useful for auto-loading or
+validation.
+
+```javascript
+app
+  .param('user', function *(id, next) {
+    this.user = users[id];
+    if (!this.user) return this.status = 404;
+    yield next;
+  })
+  .get('/users/:user', function *(next) {
+    this.body = this.user;
+  })
+```
+
 ##### Regular expressions
 
 Control route matching exactly by specifying a regular expression instead of

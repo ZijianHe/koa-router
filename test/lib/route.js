@@ -5,14 +5,14 @@
 var koa = require('koa')
   , http = require('http')
   , request = require('supertest')
-  , router = require('../../lib/router')
+  , Router = require('../../lib/router')
   , should = require('should')
   , Route = require('../../lib/route');
 
 describe('Route', function() {
   it('supports regular expression route paths', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
       this.status = 204;
     });
@@ -27,7 +27,7 @@ describe('Route', function() {
 
   it('supports named regular express routes', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.get('test', /^\/test\/?/i, function *(next) {
       this.status = 204;
       yield next;
@@ -43,7 +43,7 @@ describe('Route', function() {
 
   it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
-    app.use(router(app));
+    app.use(Router(app));
     app.get(
       '/:category/:title',
       function *(next) {
@@ -67,7 +67,7 @@ describe('Route', function() {
   describe('Route#match()', function() {
     it('captures URL path parameters', function(done) {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       app.get('/:category/:title', function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
@@ -86,7 +86,7 @@ describe('Route', function() {
 
     it('return orginal path parameters when decodeURIComponent throw error', function(done) {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       app.get('/:category/:title', function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
@@ -102,7 +102,7 @@ describe('Route', function() {
 
     it('populates ctx.params with regexp captures', function(done) {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
@@ -125,7 +125,7 @@ describe('Route', function() {
 
     it('return orginal ctx.params when decodeURIComponent throw error', function(done) {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
@@ -148,7 +148,7 @@ describe('Route', function() {
 
     it('populates ctx.params with regexp captures include undefiend', function(done) {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       app.get(/^\/api(\/.+)?/i, function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
@@ -171,7 +171,7 @@ describe('Route', function() {
 
     it('should throw friendly error message when handle not exists', function() {
       var app = koa();
-      app.use(router(app));
+      app.use(Router(app));
       var notexistHandle = undefined;
       (function () {
         app.get('/foo', notexistHandle);
@@ -184,6 +184,32 @@ describe('Route', function() {
       (function () {
         app.post('/foo', function() {}, notexistHandle);
       }).should.throw('post `/foo`: `middleware` must be a function, not `undefined`');
+    });
+  });
+
+  describe('Route#param()', function() {
+    it('composes middleware for param fn', function(done) {
+      var app = koa();
+      var router = new Router();
+      var route = new Route('/users/:user', ['GET'], [function *(next) {
+        this.body = this.user;
+      }]);
+      route.param('user', function *(id, next) {
+        this.user = { name: 'alex' };
+        if (!id) return this.status = 404;
+        yield next;
+      });
+      router.routes.push(route);
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/users/3')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('name', 'alex');
+        done();
+      });
     });
   });
 

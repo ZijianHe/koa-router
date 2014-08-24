@@ -244,7 +244,9 @@ describe('Router', function() {
       router.register.should.be.type('function');
       var route = router.register('/', ['GET', 'POST'], function *() {});
       app.use(router.middleware());
-      router.routes.should.include(route);
+      router.routes.should.be.an.instanceOf(Array);
+      router.routes.should.have.property('length', 1);
+      router.routes[0].should.have.property('path', '/');
       done();
     });
   });
@@ -293,6 +295,32 @@ describe('Router', function() {
       url = app.url('books', 'programming', 'how to node');
       url.should.equal('/programming/how%20to%20node');
       done();
+    });
+  });
+
+  describe('Router#param()', function() {
+    it('runs parameter middleware', function(done) {
+      var app = koa();
+      request(http.createServer(
+        app
+          .use(Router(app))
+          .param('user', function *(id, next) {
+            this.user = { name: 'alex' };
+            if (!id) return this.status = 404;
+            yield next;
+          })
+          .get('/users/:user', function *(next) {
+            this.body = this.user;
+          })
+          .callback()))
+      .get('/users/3')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('name', 'alex');
+        done();
+      });
     });
   });
 });
