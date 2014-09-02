@@ -211,6 +211,35 @@ describe('Route', function() {
         done();
       });
     });
+
+    it('ignores params which are not matched', function(done) {
+      var app = koa();
+      var router = new Router();
+      var route = new Route('/users/:user', ['GET'], [function *(next) {
+        this.body = this.user;
+      }]);
+      route.param('user', function *(id, next) {
+        this.user = { name: 'alex' };
+        if (!id) return this.status = 404;
+        yield next;
+      });
+      route.param('title', function *(id, next) {
+        this.user = { name: 'mark' };
+        if (!id) return this.status = 404;
+        yield next;
+      });
+      router.routes.push(route);
+      app.use(router.middleware());
+      request(http.createServer(app.callback()))
+      .get('/users/3')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('name', 'alex');
+        done();
+      });
+    });
   });
 
   describe('Route#url()', function() {
