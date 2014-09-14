@@ -16,11 +16,11 @@
   "dependencies": {
     "methods": "^1.0.1",
     "path-to-regexp": "^1.0.0",
-    "debug": "^1.0.2",
+    "debug": "^2.0.0",
     "koa-compose": "^2.3.0"
   },
   "devDependencies": {
-    "koa": "^0.10.0",
+    "koa": "^0.11.0",
     "should": "^4.0.4",
     "mocha": "^1.17.1",
     "supertest": "^0.13.0"
