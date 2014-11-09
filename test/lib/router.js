@@ -323,4 +323,88 @@ describe('Router', function() {
       });
     });
   });
+
+  describe('Router#opts', function() {
+    it('responds with 200', function(done) {
+      var app = koa();
+      request(http.createServer(
+        app
+          .use(Router(app, {
+            strict: true
+          }))
+          .get('/info', function *() {
+            this.body = 'hello';
+          })
+          .callback()))
+      .get('/info')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.text.should.equal('hello');
+        done();
+      });
+    });
+
+    it('responds with 404 when has a trailing slash', function(done) {
+      var app = koa();
+      request(http.createServer(
+        app
+          .use(Router(app, {
+            strict: true
+          }))
+          .get('/info', function *() {
+            this.body = 'hello';
+          })
+          .callback()))
+      .get('/info/')
+      .expect(404)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+  });
+
+  describe('use middleware with opts', function() {
+    it('responds with 200', function(done) {
+      var app = koa();
+      var router = new Router({
+        strict: true
+      });
+      router.get('/info', function *() {
+        this.body = 'hello';
+      })
+      request(http.createServer(
+        app
+          .use(router.middleware())
+          .callback()))
+      .get('/info')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.text.should.equal('hello');
+        done();
+      });
+    });
+
+    it('responds with 404 when has a trailing slash', function(done) {
+      var app = koa();
+      var router = new Router({
+        strict: true
+      });
+      router.get('/info', function *() {
+        this.body = 'hello';
+      })
+      request(http.createServer(
+        app
+          .use(router.middleware())
+          .callback()))
+      .get('/info/')
+      .expect(404)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+  });
 });
