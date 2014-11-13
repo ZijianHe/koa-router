@@ -199,6 +199,27 @@ describe('Router', function() {
     });
   });
 
+  it('supports custom routing detect path: ctx.routerPath', function(done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(function *(next) {
+      // bind helloworld.example.com/users => example.com/helloworld/users
+      var appname = this.request.hostname.split('.', 1)[0];
+      this.routerPath = '/' + appname + this.path;
+      yield *next;
+    });
+    app.use(router.middleware());
+    app.get('/helloworld/users', function *() {
+      this.body = this.method + ' ' + this.url;
+    });
+
+    request(http.createServer(app.callback()))
+    .get('/users')
+    .set('Host', 'helloworld.example.com')
+    .expect(200)
+    .expect('GET /users', done);
+  });
+
   describe('Router#[verb]()', function() {
     it('registers route specific to HTTP verb', function() {
       var app = koa();
