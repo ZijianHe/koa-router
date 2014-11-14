@@ -16,14 +16,14 @@
   "dependencies": {
     "methods": "^1.0.1",
     "path-to-regexp": "^1.0.0",
-    "debug": "^2.0.0",
+    "debug": "^2.1.0",
     "koa-compose": "^2.3.0"
   },
   "devDependencies": {
-    "koa": "^0.11.0",
-    "should": "^4.0.4",
-    "mocha": "^1.17.1",
-    "supertest": "^0.13.0"
+    "koa": "^0.13.0",
+    "should": "^4.3.0",
+    "mocha": "^2.0.1",
+    "supertest": "^0.15.0"
   },
   "scripts": {
     "test": "NODE_ENV=test node_modules/mocha/bin/mocha --harmony-generators --recursive --reporter spec"
