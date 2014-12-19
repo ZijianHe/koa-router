@@ -465,4 +465,43 @@ describe('Router', function() {
       });
     });
   });
+
+  describe('If no HEAD method, default to GET', function() {
+    it('should default to GET', function(done) {
+      var app = koa();
+      request(http.createServer(
+        app
+          .use(Router(app))
+          .get('/users/:id', function *() {
+            should.exist(this.params.id);
+            this.body = 'hello';
+          })
+          .callback()))
+      .head('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('should work with middleware', function(done) {
+      var app = koa();
+      var router = new Router();
+      router.get('/users/:id', function *() {
+        should.exist(this.params.id);
+        this.body = 'hello';
+      })
+      request(http.createServer(
+        app
+          .use(router.middleware())
+          .callback()))
+      .head('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+  });
 });
