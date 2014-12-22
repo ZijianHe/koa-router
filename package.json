@@ -20,9 +20,10 @@
     "koa-compose": "^2.3.0"
   },
   "devDependencies": {
+    "expect.js": "^0.3.1",
     "koa": "^0.13.0",
-    "should": "^4.3.0",
     "mocha": "^2.0.1",
+    "should": "^4.3.0",
     "supertest": "^0.15.0"
   },
   "scripts": {
