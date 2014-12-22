@@ -10,6 +10,7 @@ var fs = require('fs')
   , request = require('supertest')
   , Router = require('../../lib/router')
   , Route = require('../../lib/route')
+  , expect = require('expect.js')
   , should = require('should');
 
 describe('Router', function() {
@@ -481,6 +482,7 @@ describe('Router', function() {
       .expect(200)
       .end(function(err, res) {
         if (err) return done(err);
+        expect(res.body).to.be.empty();
         done();
       });
     });
@@ -500,6 +502,7 @@ describe('Router', function() {
       .expect(200)
       .end(function(err, res) {
         if (err) return done(err);
+        expect(res.body).to.be.empty();
         done();
       });
     });
