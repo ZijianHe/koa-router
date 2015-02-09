@@ -156,6 +156,7 @@ describe('Router', function() {
     var app = koa();
     var router = new Router(app);
     app.use(router.middleware());
+    app.use(router.allowedMethods());
     app.get('/users', function *() {});
     app.put('/users', function *() {});
     request(http.createServer(app.callback()))
@@ -163,7 +164,7 @@ describe('Router', function() {
     .expect(204)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'GET, PUT');
+      res.header.should.have.property('allow', 'HEAD, GET, PUT');
       done();
     });
   });
@@ -172,6 +173,7 @@ describe('Router', function() {
     var app = koa();
     var router = new Router(app);
     app.use(router.middleware());
+    app.use(router.allowedMethods());
     app.get('/users', function *() {});
     app.put('/users', function *() {});
     app.post('/events', function *() {});
@@ -180,7 +182,7 @@ describe('Router', function() {
     .expect(405)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'GET, PUT');
+      res.header.should.have.property('allow', 'HEAD, GET, PUT');
       done();
     });
   });
@@ -189,10 +191,11 @@ describe('Router', function() {
     var app = koa();
     var router = new Router(app);
     app.use(router.middleware());
+    app.use(router.allowedMethods());
     app.get('/users', function *() {});
     app.put('/users', function *() {});
     request(http.createServer(app.callback()))
-    .del('/users')
+    .search('/users')
     .expect(501)
     .end(function(err, res) {
       if (err) return done(err);
