@@ -74,13 +74,13 @@ describe('Route', function() {
         this.params.should.have.property('category', 'match');
         this.params.should.have.property('title', 'this');
         this.status = 204;
-        done();
       });
       request(http.createServer(app.callback()))
       .get('/match/this')
       .expect(204)
-      .end(function(err) {
+      .end(function(err, res) {
         if (err) return done(err);
+        done();
       });
     });
 
@@ -100,18 +100,18 @@ describe('Route', function() {
       .end(done);
     });
 
-    it('populates ctx.params with regexp captures', function(done) {
+    it('populates ctx.captures with regexp captures', function(done) {
       var app = koa();
       app.use(Router(app));
       app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, '1');
+        this.should.have.property('captures');
+        this.captures.should.be.instanceOf(Array);
+        this.captures.should.have.property(0, '1');
         yield next;
       }, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, '1');
+        this.should.have.property('captures');
+        this.captures.should.be.instanceOf(Array);
+        this.captures.should.have.property(0, '1');
         this.status = 204;
       });
       request(http.createServer(app.callback()))
@@ -123,18 +123,18 @@ describe('Route', function() {
       });
     });
 
-    it('return orginal ctx.params when decodeURIComponent throw error', function(done) {
+    it('return orginal ctx.captures when decodeURIComponent throw error', function(done) {
       var app = koa();
       app.use(Router(app));
       app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, '101%');
+        this.should.have.property('captures');
+        this.captures.should.be.type('object');
+        this.captures.should.have.property(0, '101%');
         yield next;
       }, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, '101%');
+        this.should.have.property('captures');
+        this.captures.should.be.type('object');
+        this.captures.should.have.property(0, '101%');
         this.status = 204;
       });
       request(http.createServer(app.callback()))
@@ -146,18 +146,18 @@ describe('Route', function() {
       });
     });
 
-    it('populates ctx.params with regexp captures include undefiend', function(done) {
+    it('populates ctx.captures with regexp captures include undefiend', function(done) {
       var app = koa();
       app.use(Router(app));
       app.get(/^\/api(\/.+)?/i, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, undefined);
+        this.should.have.property('captures');
+        this.captures.should.be.type('object');
+        this.captures.should.have.property(0, undefined);
         yield next;
       }, function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property(0, undefined);
+        this.should.have.property('captures');
+        this.captures.should.be.type('object');
+        this.captures.should.have.property(0, undefined);
         this.status = 204;
       });
       request(http.createServer(app.callback()))

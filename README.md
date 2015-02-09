@@ -154,8 +154,8 @@ app.get(
 
 Named route parameters are captured and added to `ctx.params`.
 
-Capture groups from regular expression routes are also added to
-`ctx.params`, which is an array.
+Capture groups from regular expression routes are added to
+`ctx.captures`, which is an array.
 
 ##### Named parameters
 
