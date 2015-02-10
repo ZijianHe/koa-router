@@ -5,6 +5,10 @@
     "type": "git",
     "url": "https://github.com/alexmingoia/koa-router.git"
   },
+  "main": "lib/router.js",
+  "files": [
+    "lib"
+  ],
   "author": "Alex Mingoia <talk@alexmingoia.com>",
   "version": "3.8.0",
   "keywords": [
