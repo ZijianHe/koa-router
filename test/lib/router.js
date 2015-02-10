@@ -234,7 +234,7 @@ describe('Router', function() {
         app[method].should.be.type('function');
         app[method]('/', function *() {});
       });
-      router.routes.should.have.length(methods.length);
+      router.stack.routes.should.have.length(methods.length);
     });
 
     it('enables route chaining', function() {
@@ -254,9 +254,9 @@ describe('Router', function() {
       });
       app.use(router.middleware());
       router.should.have.property('routes');
-      router.routes.should.have.property('length', 1);
-      router.routes[0].should.be.instanceOf(Route);
-      router.routes[0].should.have.property('path', '/');
+      router.stack.routes.should.have.property('length', 1);
+      router.stack.routes[0].should.be.instanceOf(Route);
+      router.stack.routes[0].should.have.property('path', '/');
       done();
     });
   });
@@ -269,9 +269,9 @@ describe('Router', function() {
       router.register.should.be.type('function');
       var route = router.register('/', ['GET', 'POST'], function *() {});
       app.use(router.middleware());
-      router.routes.should.be.an.instanceOf(Array);
-      router.routes.should.have.property('length', 1);
-      router.routes[0].should.have.property('path', '/');
+      router.stack.routes.should.be.an.instanceOf(Array);
+      router.stack.routes.should.have.property('length', 1);
+      router.stack.routes[0].should.have.property('path', '/');
       done();
     });
   });
@@ -284,9 +284,9 @@ describe('Router', function() {
       router.redirect.should.be.type('function');
       router.redirect('/source', '/destination', 302);
       app.use(router.middleware());
-      router.routes.should.have.property('length', 1);
-      router.routes[0].should.be.instanceOf(Route);
-      router.routes[0].should.have.property('path', '/source');
+      router.stack.routes.should.have.property('length', 1);
+      router.stack.routes[0].should.be.instanceOf(Route);
+      router.stack.routes[0].should.have.property('path', '/source');
       done();
     });
 

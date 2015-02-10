@@ -1,8 +1,8 @@
-# Router middleware for [koa](https://github.com/koajs/koa)
+# koa-router
 
-[![Build Status](https://secure.travis-ci.org/alexmingoia/koa-router.png)](http://travis-ci.org/alexmingoia/koa-router)
-[![Dependency Status](https://david-dm.org/alexmingoia/koa-router.png)](http://david-dm.org/alexmingoia/koa-router)
-[![NPM version](https://badge.fury.io/js/koa-router.png)](http://badge.fury.io/js/koa-router)
+[![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](http://img.shields.io/travis/alexmingoia/koa-router.svg?style=flat)](http://travis-ci.org/alexmingoia/koa-router) [![Tips](https://img.shields.io/gratipay/alexmingoia.svg?style=flat)](https://www.gratipay.com/alexmingoia/)
+
+> Router middleware for [koa](https://github.com/koajs/koa)
 
 * Express-style routing using `app.get`, `app.put`, `app.post`, etc.
 * Named URL parameters and regexp captures.
@@ -13,92 +13,66 @@
 * Multiple route middleware.
 * Multiple routers.
 
-## Install
+## Installation
 
-koa-router is available using [npm](https://npmjs.org):
+Install using [npm](https://www.npmjs.org/):
 
-```
+```sh
 npm install koa-router
 ```
 
-## Usage
+## API Reference
 
-Require the router and mount the middleware:
+* [koa-router](#module_koa-router)
+  * [Router()](#exp_module_koa-router--Router) ⏏
+    * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
+    * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
+    * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
+    * [.allowedMethods([options], [throw])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
+    * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
+    * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
+    * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
+    * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
+    * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
 
-```javascript
-var koa = require('koa')
-  , router = require('koa-router')
-  , app = koa();
+<a name="exp_module_koa-router--Router"></a>
+### Router() ⏏
+Create a new router.
 
-app.use(router(app));
-```
-
-After the router has been initialized you can register routes:
-
-```javascript
-app.get('/users/:id', function *(next) {
-  var user = yield User.findOne(this.params.id);
-  this.body = user;
-});
-```
-
-### Multiple routers
-
-You can use multiple routers and sets of routes by omitting the `app`
-argument. For example, separate routers for two versions of an API:
+**Example**  
+Basic usage:
 
 ```javascript
-var koa = require('koa');
-  , mount = require('koa-mount')
-  , Router = require('koa-router');
+var app = require('koa')();
+var router = require('koa-router')();
 
-var app = koa();
-
-var APIv1 = new Router();
-var APIv2 = new Router();
-
-APIv1.get('/sign-in', function *() {
-  // ...
-});
-
-APIv2.get('/sign-in', function *() {
-  // ...
-});
+router.get('/', function *(next) {...});
 
 app
-  .use(mount('/v1', APIv1.middleware()))
-  .use(mount('/v2', APIv2.middleware()));
+  .use(router.routes())
+  .use(router.allowedMethods());
 ```
 
-### Chaining
-
-The http methods (get, post, etc) return their `Router` instance,
-so routes can be chained as you're used to with express:
+Or if you prefer to extend the app with router methods:
 
 ```javascript
-var api = new Router();
+var app = require('koa')();
+var router = require('koa-router');
 
-api
-  .get('/foo', showFoo)
-  .get('/bar', showBar)
-  .post('/foo', createFoo);
+app
+  .use(router(app))
+  .get('/', function *(next) {...});
 ```
-
-## API
-
-### Migrating from 2.x to 3.x
-
-Resource routing was separated into the
-[koa-resource-router](https://github.com/alexmingoia/koa-resource-router)
-module.
-
-### Router#verb([name, ]path, middleware[, middleware...])
+<a name="module_koa-router--Router#get|put|post|patch|delete"></a>
+#### router.get|put|post|patch|delete ⇒ <code>Router</code>
+Create `router.verb()` methods, where *verb* is one of the HTTP verbes such
+as `router.get()` or `router.post()`.
 
 Match URL patterns to callback functions or controller actions using `router.verb()`,
 where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
 
 ```javascript
-app
+router
   .get('/', function *(next) {
     this.body = 'Hello World!';
   })
@@ -123,11 +97,11 @@ Routes can optionally have names. This allows generation of URLs and easy
 renaming of URLs during development.
 
 ```javascript
-app.get('user', '/users/:id', function *(next) {
+router.get('user', '/users/:id', function *(next) {
  // ...
 });
 
-app.url('user', 3);
+router.url('user', 3);
 // => "/users/3"
 ```
 
@@ -137,7 +111,7 @@ Multiple middleware may be given and are composed using
 [koa-compose](https://github.com/koajs/koa-compose):
 
 ```javascript
-app.get(
+router.get(
   '/users/:id',
   function *(next) {
     this.user = yield User.findOne(this.params.id);
@@ -154,13 +128,10 @@ app.get(
 
 Named route parameters are captured and added to `ctx.params`.
 
-Capture groups from regular expression routes are added to
-`ctx.captures`, which is an array.
-
 ##### Named parameters
 
 ```javascript
-app.get('/:category/:title', function *(next) {
+router.get('/:category/:title', function *(next) {
   console.log(this.params);
   // => [ category: 'programming', title: 'how-to-node' ]
 });
@@ -172,7 +143,7 @@ Run middleware for named route parameters. Useful for auto-loading or
 validation.
 
 ```javascript
-app
+router
   .param('user', function *(id, next) {
     this.user = users[id];
     if (!this.user) return this.status = 404;
@@ -190,78 +161,167 @@ a path string when creating the route. For example, it might be useful to match
 date formats for a blog, such as `/blog/2013-09-04`:
 
 ```javascript
-app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
+router.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
   // ...
 });
 ```
 
-#### Multiple methods
+Capture groups from regular expression routes are added to
+`ctx.captures`, which is an array.
 
-Create routes with multiple HTTP methods using `router.register()`:
 
+| Param | Type | Description |
+| --- | --- | --- |
+| path | <code>String</code> \| <code>RegExp</code> |  |
+| [middleware] | <code>function</code> | route middleware(s) |
+| callback | <code>function</code> | route callback |
+
+<a name="module_koa-router--Router#routes"></a>
+#### router.routes ⇒ <code>function</code>
+Returns router middleware which dispatches a route matching the request.
+
+<a name="module_koa-router--Router#use"></a>
+#### router.use(middleware, [...]) ⇒ <code>Router</code>
+Use given middleware(s) before route callback.
+
+
+| Param | Type |
+| --- | --- |
+| middleware | <code>function</code> | 
+| [...] | <code>function</code> | 
+
+**Example**  
 ```javascript
-app.register('/', ['get', 'post'], function *(next) {
-  // ...
-});
+router.use(session(), authorize());
+
+// runs session and authorize middleware before routing
+app.use(router.routes());
 ```
+<a name="module_koa-router--Router#allowedMethods"></a>
+#### router.allowedMethods([options], [throw]) ⇒ <code>function</code>
+Returns separate middleware for responding to `OPTIONS` requests with
+an `Allow` header containing the allowed methods, as well as responding
+with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
-Create route for all methods using `router.all()`:
+`router.allowedMethods()` is automatically mounted if the router is created
+with `app.use(router(app))`. Create the router separately if you do not want
+to use `.allowedMethods()`, or if you are using multiple routers.
 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | <code>Object</code> |  |
+| [throw] | <code>Boolean</code> | throw error instead of setting status and header |
+
+**Example**  
 ```javascript
-app.all('/', function *(next) {
-  // ...
-});
+var app = koa();
+var router = router();
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 ```
+<a name="module_koa-router--Router#all"></a>
+#### router.all(name, path, [middleware], callback) ⇒ <code>Router</code>
+Register route with all methods.
 
-### Router#redirect(source, destination, [code])
 
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>String</code> | Optional. |
+| path | <code>String</code> \| <code>RegExp</code> |  |
+| [middleware] | <code>function</code> | You may also pass multiple middleware. |
+| callback | <code>function</code> |  |
+
+<a name="module_koa-router--Router#redirect"></a>
+#### router.redirect(source, destination, code) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
 
 Both `source` and `destination` can be route names.
 
 ```javascript
-app.redirect('/login', 'sign-in');
+router.redirect('/login', 'sign-in');
 ```
 
 This is equivalent to:
 
 ```javascript
-app.all('/login', function *() {
+router.all('/login', function *() {
   this.redirect('/sign-in');
   this.status = 301;
 });
 ```
 
-### Router#route(name)
 
-Lookup route with given `name`. Returns the route or `false`.
+| Param | Type | Description |
+| --- | --- | --- |
+| source | <code>String</code> | URL, RegExp, or route name. |
+| destination | <code>String</code> | URL or route name. |
+| code | <code>Number</code> | HTTP status code (default: 301). |
 
-### Router#url(name, params)
+<a name="module_koa-router--Router#route"></a>
+#### router.route(name) ⇒ <code>Route</code> \| <code>false</code>
+Lookup route with given `name`.
 
+
+| Param | Type |
+| --- | --- |
+| name | <code>String</code> | 
+
+<a name="module_koa-router--Router#url"></a>
+#### router.url(name, params) ⇒ <code>String</code> \| <code>Error</code>
 Generate URL for route. Takes either map of named `params` or series of
 arguments (for regular expression routes).
 
-Returns `Error` if no route is found with given `name`.
-
 ```javascript
-app.get('user', '/users/:id', function *(next) {
+router.get('user', '/users/:id', function *(next) {
  // ...
 });
 
-app.url('user', 3);
+router.url('user', 3);
 // => "/users/3"
 
-app.url('user', { id: 3 });
+router.url('user', { id: 3 });
 // => "/users/3"
 ```
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>String</code> | route name |
+| params | <code>Object</code> | url parameters |
+
+<a name="module_koa-router--Router#param"></a>
+#### router.param(param, middleware) ⇒ <code>Router</code>
+Run middleware for named route parameters. Useful for auto-loading or
+validation.
+
+
+| Param | Type |
+| --- | --- |
+| param | <code>String</code> | 
+| middleware | <code>function</code> | 
+
+**Example**  
+```javascript
+router
+  .param('user', function *(id, next) {
+    this.user = users[id];
+    if (!this.user) return this.status = 404;
+    yield next;
+  })
+  .get('/users/:user', function *(next) {
+    this.body = this.user;
+  })
+```
+## Contributing
+
+Please submit all issues and pull requests to the [alexmingoia/koa-router](http://github.com/alexmingoia/koa-router) repository!
 
 ## Tests
 
-Tests use [mocha](https://github.com/visionmedia/mocha) and can be run
-with [npm](https://npmjs.org):
+Run tests using `npm test`.
 
-```
-npm test
-```
+## Support
 
-## MIT Licensed
+If you have any problem or suggestion please open an issue [here](https://github.com/alexmingoia/koa-router/issues).
