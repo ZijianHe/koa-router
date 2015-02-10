@@ -28,7 +28,7 @@ npm install koa-router
     * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
     * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
     * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
-    * [.allowedMethods([options], [throw])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
+    * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
     * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
     * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
     * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
@@ -198,7 +198,7 @@ router.use(session(), authorize());
 app.use(router.routes());
 ```
 <a name="module_koa-router--Router#allowedMethods"></a>
-#### router.allowedMethods([options], [throw]) ⇒ <code>function</code>
+#### router.allowedMethods([options]) ⇒ <code>function</code>
 Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
 with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
@@ -211,7 +211,7 @@ to use `.allowedMethods()`, or if you are using multiple routers.
 | Param | Type | Description |
 | --- | --- | --- |
 | [options] | <code>Object</code> |  |
-| [throw] | <code>Boolean</code> | throw error instead of setting status and header |
+| [options.throw] | <code>Boolean</code> | throw error instead of setting status and header |
 
 **Example**  
 ```javascript
