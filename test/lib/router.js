@@ -470,6 +470,46 @@ describe('Router', function() {
     });
   });
 
+  describe('Router#middleware()', function () {
+    it('should return composed middleware', function (done) {
+      var app = koa();
+      var router = new Router();
+      var middlewareCount = 0;
+      var middlewareA = function *(next) {
+        middlewareCount++;
+        yield next;
+      };
+      var middlewareB = function *(next) {
+        middlewareCount++;
+        yield next;
+      };
+
+      router.use(middlewareA, middlewareB);
+      router.get('/users/:id', function *() {
+        should.exist(this.params.id);
+        this.body = { hello: 'world' };
+      });
+
+      var routerMiddleware = router.middleware();
+
+      expect(routerMiddleware).to.be.a('function');
+
+      request(http.createServer(
+        app
+          .use(routerMiddleware)
+          .callback()))
+      .get('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        expect(res.body).to.be.an('object');
+        expect(res.body).to.have.property('hello', 'world');
+        expect(middlewareCount).to.equal(2);
+        done();
+      });
+    });
+  });
+
   describe('If no HEAD method, default to GET', function() {
     it('should default to GET', function(done) {
       var app = koa();
