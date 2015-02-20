@@ -550,4 +550,16 @@ describe('Router', function() {
       });
     });
   });
+
+  describe('Static Router#url()', function() {
+    it('generates route URL', function() {
+        var url = Router.url('/:category/:title', { category: 'programming', title: 'how-to-node' });
+        url.should.equal('/programming/how-to-node');
+    });
+
+    it('escapes using encodeURIComponent()', function() {
+      var url = Router.url('/:category/:title', { category: 'programming', title: 'how to node' });
+      url.should.equal('/programming/how%20to%20node');
+    });
+  });
 });
