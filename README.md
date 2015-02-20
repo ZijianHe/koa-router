@@ -24,19 +24,25 @@ npm install koa-router
 ## API Reference
 
 * [koa-router](#module_koa-router)
-  * [Router()](#exp_module_koa-router--Router) ⏏
-    * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
-    * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
-    * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
-    * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
-    * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
-    * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
-    * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
-    * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
-    * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
+  * [class: Router](#exp_module_koa-router--Router) ⏏
+    * [new Router()](#new_module_koa-router--Router_new)
+    * _instance_
+      * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
+      * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
+      * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
+      * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
+      * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
+      * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
+      * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
+      * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
+      * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
+    * _static_
+      * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
 
 <a name="exp_module_koa-router--Router"></a>
-### Router() ⏏
+### class: Router ⏏
+<a name="new_module_koa-router--Router_new"></a>
+#### new Router()
 Create a new router.
 
 **Example**  
@@ -314,6 +320,20 @@ router
     this.body = this.user;
   })
 ```
+<a name="module_koa-router--Router.url"></a>
+#### Router.url(path, params) ⇒ <code>String</code>
+Generate URL from url pattern and given `params`.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| path | <code>String</code> | url pattern |
+| params | <code>Object</code> | url parameters |
+
+**Example**  
+var url = Router.url('/users/:id', {id: 1});
+  // => "/users/1"
+
 ## Contributing
 
 Please submit all issues and pull requests to the [alexmingoia/koa-router](http://github.com/alexmingoia/koa-router) repository!
