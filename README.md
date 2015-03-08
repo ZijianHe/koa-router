@@ -33,6 +33,7 @@ npm install koa-router
       * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
       * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
+      * [.register(name, path, methods, middleware)](#module_koa-router--Router#register) ⇒ <code>Route</code>
       * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
       * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
       * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
@@ -264,6 +265,18 @@ router.all('/login', function *() {
 | source | <code>String</code> | URL, RegExp, or route name. |
 | destination | <code>String</code> | URL or route name. |
 | code | <code>Number</code> | HTTP status code (default: 301). |
+
+<a name="module_koa-router--Router#register"></a>
+#### router.register(name, path, methods, middleware) ⇒ <code>Route</code>
+Create and register a route.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>String</code> | Optional. |
+| path | <code>String</code> \| <code>RegExp</code> | Path string or regular expression. |
+| methods | <code>Array.&lt;String&gt;</code> | Array of HTTP verbs. |
+| middleware | <code>function</code> | Multiple middleware also accepted. |
 
 <a name="module_koa-router--Router#route"></a>
 #### router.route(name) ⇒ <code>Route</code> \| <code>false</code>
