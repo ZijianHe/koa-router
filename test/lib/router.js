@@ -407,6 +407,27 @@ describe('Router', function() {
       });
     });
 
+    it('should allow setting a prefix', function (done) {
+      var app = koa();
+
+      var routes = Router({ prefix: '/things/:thing_id' });
+
+      routes.get('/list', function * (next) {
+        this.body = this.params;
+      });
+
+      app.use(routes.routes());
+
+      request(http.createServer(app.callback()))
+        .get('/things/1/list')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          res.body.thing_id.should.equal('1');
+          done();
+        });
+    });
+
     it('responds with 404 when has a trailing slash', function(done) {
       var app = koa();
       request(http.createServer(
