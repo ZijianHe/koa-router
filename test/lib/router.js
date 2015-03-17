@@ -572,6 +572,15 @@ describe('Router', function() {
     });
   });
 
+  describe('Router#prefix', function () {
+    it('should set opts.prefix', function () {
+      var router = Router();
+      expect(router.opts).to.not.have.key('prefix');
+      router.prefix('/things/:thing_id');
+      expect(router.opts.prefix).to.equal('/things/:thing_id');
+    });
+  })
+
   describe('Static Router#url()', function() {
     it('generates route URL', function() {
         var url = Router.url('/:category/:title', { category: 'programming', title: 'how-to-node' });
