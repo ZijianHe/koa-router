@@ -579,6 +579,30 @@ describe('Router', function() {
       router.prefix('/things/:thing_id');
       expect(router.opts.prefix).to.equal('/things/:thing_id');
     });
+
+    it('should prefix existing routes', function () {
+      var router = Router();
+      router.get('/users/:id', function *() {
+        this.body = 'test';
+      })
+      router.prefix('/things/:thing_id');
+      var route = router.stack.routes[0];
+      expect(route.path).to.equal('/things/:thing_id/users/:id');
+      expect(route.paramNames).to.have.length(2);
+      expect(route.paramNames[0]).to.have.property('name', 'thing_id');
+      expect(route.paramNames[1]).to.have.property('name', 'id');
+    });
+
+    it('should prefix regular expressions', function () {
+      var router = Router();
+      router.get(/^\/foo\/bar\/?$/i, function *() {
+        this.body = 'test';
+      })
+      router.prefix('/baz');
+      var route = router.stack.routes[0];
+      expect(route.regexp.source).to.equal('^\\/baz\\/foo\\/bar\\/?$');
+      expect(route.regexp.ignoreCase).to.equal(true);
+    });
   })
 
   describe('Static Router#url()', function() {
