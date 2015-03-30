@@ -1,5 +1,16 @@
 # History
 
+## 4.3.0
+
+- Add support for router prefixes.
+- Add MIT license.
+
+## 4.2.0
+
+- Fixed issue with router middleware being applied even if no route was
+matched.
+- Router.url - new static method to generate url from url pattern and data
+
 ## 4.1.0
 
 Private API changed to separate context parameter decoration from route
