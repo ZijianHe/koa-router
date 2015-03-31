@@ -81,7 +81,7 @@ app
 ```
 <a name="module_koa-router--Router#get|put|post|patch|delete"></a>
 #### router.get|put|post|patch|delete ⇒ <code>Router</code>
-Create `router.verb()` methods, where *verb* is one of the HTTP verbes such
+Create `router.verb()` methods, where *verb* is one of the HTTP verbs such
 as `router.get()` or `router.post()`.
 
 Match URL patterns to callback functions or controller actions using `router.verb()`,
