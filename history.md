@@ -1,5 +1,13 @@
 # History
 
+## 4.3.2
+
+- Do not send 405 if route matched but status is 404. Fixes #112, closes #114.
+
+## 4.3.1
+
+- Do not run middleware if not yielded to by previous middleware. Fixes #115.
+
 ## 4.3.0
 
 - Add support for router prefixes.
