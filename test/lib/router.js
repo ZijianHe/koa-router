@@ -203,6 +203,23 @@ describe('Router', function() {
     });
   });
 
+  it('does not send 405 if route matched but status is 404', function (done) {
+    var app = koa();
+    var router = new Router(app);
+    app.use(router.middleware());
+    app.use(router.allowedMethods());
+    app.get('/users', function *() {
+      this.status = 404;
+    });
+    request(http.createServer(app.callback()))
+    .get('/users')
+    .expect(404)
+    .end(function(err, res) {
+      if (err) return done(err);
+      done();
+    });
+  });
+
   it('supports custom routing detect path: ctx.routerPath', function(done) {
     var app = koa();
     var router = new Router(app);
