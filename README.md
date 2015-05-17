@@ -126,7 +126,7 @@ router.get(
 );
 ```
 
-#### Router prefixes
+#### Router prefixes ("nested" routers)
 
 Route paths can be prefixed at the router level:
 
@@ -138,6 +138,8 @@ var router = new Router({
 router.get('/', ...); // responds to "/users"
 router.get('/:id', ...); // responds to "/users/:id"
 ```
+
+Use this to achieve the same functionality as nested routers.
 
 #### URL parameters
 

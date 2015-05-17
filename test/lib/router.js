@@ -32,6 +32,23 @@ describe('Router', function() {
     done();
   });
 
+  it('nests routers', function (done) {
+    var app = koa();
+    var forums = new Router();
+    var posts = new Router({
+      prefix: '/forums/:id'
+    });
+    posts.get('/posts', function *(next) {
+      this.status = 204;
+      yield next;
+    });
+    forums.get('/forums/:id', posts.routes());
+    request(http.createServer(app.use(forums.routes()).use(posts.routes()).callback()))
+      .get('/forums/1/posts')
+      .expect(204)
+      .end(done);
+  });
+
   it('matches corresponding requests', function(done) {
     var app = koa();
     var router = new Router();

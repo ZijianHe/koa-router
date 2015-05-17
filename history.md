@@ -1,5 +1,11 @@
 # History
 
+## 5.0.0
+
+- Remove confusing API for extending koa app with router methods. Router#use()
+  does not have the same behavior as app#use().
+- Improve documentation.
+
 ## 4.3.2
 
 - Do not send 405 if route matched but status is 404. Fixes #112, closes #114.
