@@ -12,10 +12,11 @@ var koa = require('koa')
 describe('Route', function() {
   it('supports regular expression route paths', function(done) {
     var app = koa();
-    app.use(Router(app));
-    app.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
+    var router = new Router();
+    router.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
       this.status = 204;
     });
+    app.use(router.routes());
     request(http.createServer(app.callback()))
     .get('/blog/2013-04-20')
     .expect(204)
@@ -27,8 +28,9 @@ describe('Route', function() {
 
   it('supports named regular express routes', function(done) {
     var app = koa();
-    app.use(Router(app));
-    app.get('test', /^\/test\/?/i, function *(next) {
+    var router = new Router();
+    app.use(router.routes());
+    router.get('test', /^\/test\/?/i, function *(next) {
       this.status = 204;
       yield next;
     });
@@ -43,8 +45,9 @@ describe('Route', function() {
 
   it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
-    app.use(Router(app));
-    app.get(
+    var router = new Router();
+    app.use(router.routes());
+    router.get(
       '/:category/:title',
       function *(next) {
         this.status = 500;
@@ -67,8 +70,9 @@ describe('Route', function() {
   describe('Route#match()', function() {
     it('captures URL path parameters', function(done) {
       var app = koa();
-      app.use(Router(app));
-      app.get('/:category/:title', function *(next) {
+      var router = new Router();
+      app.use(router.routes());
+      router.get('/:category/:title', function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
         this.params.should.have.property('category', 'match');
@@ -86,8 +90,9 @@ describe('Route', function() {
 
     it('return orginal path parameters when decodeURIComponent throw error', function(done) {
       var app = koa();
-      app.use(Router(app));
-      app.get('/:category/:title', function *(next) {
+      var router = new Router();
+      app.use(router.routes());
+      router.get('/:category/:title', function *(next) {
         this.should.have.property('params');
         this.params.should.be.type('object');
         this.params.should.have.property('category', '100%');
@@ -102,8 +107,9 @@ describe('Route', function() {
 
     it('populates ctx.captures with regexp captures', function(done) {
       var app = koa();
-      app.use(Router(app));
-      app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
+      var router = new Router();
+      app.use(router.routes());
+      router.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
         this.should.have.property('captures');
         this.captures.should.be.instanceOf(Array);
         this.captures.should.have.property(0, '1');
@@ -125,8 +131,9 @@ describe('Route', function() {
 
     it('return orginal ctx.captures when decodeURIComponent throw error', function(done) {
       var app = koa();
-      app.use(Router(app));
-      app.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
+      var router = new Router();
+      app.use(router.routes());
+      router.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
         this.should.have.property('captures');
         this.captures.should.be.type('object');
         this.captures.should.have.property(0, '101%');
@@ -148,8 +155,9 @@ describe('Route', function() {
 
     it('populates ctx.captures with regexp captures include undefiend', function(done) {
       var app = koa();
-      app.use(Router(app));
-      app.get(/^\/api(\/.+)?/i, function *(next) {
+      var router = new Router();
+      app.use(router.routes());
+      router.get(/^\/api(\/.+)?/i, function *(next) {
         this.should.have.property('captures');
         this.captures.should.be.type('object');
         this.captures.should.have.property(0, undefined);
@@ -171,18 +179,19 @@ describe('Route', function() {
 
     it('should throw friendly error message when handle not exists', function() {
       var app = koa();
-      app.use(Router(app));
+      var router = new Router();
+      app.use(router.routes());
       var notexistHandle = undefined;
       (function () {
-        app.get('/foo', notexistHandle);
+        router.get('/foo', notexistHandle);
       }).should.throw('get `/foo`: `middleware` must be a function, not `undefined`');
 
       (function () {
-        app.get('foo router', '/foo', notexistHandle);
+        router.get('foo router', '/foo', notexistHandle);
       }).should.throw('get `foo router`: `middleware` must be a function, not `undefined`');
 
       (function () {
-        app.post('/foo', function() {}, notexistHandle);
+        router.post('/foo', function() {}, notexistHandle);
       }).should.throw('post `/foo`: `middleware` must be a function, not `undefined`');
     });
   });

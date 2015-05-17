@@ -25,7 +25,7 @@ npm install koa-router
 
 * [koa-router](#module_koa-router)
   * [Router](#exp_module_koa-router--Router) ⏏
-    * [new Router([app], [opts])](#new_module_koa-router--Router_new)
+    * [new Router([opts])](#new_module_koa-router--Router_new)
     * _instance_
       * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
       * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
@@ -43,13 +43,12 @@ npm install koa-router
 ### Router ⏏
 **Kind**: Exported class  
 <a name="new_module_koa-router--Router_new"></a>
-#### new Router([app], [opts])
+#### new Router([opts])
 Create a new router.
 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| [app] | <code>koa.Application</code> | extend koa app with router methods |
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
@@ -65,17 +64,6 @@ router.get('/', function *(next) {...});
 app
   .use(router.routes())
   .use(router.allowedMethods());
-```
-
-Or if you prefer to extend the app with router methods:
-
-```javascript
-var app = require('koa')();
-var router = require('koa-router');
-
-app
-  .use(router(app))
-  .get('/', function *(next) {...});
 ```
 <a name="module_koa-router--Router#get|put|post|patch|delete"></a>
 #### router.get|put|post|patch|delete ⇒ <code>Router</code>
