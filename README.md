@@ -167,6 +167,11 @@ router
   .get('/users/:user', function *(next) {
     this.body = this.user;
   })
+  .get('/users/:userId/friends', function *(next) {
+    this.body = yield this.user.getFriends();
+  })
+  // /users/3 => {"id": 3, "name": "Alex"}
+  // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
 
 ##### Regular expressions
@@ -339,6 +344,11 @@ router
   .get('/users/:user', function *(next) {
     this.body = this.user;
   })
+  .get('/users/:userId/friends', function *(next) {
+    this.body = yield this.user.getFriends();
+  })
+  // /users/3 => {"id": 3, "name": "Alex"}
+  // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
 <a name="module_koa-router--Router.url"></a>
 #### Router.url(path, params) ⇒ <code>String</code>
