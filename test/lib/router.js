@@ -37,7 +37,7 @@ describe('Router', function() {
     var router = new Router(app);
     app.use(router.middleware());
     app.should.have.properties(
-      'all', 'redirect', 'url', 'get',
+      'redirect', 'url', 'get',
       'put', 'patch', 'post', 'del', 'delete'
     );
     done();
@@ -259,22 +259,6 @@ describe('Router', function() {
       methods.forEach(function(method) {
         router[method]('/', function *() {}).should.equal(router);
       });
-    });
-  });
-
-  describe('Router#all()', function() {
-    it('registers route for all HTTP verbs', function(done) {
-      var app = koa();
-      var router = new Router(app);
-      app.all('/', function *(next) {
-        this.status = 204;
-      });
-      app.use(router.middleware());
-      router.should.have.property('routes');
-      router.stack.routes.should.have.property('length', 1);
-      router.stack.routes[0].should.be.instanceOf(Route);
-      router.stack.routes[0].should.have.property('path', '/');
-      done();
     });
   });
 

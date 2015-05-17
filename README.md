@@ -32,7 +32,6 @@ npm install koa-router
       * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
       * [.prefix(prefix)](#module_koa-router--Router#prefix) ⇒ <code>Router</code>
       * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
-      * [.all(name, path, [middleware], callback)](#module_koa-router--Router#all) ⇒ <code>Router</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
       * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
       * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
@@ -268,19 +267,6 @@ var router = router();
 app.use(router.routes());
 app.use(router.allowedMethods());
 ```
-<a name="module_koa-router--Router#all"></a>
-#### router.all(name, path, [middleware], callback) ⇒ <code>Router</code>
-Register route with all methods.
-
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>String</code> | Optional. |
-| path | <code>String</code> \| <code>RegExp</code> |  |
-| [middleware] | <code>function</code> | You may also pass multiple middleware. |
-| callback | <code>function</code> |  |
-
 <a name="module_koa-router--Router#redirect"></a>
 #### router.redirect(source, destination, code) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
