@@ -1,6 +1,6 @@
 # koa-router
 
-[![NPM version](http://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](http://img.shields.io/travis/alexmingoia/koa-router.svg?style=flat)](http://travis-ci.org/alexmingoia/koa-router) [![Tips](https://img.shields.io/gratipay/alexmingoia.svg?style=flat)](https://www.gratipay.com/alexmingoia/)
+[![NPM version](http://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](http://img.shields.io/travis/alexmingoia/koa-router.svg?style=flat)](http://travis-ci.org/alexmingoia/koa-router) [![Tips](https://img.shields.io/gratipay/alexmingoia.svg?style=flat)](https://www.gratipay.com/alexmingoia/) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/alexmingoia/koa-router/)
 
 > Router middleware for [koa](https://github.com/koajs/koa)
 
@@ -22,7 +22,7 @@ npm install koa-router
 ```
 
 ## API Reference
-
+  
 * [koa-router](#module_koa-router)
   * [Router](#exp_module_koa-router--Router) ⏏
     * [new Router([opts])](#new_module_koa-router--Router_new)
@@ -33,8 +33,8 @@ npm install koa-router
       * [.prefix(prefix)](#module_koa-router--Router#prefix) ⇒ <code>Router</code>
       * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
-      * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> \| <code>false</code>
-      * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> \| <code>Error</code>
+      * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> &#124; <code>false</code>
+      * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> &#124; <code>Error</code>
       * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
     * _static_
       * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
@@ -195,7 +195,7 @@ Capture groups from regular expression routes are added to
 
 | Param | Type | Description |
 | --- | --- | --- |
-| path | <code>String</code> \| <code>RegExp</code> |  |
+| path | <code>String</code> &#124; <code>RegExp</code> |  |
 | [middleware] | <code>function</code> | route middleware(s) |
 | callback | <code>function</code> | route callback |
 
@@ -290,7 +290,7 @@ router.all('/login', function *() {
 | code | <code>Number</code> | HTTP status code (default: 301). |
 
 <a name="module_koa-router--Router#route"></a>
-#### router.route(name) ⇒ <code>Route</code> \| <code>false</code>
+#### router.route(name) ⇒ <code>Route</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -300,7 +300,7 @@ Lookup route with given `name`.
 | name | <code>String</code> | 
 
 <a name="module_koa-router--Router#url"></a>
-#### router.url(name, params) ⇒ <code>String</code> \| <code>Error</code>
+#### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes either map of named `params` or series of
 arguments (for regular expression routes).
 
