@@ -606,17 +606,6 @@ describe('Router', function() {
       expect(route.paramNames[0]).to.have.property('name', 'thing_id');
       expect(route.paramNames[1]).to.have.property('name', 'id');
     });
-
-    it('should prefix regular expressions', function () {
-      var router = Router();
-      router.get(/^\/foo\/bar\/?$/i, function *() {
-        this.body = 'test';
-      })
-      router.prefix('/baz');
-      var route = router.stack.routes[0];
-      expect(route.regexp.source).to.equal('^\\/baz\\/foo\\/bar\\/?$');
-      expect(route.regexp.ignoreCase).to.equal(true);
-    });
   })
 
   describe('Static Router#url()', function() {

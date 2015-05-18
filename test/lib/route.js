@@ -10,39 +10,6 @@ var koa = require('koa')
   , Route = require('../../lib/route');
 
 describe('Route', function() {
-  it('supports regular expression route paths', function(done) {
-    var app = koa();
-    var router = new Router();
-    router.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
-      this.status = 204;
-    });
-    app.use(router.routes());
-    request(http.createServer(app.callback()))
-    .get('/blog/2013-04-20')
-    .expect(204)
-    .end(function(err) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('supports named regular express routes', function(done) {
-    var app = koa();
-    var router = new Router();
-    app.use(router.routes());
-    router.get('test', /^\/test\/?/i, function *(next) {
-      this.status = 204;
-      yield next;
-    });
-    request(http.createServer(app.callback()))
-    .get('/test')
-    .expect(204)
-    .end(function(err) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
   it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
     var router = new Router();

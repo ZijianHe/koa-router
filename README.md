@@ -195,7 +195,7 @@ Capture groups from regular expression routes are added to
 
 | Param | Type | Description |
 | --- | --- | --- |
-| path | <code>String</code> &#124; <code>RegExp</code> |  |
+| path | <code>String</code> |  |
 | [middleware] | <code>function</code> | route middleware(s) |
 | callback | <code>function</code> | route callback |
 
@@ -285,7 +285,7 @@ router.all('/login', function *() {
 
 | Param | Type | Description |
 | --- | --- | --- |
-| source | <code>String</code> | URL, RegExp, or route name. |
+| source | <code>String</code> | URL or route name. |
 | destination | <code>String</code> | URL or route name. |
 | code | <code>Number</code> | HTTP status code (default: 301). |
 
