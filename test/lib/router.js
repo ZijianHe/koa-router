@@ -35,18 +35,40 @@ describe('Router', function() {
   it('nests routers', function (done) {
     var app = koa();
     var forums = new Router();
-    var posts = new Router({
-      prefix: '/forums/:id'
-    });
-    posts.get('/posts', function *(next) {
+    var posts = new Router();
+    posts.get('/', function *(next) {
       this.status = 204;
       yield next;
     });
-    forums.get('/forums/:id', posts.routes());
-    request(http.createServer(app.use(forums.routes()).use(posts.routes()).callback()))
+    posts.get('/:id', function *(next) {
+      this.body = { id: this.params.id };
+      yield next;
+    });
+    forums.get('/forums/:id/posts', posts.routes());
+    var server = http.createServer(app.use(forums.routes()).callback());
+    request(server)
       .get('/forums/1/posts')
       .expect(204)
-      .end(done);
+      .end(function (err) {
+        if (err) return done(err);
+
+        request(server)
+          .get('/forums/1')
+          .expect(404)
+          .end(function (err) {
+            if (err) return done(err);
+
+            request(server)
+              .get('/forums/1/posts/2')
+              .expect(200)
+              .end(function (err, res) {
+                if (err) return done(err);
+
+                expect(res.body).to.have.property('id', '2');
+                done();
+              });
+          });
+      });
   });
 
   it('matches corresponding requests', function(done) {

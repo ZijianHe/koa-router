@@ -5,13 +5,13 @@
 > Router middleware for [koa](https://github.com/koajs/koa)
 
 * Express-style routing using `app.get`, `app.put`, `app.post`, etc.
-* Named URL parameters and regexp captures.
-* String or regular expression route matching.
+* Named URL parameters.
 * Named routes with URL generation.
 * Responds to `OPTIONS` requests with allowed methods.
 * Support for `405 Method Not Allowed` and `501 Not Implemented`.
 * Multiple route middleware.
 * Multiple routers.
+* Nestable routers.
 
 ## Installation
 
@@ -126,7 +126,23 @@ router.get(
 );
 ```
 
-#### Router prefixes ("nested" routers)
+### Nested routers
+
+Nesting routers is supported:
+
+```javascript
+var forums = new Router();
+var posts = new Router();
+
+posts.get('/', function *(next) {...});
+posts.get('/:id', function *(next) {...});
+forums.get('/forums/:id/posts', posts.routes());
+
+// responds to "/forums/123/posts" and "/forums/123/posts/123"
+app.use(forums.routes());
+```
+
+#### Router prefixes
 
 Route paths can be prefixed at the router level:
 
@@ -138,8 +154,6 @@ var router = new Router({
 router.get('/', ...); // responds to "/users"
 router.get('/:id', ...); // responds to "/users/:id"
 ```
-
-Use this to achieve the same functionality as nested routers.
 
 #### URL parameters
 
@@ -175,21 +189,6 @@ router
   // /users/3 => {"id": 3, "name": "Alex"}
   // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
-
-##### Regular expressions
-
-Control route matching exactly by specifying a regular expression instead of
-a path string when creating the route. For example, it might be useful to match
-date formats for a blog, such as `/blog/2013-09-04`:
-
-```javascript
-router.get(/^\/blog\/\d{4}-\d{2}-\d{2}\/?$/i, function *(next) {
-  // ...
-});
-```
-
-Capture groups from regular expression routes are added to
-`ctx.captures`, which is an array.
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 
