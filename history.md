@@ -5,7 +5,8 @@
 - Remove confusing API for extending koa app with router methods. Router#use()
   does not have the same behavior as app#use().
 - Add support for nesting routes.
-- Improve documentation.
+- Remove support for regular expression routes to achieve nestable routers and
+  enable future trie-based routing optimizations.
 
 ## 4.3.2
 
