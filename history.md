@@ -1,5 +1,9 @@
 # History
 
+## 5.0.1
+
+- Fix bug with missing parameters when nesting routers.
+
 ## 5.0.0
 
 - Remove confusing API for extending koa app with router methods. Router#use()

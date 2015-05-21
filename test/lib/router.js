@@ -40,11 +40,11 @@ describe('Router', function() {
       this.status = 204;
       yield next;
     });
-    posts.get('/:id', function *(next) {
-      this.body = { id: this.params.id };
+    posts.get('/:pid', function *(next) {
+      this.body = this.params;
       yield next;
     });
-    forums.get('/forums/:id/posts', posts.routes());
+    forums.get('/forums/:fid/posts', posts.routes());
     var server = http.createServer(app.use(forums.routes()).callback());
     request(server)
       .get('/forums/1/posts')
@@ -64,7 +64,8 @@ describe('Router', function() {
               .end(function (err, res) {
                 if (err) return done(err);
 
-                expect(res.body).to.have.property('id', '2');
+                expect(res.body).to.have.property('fid', '1');
+                expect(res.body).to.have.property('pid', '2');
                 done();
               });
           });

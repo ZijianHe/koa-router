@@ -135,8 +135,8 @@ var forums = new Router();
 var posts = new Router();
 
 posts.get('/', function *(next) {...});
-posts.get('/:id', function *(next) {...});
-forums.get('/forums/:id/posts', posts.routes());
+posts.get('/:pid', function *(next) {...});
+forums.get('/forums/:fid/posts', posts.routes());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
 app.use(forums.routes());
