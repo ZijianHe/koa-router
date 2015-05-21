@@ -27,15 +27,15 @@ npm install koa-router
   * [Router](#exp_module_koa-router--Router) ⏏
     * [new Router([opts])](#new_module_koa-router--Router_new)
     * _instance_
-      * [.get|put|post|patch|delete](#module_koa-router--Router#get|put|post|patch|delete) ⇒ <code>Router</code>
-      * [.routes](#module_koa-router--Router#routes) ⇒ <code>function</code>
-      * [.use(middleware, [...])](#module_koa-router--Router#use) ⇒ <code>Router</code>
-      * [.prefix(prefix)](#module_koa-router--Router#prefix) ⇒ <code>Router</code>
-      * [.allowedMethods([options])](#module_koa-router--Router#allowedMethods) ⇒ <code>function</code>
-      * [.redirect(source, destination, code)](#module_koa-router--Router#redirect) ⇒ <code>Router</code>
-      * [.route(name)](#module_koa-router--Router#route) ⇒ <code>Route</code> &#124; <code>false</code>
-      * [.url(name, params)](#module_koa-router--Router#url) ⇒ <code>String</code> &#124; <code>Error</code>
-      * [.param(param, middleware)](#module_koa-router--Router#param) ⇒ <code>Router</code>
+      * [.get|put|post|patch|delete](#module_koa-router--Router+get|put|post|patch|delete) ⇒ <code>Router</code>
+      * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
+      * [.use(middleware, [...])](#module_koa-router--Router+use) ⇒ <code>Router</code>
+      * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
+      * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
+      * [.redirect(source, destination, code)](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
+      * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Route</code> &#124; <code>false</code>
+      * [.url(name, params)](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
+      * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
     * _static_
       * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
 
@@ -65,7 +65,7 @@ app
   .use(router.routes())
   .use(router.allowedMethods());
 ```
-<a name="module_koa-router--Router#get|put|post|patch|delete"></a>
+<a name="module_koa-router--Router+get|put|post|patch|delete"></a>
 #### router.get|put|post|patch|delete ⇒ <code>Router</code>
 Create `router.verb()` methods, where *verb* is one of the HTTP verbes such
 as `router.get()` or `router.post()`.
@@ -198,12 +198,12 @@ router
 | [middleware] | <code>function</code> | route middleware(s) |
 | callback | <code>function</code> | route callback |
 
-<a name="module_koa-router--Router#routes"></a>
+<a name="module_koa-router--Router+routes"></a>
 #### router.routes ⇒ <code>function</code>
 Returns router middleware which dispatches a route matching the request.
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
-<a name="module_koa-router--Router#use"></a>
+<a name="module_koa-router--Router+use"></a>
 #### router.use(middleware, [...]) ⇒ <code>Router</code>
 Use given middleware(s) before route callback. Only runs if any route is
 matched.
@@ -222,7 +222,7 @@ router.use(session(), authorize());
 // runs session and authorize middleware before routing
 app.use(router.routes());
 ```
-<a name="module_koa-router--Router#prefix"></a>
+<a name="module_koa-router--Router+prefix"></a>
 #### router.prefix(prefix) ⇒ <code>Router</code>
 Set the path prefix for a Router instance that was already initialized.
 
@@ -236,7 +236,7 @@ Set the path prefix for a Router instance that was already initialized.
 ```javascript
 router.prefix('/things/:thing_id')
 ```
-<a name="module_koa-router--Router#allowedMethods"></a>
+<a name="module_koa-router--Router+allowedMethods"></a>
 #### router.allowedMethods([options]) ⇒ <code>function</code>
 Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
@@ -261,7 +261,7 @@ var router = router();
 app.use(router.routes());
 app.use(router.allowedMethods());
 ```
-<a name="module_koa-router--Router#redirect"></a>
+<a name="module_koa-router--Router+redirect"></a>
 #### router.redirect(source, destination, code) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
 
@@ -288,7 +288,7 @@ router.all('/login', function *() {
 | destination | <code>String</code> | URL or route name. |
 | code | <code>Number</code> | HTTP status code (default: 301). |
 
-<a name="module_koa-router--Router#route"></a>
+<a name="module_koa-router--Router+route"></a>
 #### router.route(name) ⇒ <code>Route</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
@@ -298,7 +298,7 @@ Lookup route with given `name`.
 | --- | --- |
 | name | <code>String</code> | 
 
-<a name="module_koa-router--Router#url"></a>
+<a name="module_koa-router--Router+url"></a>
 #### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes either map of named `params` or series of
 arguments (for regular expression routes).
@@ -322,7 +322,7 @@ router.url('user', { id: 3 });
 | name | <code>String</code> | route name |
 | params | <code>Object</code> | url parameters |
 
-<a name="module_koa-router--Router#param"></a>
+<a name="module_koa-router--Router+param"></a>
 #### router.param(param, middleware) ⇒ <code>Router</code>
 Run middleware for named route parameters. Useful for auto-loading or
 validation.

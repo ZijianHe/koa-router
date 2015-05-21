@@ -4,17 +4,14 @@ var jsdoc2md = require('jsdoc-to-markdown');
 var mocha = require('gulp-mocha');
 
 gulp.task('docs', function () {
-  var src = 'lib/*.js';
-  var dest = 'README.md';
-  var options = {
-    template: 'lib/README_tpl.hbs'
-  };
-
-  jsdoc2md.render(src, options)
-    .on('error', function(err){
-      console.log(err);
-    })
-    .pipe(fs.createWriteStream(dest));
+  jsdoc2md({
+    src: './lib/*.js',
+    template: fs.readFileSync('./lib/README_tpl.hbs', 'utf8')
+  })
+  .on('error', function(err){
+    console.log(err);
+  })
+  .pipe(fs.createWriteStream('README.md'));
 });
 
 gulp.task('test', function () {

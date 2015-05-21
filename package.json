@@ -27,12 +27,12 @@
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-mocha": "^2.0.0",
-    "jsdoc-to-markdown": "^0.6.3",
+    "jsdoc-to-markdown": "^1.1.1",
     "expect.js": "^0.3.1",
-    "koa": "^0.17.0",
+    "koa": "^0.20.0",
     "mocha": "^2.0.1",
-    "should": "^4.3.0",
-    "supertest": "^0.15.0"
+    "should": "^6.0.3",
+    "supertest": "^1.0.1"
   },
   "scripts": {
     "test": "NODE_ENV=test node --harmony-generators node_modules/gulp/bin/gulp.js test",
