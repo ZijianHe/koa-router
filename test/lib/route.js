@@ -7,7 +7,7 @@ var koa = require('koa')
   , request = require('supertest')
   , Router = require('../../lib/router')
   , should = require('should')
-  , Route = require('../../lib/route');
+  , Layer = require('../../lib/layer');
 
 describe('Route', function() {
   it('composes multiple callbacks/middlware', function(done) {
@@ -167,7 +167,7 @@ describe('Route', function() {
     it('composes middleware for param fn', function(done) {
       var app = koa();
       var router = new Router();
-      var route = new Route('/users/:user', ['GET'], [function *(next) {
+      var route = new Layer('/users/:user', ['GET'], [function *(next) {
         this.body = this.user;
       }]);
       route.param('user', function *(id, next) {
@@ -191,7 +191,7 @@ describe('Route', function() {
     it('ignores params which are not matched', function(done) {
       var app = koa();
       var router = new Router();
-      var route = new Route('/users/:user', ['GET'], [function *(next) {
+      var route = new Layer('/users/:user', ['GET'], [function *(next) {
         this.body = this.user;
       }]);
       route.param('user', function *(id, next) {
@@ -220,7 +220,7 @@ describe('Route', function() {
 
   describe('Route#url()', function() {
     it('generates route URL', function() {
-      var route = new Route('/:category/:title', ['get'], [function* () {}], 'books');
+      var route = new Layer('/:category/:title', ['get'], [function* () {}], 'books');
       var url = route.url({ category: 'programming', title: 'how-to-node' });
       url.should.equal('/programming/how-to-node');
       url = route.url('programming', 'how-to-node');
@@ -228,7 +228,7 @@ describe('Route', function() {
     });
 
     it('escapes using encodeURIComponent()', function() {
-      var route = new Route('/:category/:title', ['get'], [function *() {}], 'books');
+      var route = new Layer('/:category/:title', ['get'], [function *() {}], 'books');
       var url = route.url({ category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
     });

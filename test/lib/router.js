@@ -9,7 +9,7 @@ var fs = require('fs')
   , path = require('path')
   , request = require('supertest')
   , Router = require('../../lib/router')
-  , Route = require('../../lib/route')
+  , Layer = require('../../lib/layer')
   , expect = require('expect.js')
   , should = require('should');
 
@@ -140,10 +140,10 @@ describe('Router', function() {
     app.use(router.routes());
     router.get('/', function *(next) {
       counter++;
-      this.throw(403);
     });
     router.get('/', function *(next) {
       counter++;
+      this.throw(403);
     });
     var server = http.createServer(app.callback());
       request(server)
@@ -293,6 +293,60 @@ describe('Router', function() {
     });
   });
 
+  describe('Router#use()', function (done) {
+    it('uses router middleware without path', function (done) {
+      var app = koa();
+      var router = new Router();
+      router.get('/foo/bar', function *(next) {
+        this.body = {
+          foobar: this.foo + 'bar'
+        };
+      });
+
+      router.use(function *(next) {
+        this.foo = 'foo';
+        yield next;
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/foo/bar')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body).to.have.property('foobar', 'foobar');
+          done();
+        });
+    });
+
+    it('uses router middleware at given path', function (done) {
+      var app = koa();
+      var router = new Router();
+      router.get('/foo/bar', function *(next) {
+        this.body = {
+          foobar: this.foo + 'bar'
+        };
+      });
+
+      router.use('/foo', function *(next) {
+        this.foo = 'foo';
+        yield next;
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/foo/bar')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body).to.have.property('foobar', 'foobar');
+          done();
+        });
+    });
+  });
+
   describe('Router#register()', function() {
     it('registers new routes', function(done) {
       var app = koa();
@@ -317,7 +371,7 @@ describe('Router', function() {
       router.redirect('/source', '/destination', 302);
       app.use(router.routes());
       router.stack.routes.should.have.property('length', 1);
-      router.stack.routes[0].should.be.instanceOf(Route);
+      router.stack.routes[0].should.be.instanceOf(Layer);
       router.stack.routes[0].should.have.property('path', '/source');
       done();
     });

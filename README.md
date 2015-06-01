@@ -29,7 +29,7 @@ npm install koa-router
     * _instance_
       * [.get|put|post|patch|delete](#module_koa-router--Router+get|put|post|patch|delete) ⇒ <code>Router</code>
       * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
-      * [.use(middleware, [...])](#module_koa-router--Router+use) ⇒ <code>Router</code>
+      * [.use(\[path\], middleware, \[...\])](#module_koa-router--Router+use) ⇒ <code>Router</code>
       * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
       * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
@@ -204,14 +204,17 @@ Returns router middleware which dispatches a route matching the request.
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 <a name="module_koa-router--Router+use"></a>
-#### router.use(middleware, [...]) ⇒ <code>Router</code>
-Use given middleware(s) before route callback. Only runs if any route is
-matched.
+#### router.use([path], middleware, [...]) ⇒ <code>Router</code>
+Use given middleware(s) before route callback.
+
+Only runs if any route is matched. If a path is given, the middleware will
+run for any routes that include that path.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
 
 | Param | Type |
 | --- | --- |
+| [path] | <code>String</code> | 
 | middleware | <code>function</code> | 
 | [...] | <code>function</code> | 
 
@@ -221,6 +224,9 @@ router.use(session(), authorize());
 
 // runs session and authorize middleware before routing
 app.use(router.routes());
+
+// use middleware only with given path
+app.use('/users', userAuth());
 ```
 <a name="module_koa-router--Router+prefix"></a>
 #### router.prefix(prefix) ⇒ <code>Router</code>
