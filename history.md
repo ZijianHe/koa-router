@@ -1,5 +1,9 @@
 # History
 
+## 5.1.0
+
+- Support mounting router middleware at a given path.
+
 ## 5.0.1
 
 - Fix bug with missing parameters when nesting routers.
