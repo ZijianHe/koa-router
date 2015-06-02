@@ -1,5 +1,9 @@
 # History
 
+## 5.1.1
+
+- Match routes in order they were defined. Fixes #131.
+
 ## 5.1.0
 
 - Support mounting router middleware at a given path.
