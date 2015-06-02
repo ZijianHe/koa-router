@@ -32,6 +32,31 @@ describe('Router', function() {
     done();
   });
 
+  it('matches first to last', function (done) {
+    var app = koa();
+    var router = new Router();
+
+    router
+      .get('user_page', '/user/(.*).jsx', function *(next) {
+        this.body = { order: 1 };
+      })
+      .all('app', '/app/(.*).jsx', function *(next) {
+        this.body = { order: 2 };
+      })
+      .all('view', '(.*).jsx', function *(next) {
+        this.body = { order: 3 };
+      });
+
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/user/account.jsx')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('order', 1);
+        done();
+      })
+  });
+
   it('nests routers', function (done) {
     var app = koa();
     var forums = new Router();
@@ -140,10 +165,10 @@ describe('Router', function() {
     app.use(router.routes());
     router.get('/', function *(next) {
       counter++;
+      this.throw(403);
     });
     router.get('/', function *(next) {
       counter++;
-      this.throw(403);
     });
     var server = http.createServer(app.callback());
       request(server)
