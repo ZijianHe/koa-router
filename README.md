@@ -29,11 +29,11 @@ npm install koa-router
     * _instance_
       * [.get|put|post|patch|delete](#module_koa-router--Router+get|put|post|patch|delete) ⇒ <code>Router</code>
       * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
-      * [.use(\[path\], middleware, \[...\])](#module_koa-router--Router+use) ⇒ <code>Router</code>
+      * [.use([path], middleware, [...])](#module_koa-router--Router+use) ⇒ <code>Router</code>
       * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
       * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
-      * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Route</code> &#124; <code>false</code>
+      * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
       * [.url(name, params)](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
       * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
     * _static_
@@ -222,11 +222,10 @@ run for any routes that include that path.
 ```javascript
 router.use(session(), authorize());
 
-// runs session and authorize middleware before routing
-app.use(router.routes());
-
 // use middleware only with given path
-app.use('/users', userAuth());
+router.use('/users', userAuth());
+
+app.use(router.routes());
 ```
 <a name="module_koa-router--Router+prefix"></a>
 #### router.prefix(prefix) ⇒ <code>Router</code>
@@ -247,10 +246,6 @@ router.prefix('/things/:thing_id')
 Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
 with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
-
-`router.allowedMethods()` is automatically mounted if the router is created
-with `app.use(router(app))`. Create the router separately if you do not want
-to use `.allowedMethods()`, or if you are using multiple routers.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
 
@@ -295,7 +290,7 @@ router.all('/login', function *() {
 | code | <code>Number</code> | HTTP status code (default: 301). |
 
 <a name="module_koa-router--Router+route"></a>
-#### router.route(name) ⇒ <code>Route</code> &#124; <code>false</code>
+#### router.route(name) ⇒ <code>Layer</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
