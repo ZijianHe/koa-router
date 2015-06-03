@@ -9,7 +9,7 @@ var koa = require('koa')
   , should = require('should')
   , Layer = require('../../lib/layer');
 
-describe('Route', function() {
+describe('Layer', function() {
   it('composes multiple callbacks/middlware', function(done) {
     var app = koa();
     var router = new Router();
@@ -34,7 +34,7 @@ describe('Route', function() {
     });
   });
 
-  describe('Route#match()', function() {
+  describe('Layer#match()', function() {
     it('captures URL path parameters', function(done) {
       var app = koa();
       var router = new Router();
@@ -163,7 +163,7 @@ describe('Route', function() {
     });
   });
 
-  describe('Route#param()', function() {
+  describe('Layer#param()', function() {
     it('composes middleware for param fn', function(done) {
       var app = koa();
       var router = new Router();
@@ -218,7 +218,7 @@ describe('Route', function() {
     });
   });
 
-  describe('Route#url()', function() {
+  describe('Layer#url()', function() {
     it('generates route URL', function() {
       var route = new Layer('/:category/:title', ['get'], [function* () {}], 'books');
       var url = route.url({ category: 'programming', title: 'how-to-node' });
