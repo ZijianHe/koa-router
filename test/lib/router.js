@@ -97,6 +97,46 @@ describe('Router', function() {
       });
   });
 
+  it('nests routers with prefix', function (done) {
+    var app = koa();
+    var forums = new Router({prefix: '/prefix'});
+    var posts = new Router();
+    posts.get('/', function *(next) {
+      this.status = 204;
+      yield next;
+    });
+    posts.get('/:pid', function *(next) {
+      this.body = this.params;
+      yield next;
+    });
+    forums.get('/forums/:fid/posts', posts.routes());
+    var server = http.createServer(app.use(forums.routes()).callback());
+    request(server)
+      .get('/prefix/forums/1/posts')
+      .expect(204)
+      .end(function (err) {
+        if (err) return done(err);
+
+        request(server)
+          .get('/prefix/forums/1')
+          .expect(404)
+          .end(function (err) {
+            if (err) return done(err);
+
+            request(server)
+              .get('/prefix/forums/1/posts/2')
+              .expect(200)
+              .end(function (err, res) {
+                if (err) return done(err);
+
+                expect(res.body).to.have.property('fid', '1');
+                expect(res.body).to.have.property('pid', '2');
+                done();
+              });
+          });
+      });
+  });
+
   it('matches corresponding requests', function(done) {
     var app = koa();
     var router = new Router();
