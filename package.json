@@ -10,7 +10,7 @@
     "lib"
   ],
   "author": "Alex Mingoia <talk@alexmingoia.com>",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "keywords": [
     "koa",
     "middleware",
