@@ -59,32 +59,43 @@ describe('Router', function() {
 
   it('nests routers', function (done) {
     var app = koa();
-    var forums = new Router();
-    var posts = new Router();
-    posts.get('/', function *(next) {
-      this.status = 204;
-      yield next;
+    var api = new Router();
+    var forums = new Router({
+      prefix: '/api'
     });
-    posts.get('/:pid', function *(next) {
-      this.body = this.params;
-      yield next;
+    var posts = new Router({
+      prefix: '/posts'
     });
-    forums.get('/forums/:fid/posts', posts.routes());
-    var server = http.createServer(app.use(forums.routes()).callback());
+    var server;
+
+    posts
+      .get('/', function *(next) {
+        this.status = 204;
+        yield next;
+      })
+      .get('/:pid', function *(next) {
+        this.body = this.params;
+        yield next;
+      });
+
+    forums.use('/forums/:fid', posts.routes());
+
+    server = http.createServer(app.use(forums.routes()).callback());
+
     request(server)
-      .get('/forums/1/posts')
+      .get('/api/forums/1/posts')
       .expect(204)
       .end(function (err) {
         if (err) return done(err);
 
         request(server)
-          .get('/forums/1')
+          .get('/api/forums/1')
           .expect(404)
           .end(function (err) {
             if (err) return done(err);
 
             request(server)
-              .get('/forums/1/posts/2')
+              .get('/api/forums/1/posts/2')
               .expect(200)
               .end(function (err, res) {
                 if (err) return done(err);
@@ -220,7 +231,7 @@ describe('Router', function() {
     .expect(204)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
+      res.header.should.have.property('allow', 'PUT, HEAD, GET');
       done();
     });
   });
@@ -238,7 +249,7 @@ describe('Router', function() {
     .expect(405)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
+      res.header.should.have.property('allow', 'PUT, HEAD, GET');
       done();
     });
   });
@@ -307,7 +318,7 @@ describe('Router', function() {
         router[method].should.be.type('function');
         router[method]('/', function *() {});
       });
-      router.stack.routes.should.have.length(methods.length);
+      router.stack.should.have.length(methods.length);
     });
 
     it('enables route chaining', function() {
@@ -326,6 +337,11 @@ describe('Router', function() {
         this.body = {
           foobar: this.foo + 'bar'
         };
+      });
+
+      router.use(function *(next) {
+        this.foo = 'baz';
+        yield next;
       });
 
       router.use(function *(next) {
@@ -380,9 +396,9 @@ describe('Router', function() {
       router.register.should.be.type('function');
       var route = router.register('/', ['GET', 'POST'], function *() {});
       app.use(router.routes());
-      router.stack.routes.should.be.an.instanceOf(Array);
-      router.stack.routes.should.have.property('length', 1);
-      router.stack.routes[0].should.have.property('path', '/');
+      router.stack.should.be.an.instanceOf(Array);
+      router.stack.should.have.property('length', 1);
+      router.stack[0].should.have.property('path', '/');
       done();
     });
   });
@@ -395,9 +411,9 @@ describe('Router', function() {
       router.redirect.should.be.type('function');
       router.redirect('/source', '/destination', 302);
       app.use(router.routes());
-      router.stack.routes.should.have.property('length', 1);
-      router.stack.routes[0].should.be.instanceOf(Layer);
-      router.stack.routes[0].should.have.property('path', '/source');
+      router.stack.should.have.property('length', 1);
+      router.stack[0].should.be.instanceOf(Layer);
+      router.stack[0].should.have.property('path', '/source');
       done();
     });
 
@@ -702,7 +718,7 @@ describe('Router', function() {
         this.body = 'test';
       })
       router.prefix('/things/:thing_id');
-      var route = router.stack.routes[0];
+      var route = router.stack[0];
       expect(route.path).to.equal('/things/:thing_id/users/:id');
       expect(route.paramNames).to.have.length(2);
       expect(route.paramNames[0]).to.have.property('name', 'thing_id');

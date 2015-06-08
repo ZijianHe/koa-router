@@ -175,7 +175,7 @@ describe('Layer', function() {
         if (!id) return this.status = 404;
         yield next;
       });
-      router.stack.routes.push(route);
+      router.stack.push(route);
       app.use(router.middleware());
       request(http.createServer(app.callback()))
       .get('/users/3')
@@ -204,7 +204,7 @@ describe('Layer', function() {
         if (!id) return this.status = 404;
         yield next;
       });
-      router.stack.routes.push(route);
+      router.stack.push(route);
       app.use(router.middleware());
       request(http.createServer(app.callback()))
       .get('/users/3')
