@@ -621,7 +621,7 @@ describe('Router', function() {
       var router = Router();
       router.get('/users/:id', function *() {
         this.body = 'test';
-      })
+      });
       router.prefix('/things/:thing_id');
       var route = router.stack.routes[0];
       expect(route.path).to.equal('/things/:thing_id/users/:id');
@@ -629,7 +629,33 @@ describe('Router', function() {
       expect(route.paramNames[0]).to.have.property('name', 'thing_id');
       expect(route.paramNames[1]).to.have.property('name', 'id');
     });
-  })
+  });
+
+  describe('Router#forward', function () {
+    it('should forward a route and set the body', function (done) {
+      var app = koa();
+      var router = Router();
+      router.get('/first/:id', function *(next) {
+        yield this.forward('/second', next);
+      });
+      router.get('/second', function *() {
+        expect(this.params).to.have.property('id', '1');
+        this.body = { success: true };
+      });
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/first/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        expect(res).to.have.property('body');
+        expect(res.body).to.have.property('success', true);
+        return done();
+      });
+    });
+  });
 
   describe('Static Router#url()', function() {
     it('generates route URL', function() {
