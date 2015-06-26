@@ -190,6 +190,20 @@ router
   // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
 
+##### Route Forwarding
+
+Forward request to another route in the router.
+
+```javascript
+router
+  .get('/user/current', function *(next) {
+    yield *this.forward('/user/' + this.session.user.id, next);
+  })
+  .get('/user/:id', function *(next) {
+    this.body = yield this.getUser();
+  });
+```
+
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 
 | Param | Type | Description |

@@ -636,10 +636,11 @@ describe('Router', function() {
       var app = koa();
       var router = Router();
       router.get('/first/:id', function *(next) {
-        yield this.forward('/second', next);
+        yield *this.forward('/second/test', next);
       });
-      router.get('/second', function *() {
+      router.get('/second/:val', function *() {
         expect(this.params).to.have.property('id', '1');
+        expect(this.params).to.have.property('val', 'test');
         this.body = { success: true };
       });
       request(http.createServer(
@@ -654,6 +655,24 @@ describe('Router', function() {
         expect(res.body).to.have.property('success', true);
         return done();
       });
+    });
+
+    it('should throw an exception with an invalid forward url', function (done) {
+      var app = koa();
+      var router = Router();
+      router.get('/first', function *(next) {
+        yield *this.forward('/not-exists', next);
+      });
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+        .get('/first')
+        .expect(500)
+        .end(function(err, res) {
+          if (err) return done(err);
+          return done();
+        });
     });
   });
 
