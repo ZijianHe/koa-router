@@ -183,7 +183,7 @@ router
   .get('/users/:user', function *(next) {
     this.body = this.user;
   })
-  .get('/users/:userId/friends', function *(next) {
+  .get('/users/:user/friends', function *(next) {
     this.body = yield this.user.getFriends();
   })
   // /users/3 => {"id": 3, "name": "Alex"}
