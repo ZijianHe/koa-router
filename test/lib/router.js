@@ -531,6 +531,20 @@ describe('Router', function() {
       router.stack.should.have.length(methods.length);
     });
 
+    it('allows specifying a route name', function() {
+      var router = new Router();
+      methods.forEach(function(method) {
+        router[method](method, '/', function *() {}).should.equal(router);
+      });
+    });
+
+    it('allows specifying a route name event if the path is a regexp', function() {
+      var router = new Router();
+      methods.forEach(function(method) {
+        router[method](method, /^\/$/i, function *() {}).should.equal(router);
+      });
+    });
+
     it('enables route chaining', function() {
       var router = new Router();
       methods.forEach(function(method) {
