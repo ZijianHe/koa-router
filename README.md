@@ -164,7 +164,7 @@ Named route parameters are captured and added to `ctx.params`.
 ```javascript
 router.get('/:category/:title', function *(next) {
   console.log(this.params);
-  // => [ category: 'programming', title: 'how-to-node' ]
+  // => { category: 'programming', title: 'how-to-node' }
 });
 ```
 
