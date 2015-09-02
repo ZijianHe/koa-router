@@ -724,7 +724,45 @@ describe('Router', function() {
       expect(route.paramNames[0]).to.have.property('name', 'thing_id');
       expect(route.paramNames[1]).to.have.property('name', 'id');
     });
-  })
+
+    describe('with trailing slash', testPrefix('/admin/'));
+    describe('without trailing slash', testPrefix('/admin'));
+    function testPrefix(prefix) {
+      return function() {
+        it('should support router middleware without a path', function(done) {
+          var app = koa();
+          var router = Router();
+          var middlewareCount = 0;
+
+          router.get('/', function *() {
+            middlewareCount++;
+            this.body = { name: this.thing };
+          });
+
+          router.use(function *() {
+            middlewareCount++;
+            this.thing = 'worked';
+          });
+
+          router.prefix(prefix);
+
+          request(http.createServer(
+            app
+              .use(router.routes())
+              .callback()))
+          .get(prefix)
+          .expect(200)
+          .end(function (err, res) {
+            if (err) return done(err);
+            expect(middlewareCount).to.equal(2);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('name', 'worked');
+            done();
+          });
+        });
+      }
+    }
+  });
 
   describe('Static Router#url()', function() {
     it('generates route URL', function() {
