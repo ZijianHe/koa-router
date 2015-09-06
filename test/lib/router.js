@@ -729,10 +729,12 @@ describe('Router', function() {
     describe('without trailing slash', testPrefix('/admin'));
     function testPrefix(prefix) {
       return function() {
-        it('should support router middleware without a path', function(done) {
+        var server;
+        var middlewareCount = 0;
+
+        before(function() {
           var app = koa();
           var router = Router();
-          var middlewareCount = 0;
 
           router.get('/', function *() {
             middlewareCount++;
@@ -746,12 +748,46 @@ describe('Router', function() {
           });
 
           router.prefix(prefix);
+          server = http.createServer(app.use(router.routes()).callback());
+        });
 
-          request(http.createServer(
-            app
-              .use(router.routes())
-              .callback()))
+        after(function() {
+          server.close();
+        });
+
+        beforeEach(function() {
+          middlewareCount = 0;
+        });
+
+        it('should support root level router middleware', function(done) {
+          request(server)
           .get(prefix)
+          .expect(200)
+          .end(function (err, res) {
+            if (err) return done(err);
+            expect(middlewareCount).to.equal(2);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('name', 'worked');
+            done();
+          });
+        });
+
+        it('should support requests with a trailing path slash', function(done) {
+          request(server)
+          .get('/admin/')
+          .expect(200)
+          .end(function (err, res) {
+            if (err) return done(err);
+            expect(middlewareCount).to.equal(2);
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.property('name', 'worked');
+            done();
+          });
+        });
+
+        it('should support requests without a trailing path slash', function(done) {
+          request(server)
+          .get('/admin')
           .expect(200)
           .end(function (err, res) {
             if (err) return done(err);
