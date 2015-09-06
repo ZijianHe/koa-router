@@ -739,9 +739,10 @@ describe('Router', function() {
             this.body = { name: this.thing };
           });
 
-          router.use(function *() {
+          router.use(function *(next) {
             middlewareCount++;
             this.thing = 'worked';
+            yield next;
           });
 
           router.prefix(prefix);
