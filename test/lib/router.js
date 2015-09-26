@@ -627,6 +627,36 @@ describe('Router', function() {
         done();
       });
     });
+
+    it('runs parent parameter middleware for subrouter', function (done) {
+      var app = koa();
+      var router = new Router();
+      var subrouter = new Router();
+      subrouter.get('/:cid', function *(next) {
+        this.body = {
+          id: this.params.id,
+          cid: this.params.cid
+        };
+      });
+      router
+        .param('id', function *(id, next) {
+          this.params.id = 'ran';
+          if (!id) return this.status = 404;
+          yield next;
+        })
+        .use('/:id/children', subrouter.routes());
+
+      request(http.createServer(app.use(router.routes()).callback()))
+      .get('/did-not-run/children/2')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('id', 'ran');
+        res.body.should.have.property('cid', '2');
+        done();
+      });
+    });
   });
 
   describe('Router#opts', function() {
