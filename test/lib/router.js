@@ -548,6 +548,17 @@ describe('Router', function() {
     });
   });
 
+  describe('Router#route()', function () {
+    it('inherits routes from nested router', function () {
+      var app = koa();
+      var subrouter = Router().get('child', '/hello', function *(next) {
+        this.body = { hello: 'world' };
+      });
+      var router = Router().use(subrouter.routes());
+      expect(router.route('child')).to.have.property('name', 'child');
+    });
+  });
+
   describe('Router#url()', function() {
     it('generates URL for given route', function(done) {
       var app = koa();
