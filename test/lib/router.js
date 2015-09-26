@@ -52,12 +52,63 @@ describe('Router', function() {
       .expect(200)
       .end(function (err, res) {
         if (err) return done(err);
-        expect(res.body).to.have.property('order', 1);
+        expect(res.body).to.have.property('order', 3);
         done();
       })
   });
 
-  it('nests routers', function (done) {
+  it('nests routers with prefixes at root', function (done) {
+    var app = koa();
+    var api = new Router();
+    var forums = new Router({
+      prefix: '/forums'
+    });
+    var posts = new Router({
+      prefix: '/:fid/posts'
+    });
+    var server;
+
+    posts
+      .get('/', function *(next) {
+        this.status = 204;
+        yield next;
+      })
+      .get('/:pid', function *(next) {
+        this.body = this.params;
+        yield next;
+      });
+
+    forums.use(posts.routes());
+
+    server = http.createServer(app.use(forums.routes()).callback());
+
+    request(server)
+      .get('/forums/1/posts')
+      .expect(204)
+      .end(function (err) {
+        if (err) return done(err);
+
+        request(server)
+          .get('/forums/1')
+          .expect(404)
+          .end(function (err) {
+            if (err) return done(err);
+
+            request(server)
+              .get('/forums/1/posts/2')
+              .expect(200)
+              .end(function (err, res) {
+                if (err) return done(err);
+
+                expect(res.body).to.have.property('fid', '1');
+                expect(res.body).to.have.property('pid', '2');
+                done();
+              });
+          });
+      });
+  });
+
+  it('nests routers with prefixes at path', function (done) {
     var app = koa();
     var api = new Router();
     var forums = new Router({
@@ -105,6 +156,32 @@ describe('Router', function() {
                 done();
               });
           });
+      });
+  });
+
+  it('runs subrouter middleware after parent', function (done) {
+    var app = koa();
+    var subrouter = Router()
+      .use(function *(next) {
+        this.msg = 'subrouter';
+        yield next;
+      })
+      .get('/', function *() {
+        this.body = { msg: this.msg };
+      });
+    var router = Router()
+      .use(function *(next) {
+        this.msg = 'router';
+        yield next;
+      })
+      .use(subrouter.routes());
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('msg', 'subrouter');
+        done();
       });
   });
 
@@ -231,7 +308,7 @@ describe('Router', function() {
     .expect(204)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'PUT, HEAD, GET');
+      res.header.should.have.property('allow', 'HEAD, GET, PUT');
       done();
     });
   });
@@ -249,7 +326,7 @@ describe('Router', function() {
     .expect(405)
     .end(function(err, res) {
       if (err) return done(err);
-      res.header.should.have.property('allow', 'PUT, HEAD, GET');
+      res.header.should.have.property('allow', 'HEAD, GET, PUT');
       done();
     });
   });
@@ -333,6 +410,7 @@ describe('Router', function() {
     it('uses router middleware without path', function (done) {
       var app = koa();
       var router = new Router();
+
       router.get('/foo/bar', function *(next) {
         this.body = {
           foobar: this.foo + 'bar'
@@ -364,15 +442,16 @@ describe('Router', function() {
     it('uses router middleware at given path', function (done) {
       var app = koa();
       var router = new Router();
+
+      router.use('/foo/bar', function *(next) {
+        this.foo = 'foo';
+        yield next;
+      });
+
       router.get('/foo/bar', function *(next) {
         this.body = {
           foobar: this.foo + 'bar'
         };
-      });
-
-      router.use('/foo', function *(next) {
-        this.foo = 'foo';
-        yield next;
       });
 
       app.use(router.routes());
@@ -761,6 +840,7 @@ describe('Router', function() {
 
     describe('with trailing slash', testPrefix('/admin/'));
     describe('without trailing slash', testPrefix('/admin'));
+
     function testPrefix(prefix) {
       return function() {
         var server;

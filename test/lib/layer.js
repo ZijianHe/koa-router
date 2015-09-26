@@ -175,6 +175,7 @@ describe('Layer', function() {
         if (!id) return this.status = 404;
         yield next;
       });
+      console.log(route.stack[0].toString());
       router.stack.push(route);
       app.use(router.middleware());
       request(http.createServer(app.callback()))
