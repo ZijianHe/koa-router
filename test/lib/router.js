@@ -185,6 +185,28 @@ describe('Router', function() {
       });
   });
 
+  it('runs parent middleware for subrouter routes', function (done) {
+    var app = koa();
+    var subrouter = Router()
+      .get('/sub', function *() {
+        this.body = { msg: this.msg };
+      });
+    var router = Router()
+      .use(function *(next) {
+        this.msg = 'router';
+        yield next;
+      })
+      .use('/parent', subrouter.routes());
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/parent/sub')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('msg', 'router');
+        done();
+      });
+  });
+
   it('matches corresponding requests', function(done) {
     var app = koa();
     var router = new Router();
