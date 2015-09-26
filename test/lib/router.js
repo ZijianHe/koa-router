@@ -499,6 +499,46 @@ describe('Router', function() {
           done();
         });
     });
+
+    it('assigns middleware to array of paths', function (done) {
+      var app = koa();
+      var router = new Router();
+
+      router.use(['/foo', '/bar'], function *(next) {
+        this.foo = 'foo';
+        this.bar = 'bar';
+        yield next;
+      });
+
+      router.get('/foo', function *(next) {
+        this.body = {
+          foobar: this.foo + 'bar'
+        };
+      });
+
+      router.get('/bar', function *(next) {
+        this.body = {
+          foobar: 'foo' + this.bar
+        };
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/foo')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          expect(res.body).to.have.property('foobar', 'foobar');
+          request(http.createServer(app.callback()))
+            .get('/bar')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+              expect(res.body).to.have.property('foobar', 'foobar');
+              done();
+            });
+        });
+    });
   });
 
   describe('Router#register()', function() {
