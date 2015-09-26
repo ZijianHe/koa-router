@@ -386,6 +386,40 @@ describe('Router', function() {
           done();
         });
     });
+
+    it('runs router middleware before subrouter middleware', function (done) {
+      var app = koa();
+      var router = new Router();
+      var subrouter = new Router();
+
+      router.use(function *(next) {
+        this.foo = 'boo';
+        yield next;
+      });
+
+      subrouter
+        .use(function *(next) {
+          this.foo = 'foo';
+          yield next;
+        })
+        .get('/bar', function *(next) {
+          this.body = {
+            foobar: this.foo + 'bar'
+          };
+        });
+
+      router.use('/foo', subrouter.routes());
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/foo/bar')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body).to.have.property('foobar', 'foobar');
+          done();
+        });
+    });
   });
 
   describe('Router#register()', function() {
