@@ -38,7 +38,7 @@
     "docs": "NODE_ENV=test node node_modules/gulp/bin/gulp.js docs"
   },
   "engines": {
-    "node": "> 0.11.4"
+    "node": "> 0.12"
   },
   "license": "MIT"
 }

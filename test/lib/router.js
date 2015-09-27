@@ -32,6 +32,31 @@ describe('Router', function() {
     done();
   });
 
+  it('supports promises for async/await', function (done) {
+    var app = koa();
+    app.experimental = true;
+    var router = Router();
+    router.get('/async', function (next) {
+      var ctx = this;
+      return new Promise(function (resolve, reject) {
+        ctx.body = {
+          msg: 'promises!'
+        };
+        resolve();
+      });
+    });
+
+    app.use(router.routes()).use(router.allowedMethods());
+    request(http.createServer(app.callback()))
+      .get('/async')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('msg', 'promises!');
+        done();
+      });
+  });
+
   it('matches first to last', function (done) {
     var app = koa();
     var router = new Router();

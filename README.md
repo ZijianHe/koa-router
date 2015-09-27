@@ -12,6 +12,7 @@
 * Multiple route middleware.
 * Multiple routers.
 * Nestable routers.
+* ES7 async/await support.
 
 ## Installation
 
@@ -28,13 +29,13 @@ npm install koa-router
     * [new Router([opts])](#new_module_koa-router--Router_new)
     * _instance_
       * [.get|put|post|patch|delete](#module_koa-router--Router+get|put|post|patch|delete) ⇒ <code>Router</code>
-      * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
+      * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
       * [.use([path], middleware, [...])](#module_koa-router--Router+use) ⇒ <code>Router</code>
+      * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
       * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
       * [.redirect(source, destination, code)](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
       * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
       * [.url(name, params)](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
-      * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
     * _static_
       * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
 
@@ -49,6 +50,7 @@ Create a new router.
 | Param | Type | Description |
 | --- | --- | --- |
 | [opts] | <code>Object</code> |  |
+| [opts.prefix] | <code>String</code> | prefix router paths |
 
 **Example**
 Basic usage:
@@ -107,8 +109,7 @@ router.url('user', 3);
 
 #### Multiple middleware
 
-Multiple middleware may be given and are composed using
-[koa-compose](https://github.com/koajs/koa-compose):
+Multiple middleware may be given:
 
 ```javascript
 router.get(
@@ -140,39 +141,28 @@ forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 app.use(forums.routes());
 ```
 
+#### Router prefixes
+
+Route paths can be prefixed at the router level:
+
+```javascript
+var router = new Router({
+  prefix: '/users'
+});
+
+router.get('/', ...); // responds to "/users"
+router.get('/:id', ...); // responds to "/users/:id"
+```
+
 #### URL parameters
 
 Named route parameters are captured and added to `ctx.params`.
-
-##### Named parameters
 
 ```javascript
 router.get('/:category/:title', function *(next) {
   console.log(this.params);
   // => { category: 'programming', title: 'how-to-node' }
 });
-```
-
-##### Parameter middleware
-
-Run middleware for named route parameters. Useful for auto-loading or
-validation.
-
-```javascript
-router
-  .param('user', function *(id, next) {
-    this.user = users[id];
-    if (!this.user) return this.status = 404;
-    yield next;
-  })
-  .get('/users/:user', function *(next) {
-    this.body = this.user;
-  })
-  .get('/users/:user/friends', function *(next) {
-    this.body = yield this.user.getFriends();
-  })
-  // /users/3 => {"id": 3, "name": "Alex"}
-  // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
@@ -211,6 +201,20 @@ router.use(session(), authorize());
 router.use('/users', userAuth());
 
 app.use(router.routes());
+```
+<a name="module_koa-router--Router+prefix"></a>
+#### router.prefix(prefix) ⇒ <code>Router</code>
+Set the path prefix for a Router instance that was already initialized.
+
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
+
+| Param | Type |
+| --- | --- |
+| prefix | <code>String</code> |
+
+**Example**
+```javascript
+router.prefix('/things/:thing_id')
 ```
 <a name="module_koa-router--Router+allowedMethods"></a>
 #### router.allowedMethods([options]) ⇒ <code>function</code>
@@ -317,7 +321,7 @@ router
   .get('/users/:user', function *(next) {
     this.body = this.user;
   })
-  .get('/users/:userId/friends', function *(next) {
+  .get('/users/:user/friends', function *(next) {
     this.body = yield this.user.getFriends();
   })
   // /users/3 => {"id": 3, "name": "Alex"}
