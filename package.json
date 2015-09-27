@@ -34,7 +34,7 @@
     "supertest": "^1.0.1"
   },
   "scripts": {
-    "test": "NODE_ENV=test node --harmony-generators node_modules/gulp/bin/gulp.js test",
+    "test": "if [ \"$TRAVIS_NODE_VERSION\" == \"0.12\" ]; then NODE_ENV=test node --harmony-generators node_modules/gulp/bin/gulp.js test; else NODE_ENV=test node node_modules/gulp/bin/gulp.js test; fi",
     "docs": "NODE_ENV=test node node_modules/gulp/bin/gulp.js docs"
   },
   "engines": {
