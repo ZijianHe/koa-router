@@ -1,5 +1,14 @@
 # History
 
+## 5.2.0
+
+- Add support for async/await. Resolves [#130](https://github.com/alexmingoia/koa-router/issues/130).
+- Add support for array of paths by Router#use(). Resolves [#175](https://github.com/alexmingoia/koa-router/issues/175).
+- Inherit param middleware when nesting routers. Fixes [#170](https://github.com/alexmingoia/koa-router/issues/170).
+- Default router middleware without path to root. Fixes [#161](https://github.com/alexmingoia/koa-router/issues/161), [#155](https://github.com/alexmingoia/koa-router/issues/155), [#156](https://github.com/alexmingoia/koa-router/issues/156).
+- Run nested router middleware after parent's. Fixes [#156](https://github.com/alexmingoia/koa-router/issues/156).
+- Remove dependency on koa-compose.
+
 ## 5.1.1
 
 - Match routes in order they were defined. Fixes #131.
