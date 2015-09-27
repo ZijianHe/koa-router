@@ -77,9 +77,26 @@ describe('Router', function() {
       .expect(200)
       .end(function (err, res) {
         if (err) return done(err);
-        expect(res.body).to.have.property('order', 3);
+        expect(res.body).to.have.property('order', 1);
         done();
       })
+  });
+
+  it('does not run subsequent middleware without yield next', function (done) {
+    var app = koa();
+    var router = new Router();
+
+    router
+      .get('user_page', '/user/(.*).jsx', function *(next) {
+        // no yield
+      }, function *(next) {
+        this.body = { order: 1 };
+      });
+
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/user/account.jsx')
+      .expect(404)
+      .end(done)
   });
 
   it('nests routers with prefixes at root', function (done) {
