@@ -295,7 +295,16 @@ describe('Router', function() {
     var app = koa();
     var router = new Router();
     app.use(router.routes());
+    router.use(function *(next) {
+      this.bar = 'baz';
+      yield next;
+    });
     router.get('/:category/:title', function *(next) {
+      this.foo = 'bar';
+      yield next;
+    }, function *(next) {
+      this.should.have.property('bar', 'baz');
+      this.should.have.property('foo', 'bar');
       this.should.have.property('app');
       this.should.have.property('req');
       this.should.have.property('res');
