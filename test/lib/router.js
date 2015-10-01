@@ -477,6 +477,42 @@ describe('Router', function() {
         router[method]('/', function *() {}).should.equal(router);
       });
     });
+
+    it('registers routes without params before routes with params', function(done) {
+      var app = koa();
+      var router = new Router();
+
+      router.get('/:parameter', function *(next) {
+        this.body = {
+          test: 'foo'
+        };
+      });
+
+      router.get('/notparameter', function *(next) {
+        this.body = {
+          test: 'bar'
+        };
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/testparameter')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body).to.have.property('test', 'foo');
+          request(http.createServer(app.callback()))
+            .get('/notparameter')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+
+              expect(res.body).to.have.property('test', 'bar');
+              done();
+            });
+        });
+    });
   });
 
   describe('Router#use()', function (done) {
