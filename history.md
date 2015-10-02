@@ -1,5 +1,10 @@
 # History
 
+## 5.2.2
+
+- Register routes without params before those with params [#183](https://github.com/alexmingoia/koa-router/pull/183)
+- Fix for allowed methods [#182](https://github.com/alexmingoia/koa-router/issues/182)
+
 ## 5.2.0
 
 - Add support for async/await. Resolves [#130](https://github.com/alexmingoia/koa-router/issues/130).
