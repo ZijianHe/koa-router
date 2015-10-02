@@ -57,6 +57,33 @@ describe('Router', function() {
       });
   });
 
+  it('matches middleware only if route was matched (gh-182)', function (done) {
+    var app = koa();
+    var router = new Router();
+    var otherRouter = new Router();
+
+    router.use(function *(next) {
+      this.body = { bar: 'baz' };
+      yield next;
+    });
+
+    otherRouter.get('/bar', function *(next) {
+      this.body = this.body || { foo: 'bar' };
+    });
+
+    app.use(router.routes()).use(otherRouter.routes());
+
+    request(http.createServer(app.callback()))
+      .get('/bar')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('foo', 'bar');
+        expect(res.body).to.not.have.property('bar');
+        done();
+      })
+  });
+
   it('matches first to last', function (done) {
     var app = koa();
     var router = new Router();
