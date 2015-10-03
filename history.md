@@ -1,5 +1,9 @@
 # History
 
+## 5.2.3
+
+- Fix for middleware running twice when nesting routes [#184](https://github.com/alexmingoia/koa-router/issues/184)
+
 ## 5.2.2
 
 - Register routes without params before those with params [#183](https://github.com/alexmingoia/koa-router/pull/183)
