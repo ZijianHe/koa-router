@@ -21,6 +21,39 @@ describe('Router', function() {
     done();
   });
 
+  it('does not register middleware more than once (gh-184)', function (done) {
+    var app = koa();
+    var parentRouter = new Router();
+    var nestedRouter = new Router();
+
+    nestedRouter
+      .get('/first-nested-route', function *(next) {
+          this.body = { n: this.n };
+      })
+      .get('/second-nested-route', function *(next) {
+          yield next;
+      })
+      .get('/third-nested-route', function *(next) {
+          yield next;
+      });
+
+    parentRouter.use('/parent-route', function *(next) {
+      this.n = this.n ? (this.n + 1) : 1;
+      yield next;
+    }, nestedRouter.routes());
+
+    app.use(parentRouter.routes());
+
+    request(http.createServer(app.callback()))
+      .get('/parent-route/first-nested-route')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('n', 1);
+        done();
+      });
+  });
+
   it('exposes middleware factory', function(done) {
     var app = koa();
     var router = new Router();
