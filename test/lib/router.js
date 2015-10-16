@@ -54,6 +54,31 @@ describe('Router', function() {
       });
   });
 
+  it('does not break when nested-routes use regexp paths', function (done) {
+    var app = koa();
+    var parentRouter = new Router();
+    var nestedRouter = new Router();
+
+    nestedRouter
+      .get(/^\/\w$/i, function *(next) {
+        yield next;
+      })
+      .get('/first-nested-route', function *(next) {
+        yield next;
+      })
+      .get('/second-nested-route', function *(next) {
+        yield next;
+      });
+
+    parentRouter.use('/parent-route', function *(next) {
+      yield next;
+    }, nestedRouter.routes());
+
+    app.use(parentRouter.routes());
+    app.should.be.ok;
+    done();
+  });
+
   it('exposes middleware factory', function(done) {
     var app = koa();
     var router = new Router();
@@ -531,14 +556,21 @@ describe('Router', function() {
       router.stack.should.have.length(methods.length);
     });
 
-    it('allows specifying a route name', function() {
+    it('registers route with a regexp path', function() {
+      var router = new Router();
+      methods.forEach(function(method) {
+        router[method](/^\/\w$/i, function *() {}).should.equal(router);
+      });
+    });
+
+    it('registers route with a given name', function() {
       var router = new Router();
       methods.forEach(function(method) {
         router[method](method, '/', function *() {}).should.equal(router);
       });
     });
 
-    it('allows specifying a route name event if the path is a regexp', function() {
+    it('registers route with with a given name and regexp path', function() {
       var router = new Router();
       methods.forEach(function(method) {
         router[method](method, /^\/$/i, function *() {}).should.equal(router);
