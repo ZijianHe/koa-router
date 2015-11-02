@@ -2,7 +2,7 @@
  * Route tests
  */
 
-var koa = require('koa')
+var Koa = require('koa')
   , http = require('http')
   , request = require('supertest')
   , Router = require('../../lib/router')
@@ -11,18 +11,18 @@ var koa = require('koa')
 
 describe('Layer', function() {
   it('composes multiple callbacks/middlware', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     router.get(
       '/:category/:title',
-      function *(next) {
-        this.status = 500;
-        yield next;
+      function (ctx, next) {
+        ctx.status = 500;
+        return next();
       },
-      function *(next) {
-        this.status = 204;
-        yield next;
+      function (ctx, next) {
+        ctx.status = 204;
+        return next();
       }
     );
     request(http.createServer(app.callback()))
@@ -36,15 +36,15 @@ describe('Layer', function() {
 
   describe('Layer#match()', function() {
     it('captures URL path parameters', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get('/:category/:title', function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property('category', 'match');
-        this.params.should.have.property('title', 'this');
-        this.status = 204;
+      router.get('/:category/:title', function (ctx) {
+        ctx.should.have.property('params');
+        ctx.params.should.be.type('object');
+        ctx.params.should.have.property('category', 'match');
+        ctx.params.should.have.property('title', 'this');
+        ctx.status = 204;
       });
       request(http.createServer(app.callback()))
       .get('/match/this')
@@ -56,15 +56,15 @@ describe('Layer', function() {
     });
 
     it('return orginal path parameters when decodeURIComponent throw error', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get('/:category/:title', function *(next) {
-        this.should.have.property('params');
-        this.params.should.be.type('object');
-        this.params.should.have.property('category', '100%');
-        this.params.should.have.property('title', '101%');
-        this.status = 204;
+      router.get('/:category/:title', function (ctx) {
+        ctx.should.have.property('params');
+        ctx.params.should.be.type('object');
+        ctx.params.should.have.property('category', '100%');
+        ctx.params.should.have.property('title', '101%');
+        ctx.status = 204;
       });
       request(http.createServer(app.callback()))
       .get('/100%/101%')
@@ -73,19 +73,19 @@ describe('Layer', function() {
     });
 
     it('populates ctx.captures with regexp captures', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.instanceOf(Array);
-        this.captures.should.have.property(0, '1');
-        yield next;
-      }, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.instanceOf(Array);
-        this.captures.should.have.property(0, '1');
-        this.status = 204;
+      router.get(/^\/api\/([^\/]+)\/?/i, function (ctx, next) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.instanceOf(Array);
+        ctx.captures.should.have.property(0, '1');
+        return next();
+      }, function (ctx) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.instanceOf(Array);
+        ctx.captures.should.have.property(0, '1');
+        ctx.status = 204;
       });
       request(http.createServer(app.callback()))
       .get('/api/1')
@@ -97,19 +97,19 @@ describe('Layer', function() {
     });
 
     it('return orginal ctx.captures when decodeURIComponent throw error', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get(/^\/api\/([^\/]+)\/?/i, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.type('object');
-        this.captures.should.have.property(0, '101%');
-        yield next;
-      }, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.type('object');
-        this.captures.should.have.property(0, '101%');
-        this.status = 204;
+      router.get(/^\/api\/([^\/]+)\/?/i, function (ctx, next) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.type('object');
+        ctx.captures.should.have.property(0, '101%');
+        return next();
+      }, function (ctx, next) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.type('object');
+        ctx.captures.should.have.property(0, '101%');
+        ctx.status = 204;
       });
       request(http.createServer(app.callback()))
       .get('/api/101%')
@@ -121,19 +121,19 @@ describe('Layer', function() {
     });
 
     it('populates ctx.captures with regexp captures include undefiend', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get(/^\/api(\/.+)?/i, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.type('object');
-        this.captures.should.have.property(0, undefined);
-        yield next;
-      }, function *(next) {
-        this.should.have.property('captures');
-        this.captures.should.be.type('object');
-        this.captures.should.have.property(0, undefined);
-        this.status = 204;
+      router.get(/^\/api(\/.+)?/i, function (ctx, next) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.type('object');
+        ctx.captures.should.have.property(0, undefined);
+        return next();
+      }, function (ctx) {
+        ctx.should.have.property('captures');
+        ctx.captures.should.be.type('object');
+        ctx.captures.should.have.property(0, undefined);
+        ctx.status = 204;
       });
       request(http.createServer(app.callback()))
       .get('/api')
@@ -145,7 +145,7 @@ describe('Layer', function() {
     });
 
     it('should throw friendly error message when handle not exists', function() {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
       var notexistHandle = undefined;
@@ -165,15 +165,15 @@ describe('Layer', function() {
 
   describe('Layer#param()', function() {
     it('composes middleware for param fn', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
-      var route = new Layer('/users/:user', ['GET'], [function *(next) {
-        this.body = this.user;
+      var route = new Layer('/users/:user', ['GET'], [function (ctx) {
+        ctx.body = ctx.user;
       }]);
-      route.param('user', function *(id, next) {
-        this.user = { name: 'alex' };
-        if (!id) return this.status = 404;
-        yield next;
+      route.param('user', function (id, ctx, next) {
+        ctx.user = { name: 'alex' };
+        if (!id) return ctx.status = 404;
+        return next();
       });
       router.stack.push(route);
       app.use(router.middleware());
@@ -189,20 +189,20 @@ describe('Layer', function() {
     });
 
     it('ignores params which are not matched', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
-      var route = new Layer('/users/:user', ['GET'], [function *(next) {
-        this.body = this.user;
+      var route = new Layer('/users/:user', ['GET'], [function (ctx) {
+        ctx.body = ctx.user;
       }]);
-      route.param('user', function *(id, next) {
-        this.user = { name: 'alex' };
-        if (!id) return this.status = 404;
-        yield next;
+      route.param('user', function (id, ctx, next) {
+        ctx.user = { name: 'alex' };
+        if (!id) return ctx.status = 404;
+        return next();
       });
-      route.param('title', function *(id, next) {
-        this.user = { name: 'mark' };
-        if (!id) return this.status = 404;
-        yield next;
+      route.param('title', function (id, ctx, next) {
+        ctx.user = { name: 'mark' };
+        if (!id) return ctx.status = 404;
+        return next();
       });
       router.stack.push(route);
       app.use(router.middleware());
@@ -220,7 +220,7 @@ describe('Layer', function() {
 
   describe('Layer#url()', function() {
     it('generates route URL', function() {
-      var route = new Layer('/:category/:title', ['get'], [function* () {}], 'books');
+      var route = new Layer('/:category/:title', ['get'], [function () {}], 'books');
       var url = route.url({ category: 'programming', title: 'how-to-node' });
       url.should.equal('/programming/how-to-node');
       url = route.url('programming', 'how-to-node');
@@ -228,7 +228,7 @@ describe('Layer', function() {
     });
 
     it('escapes using encodeURIComponent()', function() {
-      var route = new Layer('/:category/:title', ['get'], [function *() {}], 'books');
+      var route = new Layer('/:category/:title', ['get'], [function () {}], 'books');
       var url = route.url({ category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
     });

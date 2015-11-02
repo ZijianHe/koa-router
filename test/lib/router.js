@@ -4,7 +4,7 @@
 
 var fs = require('fs')
   , http = require('http')
-  , koa = require('koa')
+  , Koa = require('koa')
   , methods = require('methods')
   , path = require('path')
   , request = require('supertest')
@@ -15,31 +15,31 @@ var fs = require('fs')
 
 describe('Router', function() {
   it('creates new router with koa app', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     router.should.be.instanceOf(Router);
     done();
   });
 
   it('does not register middleware more than once (gh-184)', function (done) {
-    var app = koa();
+    var app = new Koa();
     var parentRouter = new Router();
     var nestedRouter = new Router();
 
     nestedRouter
-      .get('/first-nested-route', function *(next) {
-          this.body = { n: this.n };
+      .get('/first-nested-route', function (ctx) {
+          ctx.body = { n: ctx.n };
       })
-      .get('/second-nested-route', function *(next) {
-          yield next;
+      .get('/second-nested-route', function (ctx, next) {
+          return next();
       })
-      .get('/third-nested-route', function *(next) {
-          yield next;
+      .get('/third-nested-route', function (ctx, next) {
+          return next();
       });
 
-    parentRouter.use('/parent-route', function *(next) {
-      this.n = this.n ? (this.n + 1) : 1;
-      yield next;
+    parentRouter.use('/parent-route', function (ctx, next) {
+      ctx.n = ctx.n ? (ctx.n + 1) : 1;
+      return next();
     }, nestedRouter.routes());
 
     app.use(parentRouter.routes());
@@ -55,7 +55,7 @@ describe('Router', function() {
   });
 
   it('exposes middleware factory', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     router.should.have.property('routes');
     router.routes.should.be.type('function');
@@ -66,11 +66,10 @@ describe('Router', function() {
   });
 
   it('supports promises for async/await', function (done) {
-    var app = koa();
+    var app = new Koa();
     app.experimental = true;
     var router = Router();
-    router.get('/async', function (next) {
-      var ctx = this;
+    router.get('/async', function (ctx, next) {
       return new Promise(function (resolve, reject) {
         ctx.body = {
           msg: 'promises!'
@@ -91,17 +90,17 @@ describe('Router', function() {
   });
 
   it('matches middleware only if route was matched (gh-182)', function (done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     var otherRouter = new Router();
 
-    router.use(function *(next) {
-      this.body = { bar: 'baz' };
-      yield next;
+    router.use(function (ctx, next) {
+      ctx.body = { bar: 'baz' };
+      return next();
     });
 
-    otherRouter.get('/bar', function *(next) {
-      this.body = this.body || { foo: 'bar' };
+    otherRouter.get('/bar', function (ctx) {
+      ctx.body = ctx.body || { foo: 'bar' };
     });
 
     app.use(router.routes()).use(otherRouter.routes());
@@ -118,18 +117,18 @@ describe('Router', function() {
   });
 
   it('matches first to last', function (done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
 
     router
-      .get('user_page', '/user/(.*).jsx', function *(next) {
-        this.body = { order: 1 };
+      .get('user_page', '/user/(.*).jsx', function (ctx) {
+        ctx.body = { order: 1 };
       })
-      .all('app', '/app/(.*).jsx', function *(next) {
-        this.body = { order: 2 };
+      .all('app', '/app/(.*).jsx', function (ctx) {
+        ctx.body = { order: 2 };
       })
-      .all('view', '(.*).jsx', function *(next) {
-        this.body = { order: 3 };
+      .all('view', '(.*).jsx', function (ctx) {
+        ctx.body = { order: 3 };
       });
 
     request(http.createServer(app.use(router.routes()).callback()))
@@ -142,15 +141,15 @@ describe('Router', function() {
       })
   });
 
-  it('does not run subsequent middleware without yield next', function (done) {
-    var app = koa();
+  it('does not run subsequent middleware without calling next', function (done) {
+    var app = new Koa();
     var router = new Router();
 
     router
-      .get('user_page', '/user/(.*).jsx', function *(next) {
-        // no yield
-      }, function *(next) {
-        this.body = { order: 1 };
+      .get('user_page', '/user/(.*).jsx', function (ctx) {
+        // no next()
+      }, function (ctx) {
+        ctx.body = { order: 1 };
       });
 
     request(http.createServer(app.use(router.routes()).callback()))
@@ -160,7 +159,7 @@ describe('Router', function() {
   });
 
   it('nests routers with prefixes at root', function (done) {
-    var app = koa();
+    var app = new Koa();
     var api = new Router();
     var forums = new Router({
       prefix: '/forums'
@@ -171,13 +170,13 @@ describe('Router', function() {
     var server;
 
     posts
-      .get('/', function *(next) {
-        this.status = 204;
-        yield next;
+      .get('/', function (ctx, next) {
+        ctx.status = 204;
+        return next();
       })
-      .get('/:pid', function *(next) {
-        this.body = this.params;
-        yield next;
+      .get('/:pid', function (ctx, next) {
+        ctx.body = ctx.params;
+        return next();
       });
 
     forums.use(posts.routes());
@@ -211,7 +210,7 @@ describe('Router', function() {
   });
 
   it('nests routers with prefixes at path', function (done) {
-    var app = koa();
+    var app = new Koa();
     var api = new Router();
     var forums = new Router({
       prefix: '/api'
@@ -222,13 +221,13 @@ describe('Router', function() {
     var server;
 
     posts
-      .get('/', function *(next) {
-        this.status = 204;
-        yield next;
+      .get('/', function (ctx, next) {
+        ctx.status = 204;
+        return next();
       })
-      .get('/:pid', function *(next) {
-        this.body = this.params;
-        yield next;
+      .get('/:pid', function (ctx, next) {
+        ctx.body = ctx.params;
+        return next();
       });
 
     forums.use('/forums/:fid', posts.routes());
@@ -262,19 +261,19 @@ describe('Router', function() {
   });
 
   it('runs subrouter middleware after parent', function (done) {
-    var app = koa();
+    var app = new Koa();
     var subrouter = Router()
-      .use(function *(next) {
-        this.msg = 'subrouter';
-        yield next;
+      .use(function (ctx, next) {
+        ctx.msg = 'subrouter';
+        return next();
       })
-      .get('/', function *() {
-        this.body = { msg: this.msg };
+      .get('/', function (ctx) {
+        ctx.body = { msg: ctx.msg };
       });
     var router = Router()
-      .use(function *(next) {
-        this.msg = 'router';
-        yield next;
+      .use(function (ctx, next) {
+        ctx.msg = 'router';
+        return next();
       })
       .use(subrouter.routes());
     request(http.createServer(app.use(router.routes()).callback()))
@@ -288,15 +287,15 @@ describe('Router', function() {
   });
 
   it('runs parent middleware for subrouter routes', function (done) {
-    var app = koa();
+    var app = new Koa();
     var subrouter = Router()
-      .get('/sub', function *() {
-        this.body = { msg: this.msg };
+      .get('/sub', function (ctx) {
+        ctx.body = { msg: ctx.msg };
       });
     var router = Router()
-      .use(function *(next) {
-        this.msg = 'router';
-        yield next;
+      .use(function (ctx, next) {
+        ctx.msg = 'router';
+        return next();
       })
       .use('/parent', subrouter.routes());
     request(http.createServer(app.use(router.routes()).callback()))
@@ -310,25 +309,25 @@ describe('Router', function() {
   });
 
   it('matches corresponding requests', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
-    router.get('/:category/:title', function *(next) {
-      this.should.have.property('params');
-      this.params.should.have.property('category', 'programming');
-      this.params.should.have.property('title', 'how-to-node');
-      this.status = 204;
+    router.get('/:category/:title', function (ctx) {
+      ctx.should.have.property('params');
+      ctx.params.should.have.property('category', 'programming');
+      ctx.params.should.have.property('title', 'how-to-node');
+      ctx.status = 204;
     });
-    router.post('/:category', function *(next) {
-      this.should.have.property('params');
-      this.params.should.have.property('category', 'programming');
-      this.status = 204;
+    router.post('/:category', function (ctx) {
+      ctx.should.have.property('params');
+      ctx.params.should.have.property('category', 'programming');
+      ctx.status = 204;
     });
-	  router.put('/:category/not-a-title', function *(next) {
-		  this.should.have.property('params');
-		  this.params.should.have.property('category', 'programming');
-		  this.params.should.not.have.property('title');
-		  this.status = 204;
+	  router.put('/:category/not-a-title', function (ctx) {
+		  ctx.should.have.property('params');
+		  ctx.params.should.have.property('category', 'programming');
+		  ctx.params.should.not.have.property('title');
+		  ctx.status = 204;
 	  });
     var server = http.createServer(app.callback());
     request(server)
@@ -352,23 +351,23 @@ describe('Router', function() {
   });
 
   it('executes route middleware using `app.context`', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
-    router.use(function *(next) {
-      this.bar = 'baz';
-      yield next;
+    router.use(function (ctx, next) {
+      ctx.bar = 'baz';
+      return next();
     });
-    router.get('/:category/:title', function *(next) {
-      this.foo = 'bar';
-      yield next;
-    }, function *(next) {
-      this.should.have.property('bar', 'baz');
-      this.should.have.property('foo', 'bar');
-      this.should.have.property('app');
-      this.should.have.property('req');
-      this.should.have.property('res');
-      this.status = 204;
+    router.get('/:category/:title', function (ctx, next) {
+      ctx.foo = 'bar';
+      return next();
+    }, function (ctx) {
+      ctx.should.have.property('bar', 'baz');
+      ctx.should.have.property('foo', 'bar');
+      ctx.should.have.property('app');
+      ctx.should.have.property('req');
+      ctx.should.have.property('res');
+      ctx.status = 204;
       done();
     });
     request(http.createServer(app.callback()))
@@ -380,15 +379,15 @@ describe('Router', function() {
   });
 
   it('does not match after ctx.throw()', function(done) {
-    var app = koa();
+    var app = new Koa();
     var counter = 0;
     var router = new Router();
     app.use(router.routes());
-    router.get('/', function *(next) {
+    router.get('/', function (ctx) {
       counter++;
-      this.throw(403);
+      ctx.throw(403);
     });
-    router.get('/', function *(next) {
+    router.get('/', function () {
       counter++;
     });
     var server = http.createServer(app.callback());
@@ -402,26 +401,26 @@ describe('Router', function() {
     });
   });
 
-  it('supports generators for route middleware', function(done) {
-    var app = koa();
+  it('supports promises for route middleware', function(done) {
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     var readVersion = function() {
-      return function(fn) {
+      return new Promise(function(resolve, reject) {
         var packagePath = path.join(__dirname, '..', '..', 'package.json');
         fs.readFile(packagePath, 'utf8', function(err, data) {
-          if (err) return fn(err);
-          fn(null, JSON.parse(data).version);
+          if (err) return reject(err);
+          resolve(JSON.parse(data).version);
         });
-      };
+      });
     };
     router
-      .get('/', function *(next) {
-        yield next;
-      }, function *(next) {
-        var version = yield readVersion();
-        this.status = 204;
-        return yield next;
+      .get('/', function (ctx, next) {
+        return next();
+      }, function (ctx) {
+        return readVersion().then(function() {
+          ctx.status = 204;
+        });
       });
     request(http.createServer(app.callback()))
     .get('/')
@@ -430,12 +429,12 @@ describe('Router', function() {
   });
 
   it('responds to OPTIONS requests', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
+    router.get('/users', function () {});
+    router.put('/users', function () {});
     request(http.createServer(app.callback()))
     .options('/users')
     .expect(204)
@@ -447,13 +446,13 @@ describe('Router', function() {
   });
 
   it('responds with 405 Method Not Allowed', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
-    router.post('/events', function *() {});
+    router.get('/users', function () {});
+    router.put('/users', function () {});
+    router.post('/events', function () {});
     request(http.createServer(app.callback()))
     .post('/users')
     .expect(405)
@@ -465,12 +464,12 @@ describe('Router', function() {
   });
 
   it('responds with 501 Not Implemented', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
+    router.get('/users', function () {});
+    router.put('/users', function () {});
     request(http.createServer(app.callback()))
     .search('/users')
     .expect(501)
@@ -481,12 +480,12 @@ describe('Router', function() {
   });
 
   it('does not send 405 if route matched but status is 404', function (done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
     app.use(router.routes());
     app.use(router.allowedMethods());
-    router.get('/users', function *() {
-      this.status = 404;
+    router.get('/users', function (ctx) {
+      ctx.status = 404;
     });
     request(http.createServer(app.callback()))
     .get('/users')
@@ -498,17 +497,17 @@ describe('Router', function() {
   });
 
   it('supports custom routing detect path: ctx.routerPath', function(done) {
-    var app = koa();
+    var app = new Koa();
     var router = new Router();
-    app.use(function *(next) {
+    app.use(function (ctx, next) {
       // bind helloworld.example.com/users => example.com/helloworld/users
-      var appname = this.request.hostname.split('.', 1)[0];
-      this.routerPath = '/' + appname + this.path;
-      yield *next;
+      var appname = ctx.request.hostname.split('.', 1)[0];
+      ctx.routerPath = '/' + appname + ctx.path;
+      return next();
     });
     app.use(router.routes());
-    router.get('/helloworld/users', function *() {
-      this.body = this.method + ' ' + this.url;
+    router.get('/helloworld/users', function (ctx) {
+      ctx.body = ctx.method + ' ' + ctx.url;
     });
 
     request(http.createServer(app.callback()))
@@ -520,7 +519,7 @@ describe('Router', function() {
 
   describe('Router#[verb]()', function() {
     it('registers route specific to HTTP verb', function() {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
       methods.forEach(function(method) {
@@ -534,22 +533,22 @@ describe('Router', function() {
     it('enables route chaining', function() {
       var router = new Router();
       methods.forEach(function(method) {
-        router[method]('/', function *() {}).should.equal(router);
+        router[method]('/', function () {}).should.equal(router);
       });
     });
 
     it('registers routes without params before routes with params', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
 
-      router.get('/:parameter', function *(next) {
-        this.body = {
+      router.get('/:parameter', function (ctx) {
+        ctx.body = {
           test: 'foo'
         };
       });
 
-      router.get('/notparameter', function *(next) {
-        this.body = {
+      router.get('/notparameter', function (ctx) {
+        ctx.body = {
           test: 'bar'
         };
       });
@@ -577,23 +576,23 @@ describe('Router', function() {
 
   describe('Router#use()', function (done) {
     it('uses router middleware without path', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
 
-      router.get('/foo/bar', function *(next) {
-        this.body = {
-          foobar: this.foo + 'bar'
+      router.get('/foo/bar', function (ctx) {
+        ctx.body = {
+          foobar: ctx.foo + 'bar'
         };
       });
 
-      router.use(function *(next) {
-        this.foo = 'baz';
-        yield next;
+      router.use(function (ctx, next) {
+        ctx.foo = 'baz';
+        return next();
       });
 
-      router.use(function *(next) {
-        this.foo = 'foo';
-        yield next;
+      router.use(function (ctx, next) {
+        ctx.foo = 'foo';
+        return next();
       });
 
       app.use(router.routes());
@@ -609,17 +608,17 @@ describe('Router', function() {
     });
 
     it('uses router middleware at given path', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
 
-      router.use('/foo/bar', function *(next) {
-        this.foo = 'foo';
-        yield next;
+      router.use('/foo/bar', function (ctx, next) {
+        ctx.foo = 'foo';
+        return next();
       });
 
-      router.get('/foo/bar', function *(next) {
-        this.body = {
-          foobar: this.foo + 'bar'
+      router.get('/foo/bar', function (ctx) {
+        ctx.body = {
+          foobar: ctx.foo + 'bar'
         };
       });
 
@@ -636,23 +635,23 @@ describe('Router', function() {
     });
 
     it('runs router middleware before subrouter middleware', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       var subrouter = new Router();
 
-      router.use(function *(next) {
-        this.foo = 'boo';
-        yield next;
+      router.use(function (ctx, next) {
+        ctx.foo = 'boo';
+        return next();
       });
 
       subrouter
-        .use(function *(next) {
-          this.foo = 'foo';
-          yield next;
+        .use(function (ctx, next) {
+          ctx.foo = 'foo';
+          return next();
         })
-        .get('/bar', function *(next) {
-          this.body = {
-            foobar: this.foo + 'bar'
+        .get('/bar', function (ctx) {
+          ctx.body = {
+            foobar: ctx.foo + 'bar'
           };
         });
 
@@ -670,24 +669,24 @@ describe('Router', function() {
     });
 
     it('assigns middleware to array of paths', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
 
-      router.use(['/foo', '/bar'], function *(next) {
-        this.foo = 'foo';
-        this.bar = 'bar';
-        yield next;
+      router.use(['/foo', '/bar'], function (ctx, next) {
+        ctx.foo = 'foo';
+        ctx.bar = 'bar';
+        return next();
       });
 
-      router.get('/foo', function *(next) {
-        this.body = {
-          foobar: this.foo + 'bar'
+      router.get('/foo', function (ctx, next) {
+        ctx.body = {
+          foobar: ctx.foo + 'bar'
         };
       });
 
-      router.get('/bar', function *(next) {
-        this.body = {
-          foobar: 'foo' + this.bar
+      router.get('/bar', function (ctx) {
+        ctx.body = {
+          foobar: 'foo' + ctx.bar
         };
       });
 
@@ -712,11 +711,11 @@ describe('Router', function() {
 
   describe('Router#register()', function() {
     it('registers new routes', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       router.should.have.property('register');
       router.register.should.be.type('function');
-      var route = router.register('/', ['GET', 'POST'], function *() {});
+      var route = router.register('/', ['GET', 'POST'], function () {});
       app.use(router.routes());
       router.stack.should.be.an.instanceOf(Array);
       router.stack.should.have.property('length', 1);
@@ -727,7 +726,7 @@ describe('Router', function() {
 
   describe('Router#redirect()', function() {
     it('registers redirect routes', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       router.should.have.property('redirect');
       router.redirect.should.be.type('function');
@@ -740,11 +739,11 @@ describe('Router', function() {
     });
 
     it('redirects using route names', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get('home', '/', function *() {});
-      router.get('sign-up-form', '/sign-up-form', function *() {});
+      router.get('home', '/', function () {});
+      router.get('sign-up-form', '/sign-up-form', function () {});
       router.redirect('home', 'sign-up-form');
       request(http.createServer(app.callback()))
         .post('/')
@@ -759,9 +758,9 @@ describe('Router', function() {
 
   describe('Router#route()', function () {
     it('inherits routes from nested router', function () {
-      var app = koa();
-      var subrouter = Router().get('child', '/hello', function *(next) {
-        this.body = { hello: 'world' };
+      var app = new Koa();
+      var subrouter = Router().get('child', '/hello', function (ctx) {
+        ctx.body = { hello: 'world' };
       });
       var router = Router().use(subrouter.routes());
       expect(router.route('child')).to.have.property('name', 'child');
@@ -770,11 +769,11 @@ describe('Router', function() {
 
   describe('Router#url()', function() {
     it('generates URL for given route', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      router.get('books', '/:category/:title', function *(next) {
-        this.status = 204;
+      router.get('books', '/:category/:title', function (ctx) {
+        ctx.status = 204;
       });
       var url = router.url('books', { category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
@@ -786,17 +785,17 @@ describe('Router', function() {
 
   describe('Router#param()', function() {
     it('runs parameter middleware', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       app.use(router.routes());
       router
-        .param('user', function *(id, next) {
-          this.user = { name: 'alex' };
-          if (!id) return this.status = 404;
-          yield next;
+        .param('user', function (id, ctx, next) {
+          ctx.user = { name: 'alex' };
+          if (!id) return ctx.status = 404;
+          return next();
         })
-        .get('/users/:user', function *(next) {
-          this.body = this.user;
+        .get('/users/:user', function (ctx, next) {
+          ctx.body = ctx.user;
         });
       request(http.createServer(app.callback()))
         .get('/users/3')
@@ -810,27 +809,27 @@ describe('Router', function() {
     });
 
     it('runs parameter middleware in order of URL appearance', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       router
-        .param('user', function *(id, next) {
-          this.user = { name: 'alex' };
-          if (this.ranFirst) {
-            this.user.ordered = 'parameters';
+        .param('user', function (id, ctx, next) {
+          ctx.user = { name: 'alex' };
+          if (ctx.ranFirst) {
+            ctx.user.ordered = 'parameters';
           }
-          if (!id) return this.status = 404;
-          yield next;
+          if (!id) return ctx.status = 404;
+          return next();
         })
-        .param('first', function *(id, next) {
-          this.ranFirst = true;
-          if (this.user) {
-            this.ranFirst = false;
+        .param('first', function (id, ctx, next) {
+          ctx.ranFirst = true;
+          if (ctx.user) {
+            ctx.ranFirst = false;
           }
-          if (!id) return this.status = 404;
-          yield next;
+          if (!id) return ctx.status = 404;
+          return next();
         })
-        .get('/:first/users/:user', function *(next) {
-          this.body = this.user;
+        .get('/:first/users/:user', function (ctx) {
+          ctx.body = ctx.user;
         });
 
       request(http.createServer(
@@ -849,20 +848,20 @@ describe('Router', function() {
     });
 
     it('runs parent parameter middleware for subrouter', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       var subrouter = new Router();
-      subrouter.get('/:cid', function *(next) {
-        this.body = {
-          id: this.params.id,
-          cid: this.params.cid
+      subrouter.get('/:cid', function (ctx) {
+        ctx.body = {
+          id: ctx.params.id,
+          cid: ctx.params.cid
         };
       });
       router
-        .param('id', function *(id, next) {
-          this.params.id = 'ran';
-          if (!id) return this.status = 404;
-          yield next;
+        .param('id', function (id, ctx, next) {
+          ctx.params.id = 'ran';
+          if (!id) return ctx.status = 404;
+          return next();
         })
         .use('/:id/children', subrouter.routes());
 
@@ -881,12 +880,12 @@ describe('Router', function() {
 
   describe('Router#opts', function() {
     it('responds with 200', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router({
         strict: true
       });
-      router.get('/info', function *() {
-        this.body = 'hello';
+      router.get('/info', function (ctx) {
+        ctx.body = 'hello';
       });
       request(http.createServer(
         app
@@ -902,11 +901,11 @@ describe('Router', function() {
     });
 
     it('should allow setting a prefix', function (done) {
-      var app = koa();
+      var app = new Koa();
       var routes = Router({ prefix: '/things/:thing_id' });
 
-      routes.get('/list', function * (next) {
-        this.body = this.params;
+      routes.get('/list', function (ctx) {
+        ctx.body = ctx.params;
       });
 
       app.use(routes.routes());
@@ -922,12 +921,12 @@ describe('Router', function() {
     });
 
     it('responds with 404 when has a trailing slash', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router({
         strict: true
       });
-      router.get('/info', function *() {
-        this.body = 'hello';
+      router.get('/info', function (ctx) {
+        ctx.body = 'hello';
       });
       request(http.createServer(
         app
@@ -944,12 +943,12 @@ describe('Router', function() {
 
   describe('use middleware with opts', function() {
     it('responds with 200', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router({
         strict: true
       });
-      router.get('/info', function *() {
-        this.body = 'hello';
+      router.get('/info', function (ctx) {
+        ctx.body = 'hello';
       })
       request(http.createServer(
         app
@@ -965,12 +964,12 @@ describe('Router', function() {
     });
 
     it('responds with 404 when has a trailing slash', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router({
         strict: true
       });
-      router.get('/info', function *() {
-        this.body = 'hello';
+      router.get('/info', function (ctx) {
+        ctx.body = 'hello';
       })
       request(http.createServer(
         app
@@ -987,22 +986,22 @@ describe('Router', function() {
 
   describe('router.routes()', function () {
     it('should return composed middleware', function (done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
       var middlewareCount = 0;
-      var middlewareA = function *(next) {
+      var middlewareA = function (ctx, next) {
         middlewareCount++;
-        yield next;
+        return next();
       };
-      var middlewareB = function *(next) {
+      var middlewareB = function (ctx, next) {
         middlewareCount++;
-        yield next;
+        return next();
       };
 
       router.use(middlewareA, middlewareB);
-      router.get('/users/:id', function *() {
-        should.exist(this.params.id);
-        this.body = { hello: 'world' };
+      router.get('/users/:id', function (ctx) {
+        should.exist(ctx.params.id);
+        ctx.body = { hello: 'world' };
       });
 
       var routerMiddleware = router.routes();
@@ -1027,11 +1026,11 @@ describe('Router', function() {
 
   describe('If no HEAD method, default to GET', function() {
     it('should default to GET', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
-      router.get('/users/:id', function *() {
-        should.exist(this.params.id);
-        this.body = 'hello';
+      router.get('/users/:id', function (ctx) {
+        should.exist(ctx.params.id);
+        ctx.body = 'hello';
       });
       request(http.createServer(
         app
@@ -1047,11 +1046,11 @@ describe('Router', function() {
     });
 
     it('should work with middleware', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
-      router.get('/users/:id', function *() {
-        should.exist(this.params.id);
-        this.body = 'hello';
+      router.get('/users/:id', function (ctx) {
+        should.exist(ctx.params.id);
+        ctx.body = 'hello';
       })
       request(http.createServer(
         app
@@ -1077,8 +1076,8 @@ describe('Router', function() {
 
     it('should prefix existing routes', function () {
       var router = Router();
-      router.get('/users/:id', function *() {
-        this.body = 'test';
+      router.get('/users/:id', function (ctx) {
+        ctx.body = 'test';
       })
       router.prefix('/things/:thing_id');
       var route = router.stack[0];
@@ -1097,18 +1096,18 @@ describe('Router', function() {
         var middlewareCount = 0;
 
         before(function() {
-          var app = koa();
+          var app = new Koa();
           var router = Router();
 
-          router.get('/', function *() {
+          router.get('/', function (ctx) {
             middlewareCount++;
-            this.body = { name: this.thing };
+            ctx.body = { name: ctx.thing };
           });
 
-          router.use(function *(next) {
+          router.use(function (ctx, next) {
             middlewareCount++;
-            this.thing = 'worked';
-            yield next;
+            ctx.thing = 'worked';
+            return next();
           });
 
           router.prefix(prefix);
