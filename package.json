@@ -10,7 +10,7 @@
     "lib"
   ],
   "author": "Alex Mingoia <talk@alexmingoia.com>",
-  "version": "5.2.3",
+  "version": "6.0.0",
   "keywords": [
     "koa",
     "middleware",
@@ -29,13 +29,13 @@
     "gulp": "^3.8.11",
     "gulp-mocha": "^2.0.0",
     "jsdoc-to-markdown": "^1.1.1",
-    "koa": "^2.0.0-alpha.2",
+    "koa": "^2.0.0-alpha.3",
     "mocha": "^2.0.1",
     "should": "^6.0.3",
     "supertest": "^1.0.1"
   },
   "scripts": {
-    "test": "[ \"${TRAVIS_NODE_VERSION}\" = \"0.12\" ] && NODE_ENV=test node --harmony-generators node_modules/gulp/bin/gulp.js test || NODE_ENV=test node node_modules/gulp/bin/gulp.js test",
+    "test": "NODE_ENV=test node node_modules/gulp/bin/gulp.js test",
     "docs": "NODE_ENV=test node node_modules/gulp/bin/gulp.js docs"
   },
   "engines": {

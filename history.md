@@ -1,5 +1,9 @@
 # History
 
+## 6.0.0
+
+- Koa 2.x support. See [#202](https://github.com/alexmingoia/koa-router/pull/202)
+
 ## 5.2.3
 
 - Fix for middleware running twice when nesting routes [#184](https://github.com/alexmingoia/koa-router/issues/184)
