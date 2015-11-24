@@ -14,6 +14,10 @@
 * Nestable routers.
 * ES7 async/await support.
 
+## Koa 2.x
+
+`koa-router@6` requires `koa@2`. For `koa@1` use `koa-router@5`.
+
 ## Installation
 
 Install using [npm](https://www.npmjs.org/):
@@ -23,7 +27,7 @@ npm install koa-router
 ```
 
 ## API Reference
-  
+
 * [koa-router](#module_koa-router)
   * [Router](#exp_module_koa-router--Router) ⏏
     * [new Router([opts])](#new_module_koa-router--Router_new)
@@ -42,7 +46,7 @@ npm install koa-router
 
 <a name="exp_module_koa-router--Router"></a>
 ### Router ⏏
-**Kind**: Exported class  
+**Kind**: Exported class
 <a name="new_module_koa-router--Router_new"></a>
 #### new Router([opts])
 Create a new router.
@@ -53,7 +57,7 @@ Create a new router.
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
-**Example**  
+**Example**
 Basic usage:
 
 ```javascript
@@ -168,7 +172,7 @@ router.get('/:category/:title', function (ctx, next) {
 });
 ```
 
-**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -180,7 +184,7 @@ router.get('/:category/:title', function (ctx, next) {
 #### router.routes ⇒ <code>function</code>
 Returns router middleware which dispatches a route matching the request.
 
-**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
 <a name="module_koa-router--Router+use"></a>
 #### router.use([path], middleware, [...]) ⇒ <code>Router</code>
 Use given middleware(s) before route callback.
@@ -188,15 +192,15 @@ Use given middleware(s) before route callback.
 Only runs if any route is matched. If a path is given, the middleware will
 run for any routes that include that path.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| [path] | <code>String</code> | 
-| middleware | <code>function</code> | 
-| [...] | <code>function</code> | 
+| [path] | <code>String</code> |
+| middleware | <code>function</code> |
+| [...] | <code>function</code> |
 
-**Example**  
+**Example**
 ```javascript
 router.use(session(), authorize());
 
@@ -212,13 +216,13 @@ app.use(router.routes());
 #### router.prefix(prefix) ⇒ <code>Router</code>
 Set the path prefix for a Router instance that was already initialized.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| prefix | <code>String</code> | 
+| prefix | <code>String</code> |
 
-**Example**  
+**Example**
 ```javascript
 router.prefix('/things/:thing_id')
 ```
@@ -228,14 +232,14 @@ Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
 with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [options] | <code>Object</code> |  |
 | [options.throw] | <code>Boolean</code> | throw error instead of setting status and header |
 
-**Example**  
+**Example**
 ```javascript
 var app = koa();
 var router = router();
@@ -262,7 +266,7 @@ router.all('/login', function (ctx) {
 });
 ```
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -274,11 +278,11 @@ router.all('/login', function (ctx) {
 #### router.route(name) ⇒ <code>Layer</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| name | <code>String</code> | 
+| name | <code>String</code> |
 
 <a name="module_koa-router--Router+url"></a>
 #### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
@@ -297,7 +301,7 @@ router.url('user', { id: 3 });
 // => "/users/3"
 ```
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -309,14 +313,14 @@ router.url('user', { id: 3 });
 Run middleware for named route parameters. Useful for auto-loading or
 validation.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| param | <code>String</code> | 
-| middleware | <code>function</code> | 
+| param | <code>String</code> |
+| middleware | <code>function</code> |
 
-**Example**  
+**Example**
 ```javascript
 router
   .param('user', function (id, ctx, next) {
@@ -339,14 +343,14 @@ router
 #### Router.url(path, params) ⇒ <code>String</code>
 Generate URL from url pattern and given `params`.
 
-**Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
 | path | <code>String</code> | url pattern |
 | params | <code>Object</code> | url parameters |
 
-**Example**  
+**Example**
 ```javascript
 var url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
