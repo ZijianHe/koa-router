@@ -13,8 +13,8 @@ var fs = require('fs')
   , expect = require('expect.js')
   , should = require('should');
 
-describe('Router', function() {
-  it('creates new router with koa app', function(done) {
+describe('Router', function () {
+  it('creates new router with koa app', function (done) {
     var app = new Koa();
     var router = new Router();
     router.should.be.instanceOf(Router);
@@ -79,7 +79,7 @@ describe('Router', function() {
     done();
   });
 
-  it('exposes middleware factory', function(done) {
+  it('exposes middleware factory', function (done) {
     var app = new Koa();
     var router = new Router();
     router.should.have.property('routes');
@@ -333,7 +333,7 @@ describe('Router', function() {
       });
   });
 
-  it('matches corresponding requests', function(done) {
+  it('matches corresponding requests', function (done) {
     var app = new Koa();
     var router = new Router();
     app.use(router.routes());
@@ -358,12 +358,12 @@ describe('Router', function() {
     request(server)
     .get('/programming/how-to-node')
     .expect(204)
-    .end(function(err, res) {
+    .end(function (err, res) {
       if (err) return done(err);
       request(server)
       .post('/programming')
       .expect(204)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
 	      request(server)
 		      .put('/programming/not-a-title')
@@ -375,7 +375,7 @@ describe('Router', function() {
     });
   });
 
-  it('executes route middleware using `app.context`', function(done) {
+  it('executes route middleware using `app.context`', function (done) {
     var app = new Koa();
     var router = new Router();
     app.use(router.routes());
@@ -398,12 +398,12 @@ describe('Router', function() {
     request(http.createServer(app.callback()))
     .get('/match/this')
     .expect(204)
-    .end(function(err) {
+    .end(function (err) {
       if (err) return done(err);
     });
   });
 
-  it('does not match after ctx.throw()', function(done) {
+  it('does not match after ctx.throw()', function (done) {
     var app = new Koa();
     var counter = 0;
     var router = new Router();
@@ -419,21 +419,21 @@ describe('Router', function() {
       request(server)
       .get('/')
       .expect(403)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         counter.should.equal(1);
         done();
     });
   });
 
-  it('supports promises for route middleware', function(done) {
+  it('supports promises for route middleware', function (done) {
     var app = new Koa();
     var router = new Router();
     app.use(router.routes());
-    var readVersion = function() {
-      return new Promise(function(resolve, reject) {
+    var readVersion = function () {
+      return new Promise(function (resolve, reject) {
         var packagePath = path.join(__dirname, '..', '..', 'package.json');
-        fs.readFile(packagePath, 'utf8', function(err, data) {
+        fs.readFile(packagePath, 'utf8', function (err, data) {
           if (err) return reject(err);
           resolve(JSON.parse(data).version);
         });
@@ -443,7 +443,7 @@ describe('Router', function() {
       .get('/', function (ctx, next) {
         return next();
       }, function (ctx) {
-        return readVersion().then(function() {
+        return readVersion().then(function () {
           ctx.status = 204;
         });
       });
@@ -453,75 +453,234 @@ describe('Router', function() {
     .end(done);
   });
 
-  it('responds to OPTIONS requests', function(done) {
-    var app = new Koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function () {});
-    router.put('/users', function () {});
-    request(http.createServer(app.callback()))
-    .options('/users')
-    .expect(204)
-    .end(function(err, res) {
-      if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
-      done();
+  describe('Router#allowedMethods()', function () {
+    it('responds to OPTIONS requests', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function (ctx, next) {});
+      router.put('/users', function (ctx, next) {});
+      request(http.createServer(app.callback()))
+      .options('/users')
+      .expect(204)
+      .end(function (err, res) {
+        if (err) return done(err);
+        res.header.should.have.property('allow', 'HEAD, GET, PUT');
+        done();
+      });
+    });
+
+    it('responds with 405 Method Not Allowed', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      router.post('/events', function () {});
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function (err, res) {
+        if (err) return done(err);
+        res.header.should.have.property('allow', 'HEAD, GET, PUT');
+        done();
+      });
+    });
+
+    it('responds with 405 Method Not Allowed using the "throw" option', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function (ctx, next) {
+        try {
+          return next();
+        } catch (err) {
+          // assert that the correct HTTPError was thrown
+          err.name.should.equal('MethodNotAllowedError');
+          err.statusCode.should.equal(405);
+
+          // translate the HTTPError to a normal response
+          ctx.body = err.name;
+          ctx.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({ throw: true }));
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      router.post('/events', function () {});
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function (err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        done();
+      });
+    });
+
+    it('responds with user-provided throwable using the "throw" and "methodNotAllowed" options', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function (ctx, next) {
+        return next().catch(function (err) {
+          // assert that the correct HTTPError was thrown
+          err.message.should.equal('Custom Not Allowed Error');
+          err.statusCode.should.equal(405);
+
+          // translate the HTTPError to a normal response
+          ctx.body = err.body;
+          ctx.status = err.statusCode;
+        });
+      });
+      app.use(router.allowedMethods({
+        throw: true,
+        methodNotAllowed: function () {
+          var notAllowedErr = new Error('Custom Not Allowed Error');
+          notAllowedErr.type = 'custom';
+          notAllowedErr.statusCode = 405;
+          notAllowedErr.body = {
+            error: 'Custom Not Allowed Error',
+            statusCode: 405,
+            otherStuff: true
+          };
+          return notAllowedErr;
+        }
+      }));
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      router.post('/events', function () {});
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function (err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        res.body.should.eql({ error: 'Custom Not Allowed Error',
+          statusCode: 405,
+          otherStuff: true
+        });
+        done();
+      });
+    });
+
+    it('responds with 501 Not Implemented', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function (err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('responds with 501 Not Implemented using the "throw" option', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function (ctx, next) {
+        try {
+          return next();
+        } catch (err) {
+          // assert that the correct HTTPError was thrown
+          err.name.should.equal('NotImplementedError');
+          err.statusCode.should.equal(501);
+
+          // translate the HTTPError to a normal response
+          ctx.body = err.name;
+          ctx.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({ throw: true }));
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function (err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        done();
+      });
+    });
+
+    it('responds with user-provided throwable using the "throw" and "notImplemented" options', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function (ctx, next) {
+        return next().catch(function (err) {
+          // assert that our custom error was thrown
+          err.message.should.equal('Custom Not Implemented Error');
+          err.type.should.equal('custom');
+          err.statusCode.should.equal(501);
+
+          // translate the HTTPError to a normal response
+          ctx.body = err.body;
+          ctx.status = err.statusCode;
+        });
+      });
+      app.use(router.allowedMethods({
+        throw: true,
+        notImplemented: function () {
+          var notImplementedErr = new Error('Custom Not Implemented Error');
+          notImplementedErr.type = 'custom';
+          notImplementedErr.statusCode = 501;
+          notImplementedErr.body = {
+            error: 'Custom Not Implemented Error',
+            statusCode: 501,
+            otherStuff: true
+          };
+          return notImplementedErr;
+        }
+      }));
+      router.get('/users', function () {});
+      router.put('/users', function () {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function (err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        res.body.should.eql({ error: 'Custom Not Implemented Error',
+          statusCode: 501,
+          otherStuff: true
+        });
+        done();
+      });
+    });
+
+    it('does not send 405 if route matched but status is 404', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function *() {
+        this.status = 404;
+      });
+      request(http.createServer(app.callback()))
+      .get('/users')
+      .expect(404)
+      .end(function (err, res) {
+        if (err) return done(err);
+        done();
+      });
     });
   });
 
-  it('responds with 405 Method Not Allowed', function(done) {
-    var app = new Koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function () {});
-    router.put('/users', function () {});
-    router.post('/events', function () {});
-    request(http.createServer(app.callback()))
-    .post('/users')
-    .expect(405)
-    .end(function(err, res) {
-      if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
-      done();
-    });
-  });
-
-  it('responds with 501 Not Implemented', function(done) {
-    var app = new Koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function () {});
-    router.put('/users', function () {});
-    request(http.createServer(app.callback()))
-    .search('/users')
-    .expect(501)
-    .end(function(err, res) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('does not send 405 if route matched but status is 404', function (done) {
-    var app = new Koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function (ctx) {
-      ctx.status = 404;
-    });
-    request(http.createServer(app.callback()))
-    .get('/users')
-    .expect(404)
-    .end(function(err, res) {
-      if (err) return done(err);
-      done();
-    });
-  });
-
-  it('supports custom routing detect path: ctx.routerPath', function(done) {
+  it('supports custom routing detect path: ctx.routerPath', function (done) {
     var app = new Koa();
     var router = new Router();
     app.use(function (ctx, next) {
@@ -542,12 +701,12 @@ describe('Router', function() {
     .expect('GET /users', done);
   });
 
-  describe('Router#[verb]()', function() {
-    it('registers route specific to HTTP verb', function() {
+  describe('Router#[verb]()', function () {
+    it('registers route specific to HTTP verb', function () {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
-      methods.forEach(function(method) {
+      methods.forEach(function (method) {
         router.should.have.property(method);
         router[method].should.be.type('function');
         router[method]('/', function *() {});
@@ -555,35 +714,35 @@ describe('Router', function() {
       router.stack.should.have.length(methods.length);
     });
 
-    it('registers route with a regexp path', function() {
+    it('registers route with a regexp path', function () {
       var router = new Router();
-      methods.forEach(function(method) {
+      methods.forEach(function (method) {
         router[method](/^\/\w$/i, function *() {}).should.equal(router);
       });
     });
 
-    it('registers route with a given name', function() {
+    it('registers route with a given name', function () {
       var router = new Router();
-      methods.forEach(function(method) {
+      methods.forEach(function (method) {
         router[method](method, '/', function *() {}).should.equal(router);
       });
     });
 
-    it('registers route with with a given name and regexp path', function() {
+    it('registers route with with a given name and regexp path', function () {
       var router = new Router();
-      methods.forEach(function(method) {
+      methods.forEach(function (method) {
         router[method](method, /^\/$/i, function *() {}).should.equal(router);
       });
     });
 
-    it('enables route chaining', function() {
+    it('enables route chaining', function () {
       var router = new Router();
-      methods.forEach(function(method) {
+      methods.forEach(function (method) {
         router[method]('/', function () {}).should.equal(router);
       });
     });
 
-    it('registers routes without params before routes with params', function(done) {
+    it('registers routes without params before routes with params', function (done) {
       var app = new Koa();
       var router = new Router();
 
@@ -755,8 +914,8 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#register()', function() {
-    it('registers new routes', function(done) {
+  describe('Router#register()', function () {
+    it('registers new routes', function (done) {
       var app = new Koa();
       var router = new Router();
       router.should.have.property('register');
@@ -770,8 +929,8 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#redirect()', function() {
-    it('registers redirect routes', function(done) {
+  describe('Router#redirect()', function () {
+    it('registers redirect routes', function (done) {
       var app = new Koa();
       var router = new Router();
       router.should.have.property('redirect');
@@ -784,7 +943,7 @@ describe('Router', function() {
       done();
     });
 
-    it('redirects using route names', function(done) {
+    it('redirects using route names', function (done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -794,7 +953,7 @@ describe('Router', function() {
       request(http.createServer(app.callback()))
         .post('/')
         .expect(301)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) return done(err);
           res.header.should.have.property('location', '/sign-up-form');
           done();
@@ -813,8 +972,8 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#url()', function() {
-    it('generates URL for given route', function(done) {
+  describe('Router#url()', function () {
+    it('generates URL for given route', function (done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -829,8 +988,8 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#param()', function() {
-    it('runs parameter middleware', function(done) {
+  describe('Router#param()', function () {
+    it('runs parameter middleware', function (done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -846,7 +1005,7 @@ describe('Router', function() {
       request(http.createServer(app.callback()))
         .get('/users/3')
         .expect(200)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) return done(err);
           res.should.have.property('body');
           res.body.should.have.property('name', 'alex');
@@ -854,7 +1013,7 @@ describe('Router', function() {
         });
     });
 
-    it('runs parameter middleware in order of URL appearance', function(done) {
+    it('runs parameter middleware in order of URL appearance', function (done) {
       var app = new Koa();
       var router = new Router();
       router
@@ -884,7 +1043,7 @@ describe('Router', function() {
           .callback()))
       .get('/first/users/3')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.should.have.property('body');
         res.body.should.have.property('name', 'alex');
@@ -914,7 +1073,7 @@ describe('Router', function() {
       request(http.createServer(app.use(router.routes()).callback()))
       .get('/did-not-run/children/2')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.should.have.property('body');
         res.body.should.have.property('id', 'ran');
@@ -924,8 +1083,8 @@ describe('Router', function() {
     });
   });
 
-  describe('Router#opts', function() {
-    it('responds with 200', function(done) {
+  describe('Router#opts', function () {
+    it('responds with 200', function (done) {
       var app = new Koa();
       var router = new Router({
         strict: true
@@ -939,7 +1098,7 @@ describe('Router', function() {
           .callback()))
       .get('/info')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.text.should.equal('hello');
         done();
@@ -966,7 +1125,7 @@ describe('Router', function() {
         });
     });
 
-    it('responds with 404 when has a trailing slash', function(done) {
+    it('responds with 404 when has a trailing slash', function (done) {
       var app = new Koa();
       var router = new Router({
         strict: true
@@ -980,15 +1139,15 @@ describe('Router', function() {
           .callback()))
       .get('/info/')
       .expect(404)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         done();
       });
     });
   });
 
-  describe('use middleware with opts', function() {
-    it('responds with 200', function(done) {
+  describe('use middleware with opts', function () {
+    it('responds with 200', function (done) {
       var app = new Koa();
       var router = new Router({
         strict: true
@@ -1002,14 +1161,14 @@ describe('Router', function() {
           .callback()))
       .get('/info')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         res.text.should.equal('hello');
         done();
       });
     });
 
-    it('responds with 404 when has a trailing slash', function(done) {
+    it('responds with 404 when has a trailing slash', function (done) {
       var app = new Koa();
       var router = new Router({
         strict: true
@@ -1023,7 +1182,7 @@ describe('Router', function() {
           .callback()))
       .get('/info/')
       .expect(404)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         done();
       });
@@ -1060,7 +1219,7 @@ describe('Router', function() {
           .callback()))
       .get('/users/1')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         expect(res.body).to.be.an('object');
         expect(res.body).to.have.property('hello', 'world');
@@ -1070,8 +1229,8 @@ describe('Router', function() {
     });
   });
 
-  describe('If no HEAD method, default to GET', function() {
-    it('should default to GET', function(done) {
+  describe('If no HEAD method, default to GET', function () {
+    it('should default to GET', function (done) {
       var app = new Koa();
       var router = new Router();
       router.get('/users/:id', function (ctx) {
@@ -1084,14 +1243,14 @@ describe('Router', function() {
           .callback()))
       .head('/users/1')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         expect(res.body).to.be.empty();
         done();
       });
     });
 
-    it('should work with middleware', function(done) {
+    it('should work with middleware', function (done) {
       var app = new Koa();
       var router = new Router();
       router.get('/users/:id', function (ctx) {
@@ -1104,7 +1263,7 @@ describe('Router', function() {
           .callback()))
       .head('/users/1')
       .expect(200)
-      .end(function(err, res) {
+      .end(function (err, res) {
         if (err) return done(err);
         expect(res.body).to.be.empty();
         done();
@@ -1137,11 +1296,11 @@ describe('Router', function() {
     describe('without trailing slash', testPrefix('/admin'));
 
     function testPrefix(prefix) {
-      return function() {
+      return function () {
         var server;
         var middlewareCount = 0;
 
-        before(function() {
+        before(function () {
           var app = new Koa();
           var router = Router();
 
@@ -1160,15 +1319,15 @@ describe('Router', function() {
           server = http.createServer(app.use(router.routes()).callback());
         });
 
-        after(function() {
+        after(function () {
           server.close();
         });
 
-        beforeEach(function() {
+        beforeEach(function () {
           middlewareCount = 0;
         });
 
-        it('should support root level router middleware', function(done) {
+        it('should support root level router middleware', function (done) {
           request(server)
           .get(prefix)
           .expect(200)
@@ -1181,7 +1340,7 @@ describe('Router', function() {
           });
         });
 
-        it('should support requests with a trailing path slash', function(done) {
+        it('should support requests with a trailing path slash', function (done) {
           request(server)
           .get('/admin/')
           .expect(200)
@@ -1194,7 +1353,7 @@ describe('Router', function() {
           });
         });
 
-        it('should support requests without a trailing path slash', function(done) {
+        it('should support requests without a trailing path slash', function (done) {
           request(server)
           .get('/admin')
           .expect(200)
@@ -1210,13 +1369,13 @@ describe('Router', function() {
     }
   });
 
-  describe('Static Router#url()', function() {
-    it('generates route URL', function() {
+  describe('Static Router#url()', function () {
+    it('generates route URL', function () {
         var url = Router.url('/:category/:title', { category: 'programming', title: 'how-to-node' });
         url.should.equal('/programming/how-to-node');
     });
 
-    it('escapes using encodeURIComponent()', function() {
+    it('escapes using encodeURIComponent()', function () {
       var url = Router.url('/:category/:title', { category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
     });

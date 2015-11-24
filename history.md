@@ -1,5 +1,12 @@
 # History
 
+## 6.1.0
+
+- Adds support for named routes and regular expressions
+  [#152](https://github.com/alexmingoia/koa-router/pulls/152)
+- Improved router.url() [#143](https://github.com/alexmingoia/koa-router/pull/143)
+- Add support for custom throw functions for 405 and 501 responses [#206](https://github.com/alexmingoia/koa-router/pull/206)
+
 ## 6.0.1
 
 - Fixes `.param()` async issue [#208](https://github.com/alexmingoia/koa-router/issues/208)
