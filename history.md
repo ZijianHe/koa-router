@@ -1,5 +1,9 @@
 # History
 
+## 6.0.1
+
+- Fixes `.param()` async issue [#208](https://github.com/alexmingoia/koa-router/issues/208)
+
 ## 6.0.0
 
 - Koa 2.x support. See [#202](https://github.com/alexmingoia/koa-router/pull/202)
