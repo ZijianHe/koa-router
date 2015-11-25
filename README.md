@@ -174,6 +174,9 @@ router.get('/:category/:title', function (ctx, next) {
 });
 ```
 
+The [path-to-regexp](https://github.com/pillarjs/path-to-regexp) module is used
+to convert paths to regular expressions.
+
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
 
 | Param | Type | Description |
