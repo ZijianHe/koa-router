@@ -21,6 +21,30 @@ describe('Router', function () {
     done();
   });
 
+  it('shares context between routers (gh-205)', function (done) {
+    var app = new Koa();
+    var router1 = new Router();
+    var router2 = new Router();
+    router1.get('/', function (ctx, next) {
+      ctx.foo = 'bar';
+      return next();
+    });
+    router2.get('/', function (ctx, next) {
+      ctx.baz = 'qux';
+      ctx.body = { foo: ctx.foo };
+      return next();
+    });
+    app.use(router1.routes()).use(router2.routes());
+    request(http.createServer(app.callback()))
+      .get('/')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('foo', 'bar');
+        done();
+      });
+  });
+
   it('does not register middleware more than once (gh-184)', function (done) {
     var app = new Koa();
     var parentRouter = new Router();
