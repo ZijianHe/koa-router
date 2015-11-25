@@ -518,9 +518,7 @@ describe('Router', function () {
       var router = new Router();
       app.use(router.routes());
       app.use(function (ctx, next) {
-        try {
-          return next();
-        } catch (err) {
+        return next().catch(function (err) {
           // assert that the correct HTTPError was thrown
           err.name.should.equal('MethodNotAllowedError');
           err.statusCode.should.equal(405);
@@ -528,7 +526,7 @@ describe('Router', function () {
           // translate the HTTPError to a normal response
           ctx.body = err.name;
           ctx.status = err.statusCode;
-        }
+        });
       });
       app.use(router.allowedMethods({ throw: true }));
       router.get('/users', function () {});
@@ -613,9 +611,7 @@ describe('Router', function () {
       var router = new Router();
       app.use(router.routes());
       app.use(function (ctx, next) {
-        try {
-          return next();
-        } catch (err) {
+        return next().catch(function (err) {
           // assert that the correct HTTPError was thrown
           err.name.should.equal('NotImplementedError');
           err.statusCode.should.equal(501);
@@ -623,7 +619,7 @@ describe('Router', function () {
           // translate the HTTPError to a normal response
           ctx.body = err.name;
           ctx.status = err.statusCode;
-        }
+        });
       });
       app.use(router.allowedMethods({ throw: true }));
       router.get('/users', function () {});

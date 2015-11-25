@@ -14,11 +14,14 @@
 * Nestable routers.
 * ES7 async/await support.
 
-## Koa 2.x
+## Migrating to 7 / Koa 2
 
-koa-router 6.x requires
-[koa 2.x](https://github.com/koajs/koa/tree/2.0.0-alpha.3). For koa 1.x use
-koa-router 5.x.
+- The API has changed to match the new promise-based middleware
+  signature of koa 2. See the
+  [koa 2.x readme](https://github.com/koajs/koa/tree/2.0.0-alpha.3) for more
+  information.
+- Middleware is now always run in the order declared by `.use()` (or `.get()`,
+  etc.), which matches Express 4 API.
 
 ## Installation
 
