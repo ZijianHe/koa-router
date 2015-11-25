@@ -192,10 +192,11 @@ Returns router middleware which dispatches a route matching the request.
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
 <a name="module_koa-router--Router+use"></a>
 #### router.use([path], middleware, [...]) ⇒ <code>Router</code>
-Use given middleware(s) before route callback.
+Use given middleware.
 
-Only runs if any route is matched. If a path is given, the middleware will
-run for any routes that include that path.
+Middleware run in the order they are defined by `.use()`. They are invoked
+sequentially, requests start at the first middleware and work their way
+"down" the middleware stack.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
@@ -207,13 +208,16 @@ run for any routes that include that path.
 
 **Example**
 ```javascript
-router.use(session(), authorize());
+// session middleware will run before authorize
+router
+  .use(session())
+  .use(authorize());
 
 // use middleware only with given path
 router.use('/users', userAuth());
 
 // or with an array of paths
-// router.use(['/users', '/admin'], userAuth());
+router.use(['/users', '/admin'], userAuth());
 
 app.use(router.routes());
 ```

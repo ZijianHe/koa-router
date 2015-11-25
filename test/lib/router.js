@@ -27,7 +27,7 @@ describe('Router', function () {
     var nestedRouter = new Router();
 
     nestedRouter
-      .get('/first-nested-route', function (ctx) {
+      .get('/first-nested-route', function (ctx, next) {
           ctx.body = { n: ctx.n };
       })
       .get('/second-nested-route', function (ctx, next) {
@@ -741,54 +741,12 @@ describe('Router', function () {
         router[method]('/', function () {}).should.equal(router);
       });
     });
-
-    it('registers routes without params before routes with params', function (done) {
-      var app = new Koa();
-      var router = new Router();
-
-      router.get('/:parameter', function (ctx) {
-        ctx.body = {
-          test: 'foo'
-        };
-      });
-
-      router.get('/notparameter', function (ctx) {
-        ctx.body = {
-          test: 'bar'
-        };
-      });
-
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/testparameter')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-
-          expect(res.body).to.have.property('test', 'foo');
-          request(http.createServer(app.callback()))
-            .get('/notparameter')
-            .expect(200)
-            .end(function (err, res) {
-              if (err) return done(err);
-
-              expect(res.body).to.have.property('test', 'bar');
-              done();
-            });
-        });
-    });
   });
 
   describe('Router#use()', function (done) {
     it('uses router middleware without path', function (done) {
       var app = new Koa();
       var router = new Router();
-
-      router.get('/foo/bar', function (ctx) {
-        ctx.body = {
-          foobar: ctx.foo + 'bar'
-        };
-      });
 
       router.use(function (ctx, next) {
         ctx.foo = 'baz';
@@ -798,6 +756,12 @@ describe('Router', function () {
       router.use(function (ctx, next) {
         ctx.foo = 'foo';
         return next();
+      });
+
+      router.get('/foo/bar', function (ctx) {
+        ctx.body = {
+          foobar: ctx.foo + 'bar'
+        };
       });
 
       app.use(router.routes());
@@ -1304,15 +1268,15 @@ describe('Router', function () {
           var app = new Koa();
           var router = Router();
 
-          router.get('/', function (ctx) {
-            middlewareCount++;
-            ctx.body = { name: ctx.thing };
-          });
-
           router.use(function (ctx, next) {
             middlewareCount++;
             ctx.thing = 'worked';
             return next();
+          });
+
+          router.get('/', function (ctx) {
+            middlewareCount++;
+            ctx.body = { name: ctx.thing };
           });
 
           router.prefix(prefix);
