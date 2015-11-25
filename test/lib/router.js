@@ -741,6 +741,16 @@ describe('Router', function () {
         router[method]('/', function () {}).should.equal(router);
       });
     });
+
+    it('registers array of paths (gh-203)', function () {
+      var router = new Router();
+      router.get(['/one', '/two'], function (ctx, next) {
+        return next();
+      });
+      expect(router.stack).to.have.property('length', 2);
+      expect(router.stack[0]).to.have.property('path', '/one');
+      expect(router.stack[1]).to.have.property('path', '/two');
+    });
   });
 
   describe('Router#use()', function (done) {
