@@ -228,6 +228,8 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 | --- | --- | --- |
 | [options] | <code>Object</code> |  |
 | [options.throw] | <code>Boolean</code> | throw error instead of setting status and header |
+| [options.notImplemented] | <code>Function</code> | throw throw the returned value in place of the default NotImplemented error |
+| [options.methodNotAllowed] | <code>Function</code> | throw the returned value in place of the default MethodNotAllowed error |
 
 **Example**
 ```javascript
@@ -236,6 +238,20 @@ var router = router();
 
 app.use(router.routes());
 app.use(router.allowedMethods());
+
+```
+**Example with [Boom](https://github.com/hapijs/boom)**
+```javascript
+var app = koa();
+var router = router();
+var Boom = require('boom');
+
+app.use(router.routes());
+app.use(router.allowedMethods({
+  throw: true,
+  notImplemented: () => new Boom.notImplemented(),
+  methodNotAllowed: () => new Boom.methodNotAllowed()
+}));
 ```
 <a name="module_koa-router--Router+redirect"></a>
 #### router.redirect(source, destination, code) ⇒ <code>Router</code>

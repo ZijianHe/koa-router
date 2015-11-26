@@ -454,71 +454,234 @@ describe('Router', function() {
     .end(done);
   });
 
-  it('responds to OPTIONS requests', function(done) {
-    var app = koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
-    request(http.createServer(app.callback()))
-    .options('/users')
-    .expect(204)
-    .end(function(err, res) {
-      if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
-      done();
+  describe('Router#allowedMethods()', function() {
+    it('responds to OPTIONS requests', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      request(http.createServer(app.callback()))
+      .options('/users')
+      .expect(204)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.header.should.have.property('allow', 'HEAD, GET, PUT');
+        done();
+      });
     });
-  });
 
-  it('responds with 405 Method Not Allowed', function(done) {
-    var app = koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
-    router.post('/events', function *() {});
-    request(http.createServer(app.callback()))
-    .post('/users')
-    .expect(405)
-    .end(function(err, res) {
-      if (err) return done(err);
-      res.header.should.have.property('allow', 'HEAD, GET, PUT');
-      done();
+    it('responds with 405 Method Not Allowed', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      router.post('/events', function *() {});
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.header.should.have.property('allow', 'HEAD, GET, PUT');
+        done();
+      });
     });
-  });
 
-  it('responds with 501 Not Implemented', function(done) {
-    var app = koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function *() {});
-    router.put('/users', function *() {});
-    request(http.createServer(app.callback()))
-    .search('/users')
-    .expect(501)
-    .end(function(err, res) {
-      if (err) return done(err);
-      done();
-    });
-  });
+    it('responds with 405 Method Not Allowed using the "throw" option', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function* (next) {
+        try {
+          yield next;
+        } catch (err) {
+          // assert that the correct HTTPError was thrown
+          err.name.should.equal('MethodNotAllowedError');
+          err.statusCode.should.equal(405);
 
-  it('does not send 405 if route matched but status is 404', function (done) {
-    var app = koa();
-    var router = new Router();
-    app.use(router.routes());
-    app.use(router.allowedMethods());
-    router.get('/users', function *() {
-      this.status = 404;
+          // translate the HTTPError to a normal response
+          this.body = err.name;
+          this.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({ throw: true }));
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      router.post('/events', function *() {});
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function(err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        done();
+      });
     });
-    request(http.createServer(app.callback()))
-    .get('/users')
-    .expect(404)
-    .end(function(err, res) {
-      if (err) return done(err);
-      done();
+
+    it('responds with user-provided throwable using the "throw" and "methodNotAllowed" options', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function* (next) {
+        try {
+          yield next;
+        } catch (err) {
+          // assert that the correct HTTPError was thrown
+          err.message.should.equal('Custom Not Allowed Error');
+          err.statusCode.should.equal(405);
+
+          // translate the HTTPError to a normal response
+          this.body = err.body;
+          this.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({
+        throw: true,
+        methodNotAllowed: function() {
+          var notAllowedErr = new Error('Custom Not Allowed Error');
+          notAllowedErr.type = 'custom';
+          notAllowedErr.statusCode = 405;
+          notAllowedErr.body = {
+            error: 'Custom Not Allowed Error',
+            statusCode: 405,
+            otherStuff: true
+          };
+          return notAllowedErr;
+        }
+      }));
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      router.post('/events', function *() {});
+      request(http.createServer(app.callback()))
+      .post('/users')
+      .expect(405)
+      .end(function(err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        res.body.should.eql({ error: 'Custom Not Allowed Error',
+          statusCode: 405,
+          otherStuff: true
+        });
+        done();
+      });
+    });
+
+    it('responds with 501 Not Implemented', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('responds with 501 Not Implemented using the "throw" option', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function* (next) {
+        try {
+          yield next;
+        } catch (err) {
+          // assert that the correct HTTPError was thrown
+          err.name.should.equal('NotImplementedError');
+          err.statusCode.should.equal(501);
+
+          // translate the HTTPError to a normal response
+          this.body = err.name;
+          this.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({ throw: true }));
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function(err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        done();
+      });
+    });
+
+    it('responds with user-provided throwable using the "throw" and "notImplemented" options', function(done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(function* (next) {
+        try {
+          yield next;
+        } catch (err) {
+          // assert that our custom error was thrown
+          err.message.should.equal('Custom Not Implemented Error');
+          err.type.should.equal('custom');
+          err.statusCode.should.equal(501);
+
+          // translate the HTTPError to a normal response
+          this.body = err.body;
+          this.status = err.statusCode;
+        }
+      });
+      app.use(router.allowedMethods({
+        throw: true,
+        notImplemented: function() {
+          var notImplementedErr = new Error('Custom Not Implemented Error');
+          notImplementedErr.type = 'custom';
+          notImplementedErr.statusCode = 501;
+          notImplementedErr.body = {
+            error: 'Custom Not Implemented Error',
+            statusCode: 501,
+            otherStuff: true
+          };
+          return notImplementedErr;
+        }
+      }));
+      router.get('/users', function *() {});
+      router.put('/users', function *() {});
+      request(http.createServer(app.callback()))
+      .search('/users')
+      .expect(501)
+      .end(function(err, res) {
+        if (err) return done(err);
+        // the 'Allow' header is not set when throwing
+        res.header.should.not.have.property('allow');
+        res.body.should.eql({ error: 'Custom Not Implemented Error',
+          statusCode: 501,
+          otherStuff: true
+        });
+        done();
+      });
+    });
+
+    it('does not send 405 if route matched but status is 404', function (done) {
+      var app = koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+      router.get('/users', function *() {
+        this.status = 404;
+      });
+      request(http.createServer(app.callback()))
+      .get('/users')
+      .expect(404)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
     });
   });
 
