@@ -25,7 +25,7 @@
 
 ## Installation
 
-Until koa 2 is released, you must specify the version or use the `next` tag:
+Until koa 2 is released, you must specify `^7.0.0` or use the `next` tag:
 
 ```sh
 npm install koa-router@next
