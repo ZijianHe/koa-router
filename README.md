@@ -25,11 +25,14 @@
 
 ## Installation
 
-Install using [npm](https://www.npmjs.org/):
+Until koa 2 is released, you must specify the version or use the `next` tag:
 
 ```sh
-npm install koa-router
+npm install koa-router@next
 ```
+
+When koa 2 is released, 7.x will be tagged with `latest` and installed by
+default by NPM.
 
 ## API Reference
 

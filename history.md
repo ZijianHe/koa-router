@@ -8,25 +8,14 @@
   information.
 - Middleware is now always run in the order declared by `.use()` (or `.get()`,
   etc.), which matches Express 4 API.
-- Register multiple routes with array of paths [#203].
 
-## 6.2.0
+## 5.3.0
 
+- Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issue/143).
 - Improved router.url() [#143](https://github.com/alexmingoia/koa-router/pull/143)
-
-## 6.1.0
-
 - Adds support for named routes and regular expressions
   [#152](https://github.com/alexmingoia/koa-router/pulls/152)
 - Add support for custom throw functions for 405 and 501 responses [#206](https://github.com/alexmingoia/koa-router/pull/206)
-
-## 6.0.1
-
-- Fixes `.param()` async issue [#208](https://github.com/alexmingoia/koa-router/issues/208)
-
-## 6.0.0
-
-- Koa 2.x support. See [#202](https://github.com/alexmingoia/koa-router/pull/202)
 
 ## 5.2.3
 
