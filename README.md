@@ -14,6 +14,11 @@
 * Nestable routers.
 * ES7 async/await support.
 
+## koa 2.x
+
+See [koa-router 7.x](https://github.com/alexmingoia/koa-router/tree/master/)
+for koa 2.x support.
+
 ## Installation
 
 Install using [npm](https://www.npmjs.org/):
