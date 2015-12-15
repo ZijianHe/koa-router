@@ -807,6 +807,34 @@ describe('Router', function () {
       expect(router.stack[0]).to.have.property('path', '/one');
       expect(router.stack[1]).to.have.property('path', '/two');
     });
+
+    it('resolves non-parameterized routes without attached parameters', function(done) {
+      var app = koa();
+      var router = new Router();
+
+      router.get('/notparameter', function *(next) {
+        this.body = {
+          param: this.params.parameter,
+        };
+      });
+
+      router.get('/:parameter', function *(next) {
+        this.body = {
+          param: this.params.parameter,
+        };
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/notparameter')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body.param).to.equal(undefined);
+          done();
+        });
+    });
   });
 
   describe('Router#use()', function (done) {
