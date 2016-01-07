@@ -253,7 +253,7 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 | --- | --- | --- |
 | [options] | <code>Object</code> |  |
 | [options.throw] | <code>Boolean</code> | throw error instead of setting status and header |
-| [options.notImplemented] | <code>Function</code> | throw throw the returned value in place of the default NotImplemented error |
+| [options.notImplemented] | <code>Function</code> | throw the returned value in place of the default NotImplemented error |
 | [options.methodNotAllowed] | <code>Function</code> | throw the returned value in place of the default MethodNotAllowed error |
 
 **Example**
