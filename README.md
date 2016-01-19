@@ -148,8 +148,8 @@ Nesting routers is supported:
 var forums = new Router();
 var posts = new Router();
 
-posts.get('/', function *(ctx, next) {...});
-posts.get('/:pid', function *(ctx, next) {...});
+posts.get('/', function (ctx, next) {...});
+posts.get('/:pid', function (ctx, next) {...});
 forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
