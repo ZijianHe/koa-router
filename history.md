@@ -1,5 +1,9 @@
 # History
 
+## 7.0.1
+
+- Fix: allowedMethods should be ctx.method not this.method [#215](https://github.com/alexmingoia/koa-router/pull/215)
+
 ## 7.0.0
 
 - The API has changed to match the new promise-based middleware
