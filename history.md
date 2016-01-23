@@ -1,14 +1,5 @@
 # History
 
-## 7.0.0
-
-- The API has changed to match the new promise-based middleware
-  signature of koa 2. See the
-  [koa 2.x readme](https://github.com/koajs/koa/tree/2.0.0-alpha.3) for more
-  information.
-- Middleware is now always run in the order declared by `.use()` (or `.get()`,
-  etc.), which matches Express 4 API.
-
 ## 5.3.0
 
 - Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issue/143).
