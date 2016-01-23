@@ -12,7 +12,7 @@
 * Multiple route middleware.
 * Multiple routers.
 * Nestable routers.
-* ES7 async/await support.
+* ES7 async/await support (koa-router 7.x).
 
 ## Migrating to 7 / Koa 2
 
