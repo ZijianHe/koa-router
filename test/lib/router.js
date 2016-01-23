@@ -808,7 +808,7 @@ describe('Router', function () {
       expect(router.stack[1]).to.have.property('path', '/two');
     });
 
-    it('resolves non-parameterized routes without attached parameters', function(done) {
+    it.skip('resolves non-parameterized routes without attached parameters', function(done) {
       var app = koa();
       var router = new Router();
 
