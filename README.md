@@ -94,7 +94,8 @@ router
   });
 ```
 
-Route paths will be translated to regular expressions used to match requests.
+Route paths will be translated to regular expressions using
+[path-to-regexp](https://github.com/pillarjs/path-to-regexp).
 
 Query strings will not be considered when matching requests.
 
@@ -297,8 +298,7 @@ Lookup route with given `name`.
 
 <a name="module_koa-router--Router+url"></a>
 #### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
-Generate URL for route. Takes either map of named `params` or series of
-arguments (for regular expression routes).
+Generate URL for route. Takes the route name and a map of named `params`.
 
 ```javascript
 router.get('user', '/users/:id', function *(next) {
