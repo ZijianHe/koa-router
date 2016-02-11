@@ -1260,6 +1260,35 @@ describe('Router', function() {
         done();
       });
     });
+
+    it('places a `_matchedRoute` value on context', function(done) {
+      var app = koa();
+      var router = new Router();
+      var middleware = function *(next) {
+        expect(this._matchedRoute).to.be('/users/:id')
+        yield next;
+      };
+
+      router.use(middleware);
+      router.get('/users/:id', function *() {
+        expect(this._matchedRoute).to.be('/users/:id')
+        should.exist(this.params.id);
+        this.body = { hello: 'world' };
+      });
+
+      var routerMiddleware = router.routes();
+
+      request(http.createServer(
+        app
+          .use(routerMiddleware)
+          .callback()))
+      .get('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
   });
 
   describe('If no HEAD method, default to GET', function() {
