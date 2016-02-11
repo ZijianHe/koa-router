@@ -1,5 +1,9 @@
 # History
 
+## 5.4.0
+
+- Expose matched route at `ctx._matchedRoute`.
+
 ## 5.3.0
 
 - Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issue/143).
