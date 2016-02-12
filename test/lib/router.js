@@ -52,13 +52,13 @@ describe('Router', function () {
 
     nestedRouter
       .get('/first-nested-route', function (ctx, next) {
-          ctx.body = { n: ctx.n };
+        ctx.body = { n: ctx.n };
       })
       .get('/second-nested-route', function (ctx, next) {
-          return next();
+        return next();
       })
       .get('/third-nested-route', function (ctx, next) {
-          return next();
+        return next();
       });
 
     parentRouter.use('/parent-route', function (ctx, next) {
@@ -74,6 +74,40 @@ describe('Router', function () {
       .end(function (err, res) {
         if (err) return done(err);
         expect(res.body).to.have.property('n', 1);
+        done();
+      });
+  });
+
+  it('registers multiple middleware for one route', function(done) {
+    var app = new Koa();
+    var router = new Router();
+
+    router.get('/double', function(ctx, next) {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          ctx.body = {message: 'Hello'};
+          resolve(next());
+        }, 1);
+      });
+    }, function(ctx, next) {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          ctx.body.message += ' World';
+          resolve(next());
+        }, 1);
+      });
+    }, function(ctx, next) {
+      ctx.body.message += '!';
+    });
+
+    app.use(router.routes());
+
+    request(http.createServer(app.callback()))
+      .get('/double')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body.message).to.eql('Hello World!');
         done();
       });
   });
@@ -120,10 +154,12 @@ describe('Router', function () {
     var router = Router();
     router.get('/async', function (ctx, next) {
       return new Promise(function (resolve, reject) {
-        ctx.body = {
-          msg: 'promises!'
-        };
-        resolve();
+        setTimeout(function() {
+          ctx.body = {
+            msg: 'promises!'
+          };
+          resolve();
+        }, 1);
       });
     });
 
