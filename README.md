@@ -130,7 +130,7 @@ router.get(
   function (ctx, next) {
     return User.findOne(ctx.params.id).then(function(user) {
       ctx.user = user;
-      next();
+      return next();
     });
   },
   function (ctx) {
