@@ -812,6 +812,68 @@ describe('Router', function() {
     });
   });
 
+  it('supports routes with conditions', function(done) {
+    var app = koa();
+    var router = new Router();
+
+    router.get('/foo', function *(next) {
+      this.body = this.body || {};
+      this.body.foo = bar;
+      yield next;
+    }, {
+      condition: function() {
+        return false;
+      }
+    });
+
+    router.get('/foo', function *(next) {
+      this.body = this.body || {};
+      this.body.bar = 'baz';
+      yield next;
+    }, {
+      condition: function() {
+        return true;
+      }
+    });
+
+    app.use(router.routes());
+    request(http.createServer(app.callback()))
+      .get('/foo')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+
+        expect(res.body).to.have.property('bar', 'baz');
+        expect(res.body).to.not.have.property('foo');
+        done();
+      });
+  });
+
+  it('executes condition functions using `app.context`', function(done) {
+    var app = koa();
+    var router = new Router();
+
+    router.get('/foo', function *(next) {
+      this.status = 204;
+      done();
+    }, {
+      condition: function() {
+        this.should.have.property('app');
+        this.should.have.property('req');
+        this.should.have.property('res');
+        return true;
+      }
+    });
+
+    app.use(router.routes());
+    request(http.createServer(app.callback()))
+      .get('/foo')
+      .expect(204)
+      .end(function (err, res) {
+        if (err) return done(err);
+      });
+  });
+
   describe('Router#use()', function (done) {
     it('uses router middleware without path', function (done) {
       var app = koa();
