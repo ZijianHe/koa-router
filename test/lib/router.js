@@ -818,7 +818,7 @@ describe('Router', function() {
 
     router.get('/foo', function *(next) {
       this.body = this.body || {};
-      this.body.foo = bar;
+      this.body.foo = 'bar';
       yield next;
     }, {
       condition: function() {
