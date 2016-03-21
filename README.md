@@ -131,7 +131,7 @@ router.get(
 );
 ```
 
-### Nested routers
+#### Nested routers
 
 Nesting routers is supported:
 
@@ -169,6 +169,23 @@ router.get('/:category/:title', function *(next) {
   console.log(this.params);
   // => { category: 'programming', title: 'how-to-node' }
 });
+```
+
+#### Conditional routes
+
+Routes can optionally have conditions:
+
+```javascript
+router.get(   
+  '/posts',
+  function *(next) {
+    this.body = yield getPostsByTag(this.query['tag']);
+  }, {
+    condition: function () {
+      return this.query['tag'];
+    }
+  }
+);
 ```
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>
