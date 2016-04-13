@@ -747,42 +747,6 @@ describe('Router', function() {
       });
     });
 
-    it('registers routes without params before routes with params', function(done) {
-      var app = koa();
-      var router = new Router();
-
-      router.get('/:parameter', function *(next) {
-        this.body = {
-          test: 'foo'
-        };
-      });
-
-      router.get('/notparameter', function *(next) {
-        this.body = {
-          test: 'bar'
-        };
-      });
-
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/testparameter')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-
-          expect(res.body).to.have.property('test', 'foo');
-          request(http.createServer(app.callback()))
-            .get('/notparameter')
-            .expect(200)
-            .end(function (err, res) {
-              if (err) return done(err);
-
-              expect(res.body).to.have.property('test', 'bar');
-              done();
-            });
-        });
-    });
-
     it.skip('resolves non-parameterized routes without attached parameters', function(done) {
       var app = koa();
       var router = new Router();
@@ -817,12 +781,6 @@ describe('Router', function() {
       var app = koa();
       var router = new Router();
 
-      router.get('/foo/bar', function *(next) {
-        this.body = {
-          foobar: this.foo + 'bar'
-        };
-      });
-
       router.use(function *(next) {
         this.foo = 'baz';
         yield next;
@@ -831,6 +789,12 @@ describe('Router', function() {
       router.use(function *(next) {
         this.foo = 'foo';
         yield next;
+      });
+
+      router.get('/foo/bar', function *(next) {
+        this.body = {
+          foobar: this.foo + 'bar'
+        };
       });
 
       app.use(router.routes());
@@ -1366,15 +1330,15 @@ describe('Router', function() {
           var app = koa();
           var router = Router();
 
-          router.get('/', function *() {
-            middlewareCount++;
-            this.body = { name: this.thing };
-          });
-
           router.use(function *(next) {
             middlewareCount++;
             this.thing = 'worked';
             yield next;
+          });
+
+          router.get('/', function *() {
+            middlewareCount++;
+            this.body = { name: this.thing };
           });
 
           router.prefix(prefix);
