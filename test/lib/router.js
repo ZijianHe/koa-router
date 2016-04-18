@@ -1124,6 +1124,44 @@ describe('Router', function() {
       });
     });
 
+    it('runs many parameter middleware in order of URL appearance', function(done) {
+      var app = koa();
+      var router = new Router();
+      router
+        .param('a', function *(id, next) {
+          this.state.loaded = [ id ];
+          yield next;
+        })
+        .param('b', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .param('c', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .param('d', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .get('/:a/:b/:c/:d', function *(next) {
+          this.body = this.state.loaded;
+        });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/1/2/3/4')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.eql([ '1', '2', '3', '4' ]);
+        done();
+      });
+    });
+
     it('runs parent parameter middleware for subrouter', function (done) {
       var app = koa();
       var router = new Router();
