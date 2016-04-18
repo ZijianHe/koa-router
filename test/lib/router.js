@@ -1050,6 +1050,45 @@ describe('Router', function() {
       var app = koa();
       var router = new Router();
       router
+        .param('first', function *(id, next) {
+          this.ranFirst = true;
+          if (this.user) {
+            this.ranFirst = false;
+          }
+          if (!id) return this.status = 404;
+          yield next;
+        })
+        .param('user', function *(id, next) {
+          this.user = { name: 'alex' };
+          if (this.ranFirst) {
+            this.user.ordered = 'parameters';
+          }
+          if (!id) return this.status = 404;
+          yield next;
+        })
+        .get('/:first/users/:user', function *(next) {
+          this.body = this.user;
+        });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/first/users/3')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('name', 'alex');
+        res.body.should.have.property('ordered', 'parameters');
+        done();
+      });
+    });
+
+    it('runs parameter middleware in order of URL appearance even when added in reverse order', function(done) {
+      var app = koa();
+      var router = new Router();
+      router
         .param('user', function *(id, next) {
           this.user = { name: 'alex' };
           if (this.ranFirst) {
