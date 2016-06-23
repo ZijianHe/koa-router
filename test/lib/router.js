@@ -1124,15 +1124,16 @@ describe('Router', function() {
       });
     });
 
-    it('runs many parameter middleware in order of URL appearance', function(done) {
+    it('runs parameter middleware in order of URL appearance even when added in random order', function(done) {
       var app = koa();
       var router = new Router();
       router
+        // intentional random order
         .param('a', function *(id, next) {
           this.state.loaded = [ id ];
           yield next;
         })
-        .param('b', function *(id, next) {
+        .param('d', function *(id, next) {
           this.state.loaded.push(id);
           yield next;
         })
@@ -1140,7 +1141,7 @@ describe('Router', function() {
           this.state.loaded.push(id);
           yield next;
         })
-        .param('d', function *(id, next) {
+        .param('b', function *(id, next) {
           this.state.loaded.push(id);
           yield next;
         })
