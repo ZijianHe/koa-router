@@ -945,6 +945,31 @@ describe('Router', function() {
             });
         });
     });
+
+    it('without path, does not set params.0 to the matched path - gh-247', function (done) {
+      var app = koa();
+      var router = new Router();
+
+      router.use(function *(next) {
+        yield next;
+      });
+
+      router.get('/foo/:id', function *(next) {
+        this.body = this.params;
+      });
+
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+        .get('/foo/815')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+
+          expect(res.body).to.have.property('id', '815');
+          expect(res.body).to.not.have.property('0');
+          done();
+        });
+    });
   });
 
   describe('Router#register()', function() {
@@ -1352,6 +1377,35 @@ describe('Router', function() {
       expect(route.paramNames).to.have.length(2);
       expect(route.paramNames[0]).to.have.property('name', 'thing_id');
       expect(route.paramNames[1]).to.have.property('name', 'id');
+    });
+
+    describe('when used with .use(fn) - gh-247', function () {
+      it('does not set params.0 to the matched path', function (done) {
+        var app = koa();
+        var router = new Router();
+
+        router.use(function *(next) {
+          yield next;
+        });
+
+        router.get('/foo/:id', function *() {
+          this.body = this.params;
+        });
+
+        router.prefix('/things');
+
+        app.use(router.routes());
+        request(http.createServer(app.callback()))
+          .get('/things/foo/108')
+          .expect(200)
+          .end(function (err, res) {
+            if (err) return done(err);
+
+            expect(res.body).to.have.property('id', '108');
+            expect(res.body).to.not.have.property('0');
+            done();
+          });
+      });
     });
 
     describe('with trailing slash', testPrefix('/admin/'));
