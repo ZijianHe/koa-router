@@ -1138,25 +1138,74 @@ describe('Router', function() {
       });
     });
 
-    it('should allow setting a prefix', function (done) {
-      var app = koa();
-      var routes = Router({ prefix: '/things/:thing_id' });
+    describe('Router#opts.prefix', function () {
+      it('should allow setting a prefix', function (done) {
+        var app = koa();
+        var routes = Router({ prefix: '/things/:thing_id' });
 
-      routes.get('/list', function * (next) {
-        this.body = this.params;
+        routes.get('/list', function * (next) {
+          this.body = this.params;
+        });
+
+        app.use(routes.routes());
+
+        request(http.createServer(app.callback()))
+          .get('/things/1/list')
+          .expect(200)
+          .end(function (err, res) {
+            if (err) return done(err);
+            res.body.thing_id.should.equal('1');
+            done();
+          });
       });
 
-      app.use(routes.routes());
+      function testPrefix (prefix) {
+        return function () {
+          var server;
 
-      request(http.createServer(app.callback()))
-        .get('/things/1/list')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-          res.body.thing_id.should.equal('1');
-          done();
-        });
-    });
+          before(function () {
+            var app = koa();
+            var router = Router({ prefix });
+
+            router.get('/:thing_id', function * () {
+              this.body = { thing: this.thing };
+            });
+
+            router.use(function * (next) {
+              this.thing = this.params.thing_id
+              yield next
+            });
+
+            server = http.createServer(app.use(router.routes()).callback());
+          });
+
+          it('should support requests with trailing path slash', function (done) {
+            request(server)
+              .get('/things/1/')
+              .expect(200)
+              .end(function (err, res) {
+                if (err) return done(err);
+                res.body.thing.should.equal('1');
+                done();
+              });
+          });
+
+          it('should support requests without trailing path slash', function (done) {
+            request(server)
+              .get('/things/1')
+              .expect(200)
+              .end(function (err, res) {
+                if (err) return done(err);
+                res.body.thing.should.equal('1');
+                done();
+              });
+          });
+        }
+      }
+
+      describe('with trailing slash', testPrefix('/things/'))
+      describe('without trailing slash', testPrefix('/things'))
+    })
 
     it('responds with 404 when has a trailing slash', function(done) {
       var app = koa();
