@@ -1165,7 +1165,7 @@ describe('Router', function() {
 
           before(function () {
             var app = koa();
-            var router = Router({ prefix });
+            var router = Router({ prefix: prefix });
 
             router.get('/:thing_id', function * () {
               this.body = { thing: this.thing };
