@@ -118,18 +118,18 @@ describe('Router', function () {
     var nestedRouter = new Router();
 
     nestedRouter
-      .get(/^\/\w$/i, function *(next) {
-        yield next;
+      .get(/^\/\w$/i, function (ctx, next) {
+        return next();
       })
-      .get('/first-nested-route', function *(next) {
-        yield next;
+      .get('/first-nested-route', function (ctx, next) {
+        return next();
       })
-      .get('/second-nested-route', function *(next) {
-        yield next;
+      .get('/second-nested-route', function (ctx, next) {
+        return next();
       });
 
-    parentRouter.use('/parent-route', function *(next) {
-      yield next;
+    parentRouter.use('/parent-route', function (ctx, next) {
+      return next();
     }, nestedRouter.routes());
 
     app.use(parentRouter.routes());
@@ -723,8 +723,8 @@ describe('Router', function () {
       var router = new Router();
       app.use(router.routes());
       app.use(router.allowedMethods());
-      router.get('/users', function *() {
-        this.status = 404;
+      router.get('/users', function (ctx, next) {
+        ctx.status = 404;
       });
       request(http.createServer(app.callback()))
       .get('/users')
@@ -765,7 +765,7 @@ describe('Router', function () {
       methods.forEach(function (method) {
         router.should.have.property(method);
         router[method].should.be.type('function');
-        router[method]('/', function *() {});
+        router[method]('/', function () {});
       });
       router.stack.should.have.length(methods.length);
     });
@@ -773,21 +773,21 @@ describe('Router', function () {
     it('registers route with a regexp path', function () {
       var router = new Router();
       methods.forEach(function (method) {
-        router[method](/^\/\w$/i, function *() {}).should.equal(router);
+        router[method](/^\/\w$/i, function () {}).should.equal(router);
       });
     });
 
     it('registers route with a given name', function () {
       var router = new Router();
       methods.forEach(function (method) {
-        router[method](method, '/', function *() {}).should.equal(router);
+        router[method](method, '/', function () {}).should.equal(router);
       });
     });
 
     it('registers route with with a given name and regexp path', function () {
       var router = new Router();
       methods.forEach(function (method) {
-        router[method](method, /^\/$/i, function *() {}).should.equal(router);
+        router[method](method, /^\/$/i, function () {}).should.equal(router);
       });
     });
 
@@ -809,18 +809,18 @@ describe('Router', function () {
     });
 
     it.skip('resolves non-parameterized routes without attached parameters', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
 
-      router.get('/notparameter', function *(next) {
-        this.body = {
-          param: this.params.parameter,
+      router.get('/notparameter', function (ctx, next) {
+        ctx.body = {
+          param: ctx.params.parameter,
         };
       });
 
-      router.get('/:parameter', function *(next) {
-        this.body = {
-          param: this.params.parameter,
+      router.get('/:parameter', function (ctx, next) {
+        ctx.body = {
+          param: ctx.params.parameter,
         };
       });
 
@@ -1312,18 +1312,18 @@ describe('Router', function () {
     });
 
     it('places a `_matchedRoute` value on context', function(done) {
-      var app = koa();
+      var app = new Koa();
       var router = new Router();
-      var middleware = function *(next) {
-        expect(this._matchedRoute).to.be('/users/:id')
-        yield next;
+      var middleware = function (ctx, next) {
+        expect(ctx._matchedRoute).to.be('/users/:id')
+        return next();
       };
 
       router.use(middleware);
-      router.get('/users/:id', function *() {
-        expect(this._matchedRoute).to.be('/users/:id')
-        should.exist(this.params.id);
-        this.body = { hello: 'world' };
+      router.get('/users/:id', function (ctx, next) {
+        expect(ctx._matchedRoute).to.be('/users/:id')
+        should.exist(ctx.params.id);
+        ctx.body = { hello: 'world' };
       });
 
       var routerMiddleware = router.routes();
