@@ -1,5 +1,9 @@
 # History
 
+## 7.1.0
+
+- Backports: merge 5.4 work into the 7.x upstream. See 5.4.0 updates for more details.
+
 ## 7.0.1
 
 - Fix: allowedMethods should be ctx.method not this.method [#215](https://github.com/alexmingoia/koa-router/pull/215)
