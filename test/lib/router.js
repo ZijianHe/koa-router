@@ -1050,6 +1050,45 @@ describe('Router', function() {
       var app = koa();
       var router = new Router();
       router
+        .param('first', function *(id, next) {
+          this.ranFirst = true;
+          if (this.user) {
+            this.ranFirst = false;
+          }
+          if (!id) return this.status = 404;
+          yield next;
+        })
+        .param('user', function *(id, next) {
+          this.user = { name: 'alex' };
+          if (this.ranFirst) {
+            this.user.ordered = 'parameters';
+          }
+          if (!id) return this.status = 404;
+          yield next;
+        })
+        .get('/:first/users/:user', function *(next) {
+          this.body = this.user;
+        });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/first/users/3')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.have.property('name', 'alex');
+        res.body.should.have.property('ordered', 'parameters');
+        done();
+      });
+    });
+
+    it('runs parameter middleware in order of URL appearance even when added in reverse order', function(done) {
+      var app = koa();
+      var router = new Router();
+      router
         .param('user', function *(id, next) {
           this.user = { name: 'alex' };
           if (this.ranFirst) {
@@ -1081,6 +1120,45 @@ describe('Router', function() {
         res.should.have.property('body');
         res.body.should.have.property('name', 'alex');
         res.body.should.have.property('ordered', 'parameters');
+        done();
+      });
+    });
+
+    it('runs parameter middleware in order of URL appearance even when added in random order', function(done) {
+      var app = koa();
+      var router = new Router();
+      router
+        // intentional random order
+        .param('a', function *(id, next) {
+          this.state.loaded = [ id ];
+          yield next;
+        })
+        .param('d', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .param('c', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .param('b', function *(id, next) {
+          this.state.loaded.push(id);
+          yield next;
+        })
+        .get('/:a/:b/:c/:d', function *(next) {
+          this.body = this.state.loaded;
+        });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/1/2/3/4')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.eql([ '1', '2', '3', '4' ]);
         done();
       });
     });
