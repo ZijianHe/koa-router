@@ -808,7 +808,7 @@ describe('Router', function () {
       expect(router.stack[1]).to.have.property('path', '/two');
     });
 
-    it.skip('resolves non-parameterized routes without attached parameters', function(done) {
+    it('resolves non-parameterized routes without attached parameters', function(done) {
       var app = new Koa();
       var router = new Router();
 
@@ -835,6 +835,7 @@ describe('Router', function () {
           done();
         });
     });
+
   });
 
   describe('Router#use()', function (done) {
@@ -1131,6 +1132,45 @@ describe('Router', function () {
         res.should.have.property('body');
         res.body.should.have.property('name', 'alex');
         res.body.should.have.property('ordered', 'parameters');
+        done();
+      });
+    });
+
+    it('runs parameter middleware in order of URL appearance even when added in random order', function(done) {
+      var app = new Koa();
+      var router = new Router();
+      router
+        // intentional random order
+        .param('a', function (id, ctx, next) {
+          ctx.state.loaded = [ id ];
+          return next();
+        })
+        .param('d', function (id, ctx, next) {
+          ctx.state.loaded.push(id);
+          return next();
+        })
+        .param('c', function (id, ctx, next) {
+          ctx.state.loaded.push(id);
+          return next();
+        })
+        .param('b', function (id, ctx, next) {
+          ctx.state.loaded.push(id);
+          return next();
+        })
+        .get('/:a/:b/:c/:d', function (ctx, next) {
+          ctx.body = ctx.state.loaded;
+        });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/1/2/3/4')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        res.should.have.property('body');
+        res.body.should.eql([ '1', '2', '3', '4' ]);
         done();
       });
     });
