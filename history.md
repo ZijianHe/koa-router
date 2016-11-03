@@ -6,7 +6,7 @@
 
 ## 5.3.0
 
-- Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issue/143).
+- Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issues/203).
 - Improved router.url() [#143](https://github.com/alexmingoia/koa-router/pull/143)
 - Adds support for named routes and regular expressions
   [#152](https://github.com/alexmingoia/koa-router/pulls/152)
