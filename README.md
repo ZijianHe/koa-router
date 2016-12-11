@@ -160,6 +160,16 @@ router.get('/', ...); // responds to "/users"
 router.get('/:id', ...); // responds to "/users/:id"
 ```
 
+#### Router wildcard
+
+Route paths can be in the wildcard format (regex):
+
+```javascript
+router.get(/^\/(.*)(?:\/|$)/, ...); // match all path, e.g., /hello, /hello/world
+router.get(/^\/app(?:\/|$)/, ...); // match all path that start with "/app", e.g., /app/hello, /app/hello/world
+```
+
+
 #### URL parameters
 
 Named route parameters are captured and added to `ctx.params`.
