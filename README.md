@@ -69,8 +69,11 @@ Create a new router.
 Basic usage:
 
 ```javascript
-var app = require('koa')();
-var router = require('koa-router')();
+var Koa = require('koa');
+var Router = require('koa-router');
+
+var app = new Koa();
+var router = new Router();
 
 router.get('/', function (ctx, next) {...});
 
@@ -259,18 +262,23 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
 **Example**
 ```javascript
-var app = koa();
-var router = router();
+var Koa = require('koa');
+var Router = require('koa-router');
+
+var app = new Koa();
+var router = new Router();
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-
 ```
 **Example with [Boom](https://github.com/hapijs/boom)**
 ```javascript
-var app = koa();
-var router = router();
+var Koa = require('koa');
+var Router = require('koa-router');
 var Boom = require('boom');
+
+var app = new Koa();
+var router = new Router();
 
 app.use(router.routes());
 app.use(router.allowedMethods({
