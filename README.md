@@ -89,6 +89,8 @@ as `router.get()` or `router.post()`.
 Match URL patterns to callback functions or controller actions using `router.verb()`,
 where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
 
+Additionaly, `router.all()` can be used to match against all methods.
+
 ```javascript
 router
   .get('/', function (ctx, next) {
@@ -101,6 +103,9 @@ router
     // ...
   })
   .del('/users/:id', function (ctx, next) {
+    // ...
+  })
+  .all('/users/:id', function (ctx, next) {
     // ...
   });
 ```
