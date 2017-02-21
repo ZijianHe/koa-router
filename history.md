@@ -9,7 +9,7 @@
 - Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issues/203).
 - Improved router.url() [#143](https://github.com/alexmingoia/koa-router/pull/143)
 - Adds support for named routes and regular expressions
-  [#152](https://github.com/alexmingoia/koa-router/pulls/152)
+  [#152](https://github.com/alexmingoia/koa-router/pull/152)
 - Add support for custom throw functions for 405 and 501 responses [#206](https://github.com/alexmingoia/koa-router/pull/206)
 
 ## 5.2.3
