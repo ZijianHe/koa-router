@@ -1,5 +1,9 @@
 # History
 
+## 5.4.1
+
+- Fix incorrect captured params with router.use(fn) (no path) #287
+
 ## 5.4.0
 
 - Expose matched route at `ctx._matchedRoute`.
