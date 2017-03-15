@@ -1,5 +1,9 @@
 # History
 
+## 7.1.1
+
+- Fix bug where param handlers were run out of order (#282)
+
 ## 7.1.0
 
 - Backports: merge 5.4 work into the 7.x upstream. See 5.4.0 updates for more details.
