@@ -226,6 +226,60 @@ describe('Router', function () {
       })
   });
 
+  it('executes all matching routes middleware', function (done) {
+    var app = new Koa();
+    var router = new Router();
+
+    router
+      .get('/user/count', function getCount (ctx, next) {
+        ctx.body = ctx.body || {};
+        ctx.body.count = true;
+        return next();
+      })
+      .get('/user/:id', function getUser (ctx, next) {
+        ctx.body = ctx.body || {};
+        ctx.body.getId = true;
+        return next();
+      });
+
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/user/count')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('count', true);
+        expect(res.body).to.have.property('getId', true);
+        done();
+      })
+  });
+
+  it('executes last matching route middleware', function (done) {
+    var app = new Koa();
+    var router = new Router({useFirstMatch:true});
+
+    router
+      .get('/user/count', function getCount (ctx, next) {
+        ctx.body = ctx.body || {};
+        ctx.body.count = true;
+        return next();
+      })
+      .get('/user/:id', function getUser (ctx, next) {
+        ctx.body = ctx.body || {};
+        ctx.body.getId = true;
+        return next();
+      });
+
+    request(http.createServer(app.use(router.routes()).callback()))
+      .get('/user/count')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('count', true);
+        expect(res.body).to.not.have.property('getId');
+        done();
+      })
+  });
+
   it('does not run subsequent middleware without calling next', function (done) {
     var app = new Koa();
     var router = new Router();
