@@ -64,6 +64,7 @@ Create a new router.
 | --- | --- | --- |
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
+| [opts.useFirstMatch] | <code>Boolean</code> | if set then use only the first matching route |
 
 **Example**
 Basic usage:
@@ -176,6 +177,28 @@ var router = new Router({
 
 router.get('/', ...); // responds to "/users"
 router.get('/:id', ...); // responds to "/users/:id"
+```
+
+#### Router useFirstMatch
+
+Only use the middleware for the first matching route:
+
+```javascript
+var router = new Router({
+  useFirstMatch: true
+});
+
+router.get('/api/users/count', ...); // responds to "/users/count"
+router.get('/api/users/:id', ...); // responds to "/users/:id"
+```
+
+Default behaviour
+
+```javascript
+var router = new Router();
+
+router.get('/api/users/count', ...); // executes middleware for "/users/count"
+router.get('/api/users/:id', ...); // now executes middleware for "/users/count" and "/users/:id"
 ```
 
 #### URL parameters
