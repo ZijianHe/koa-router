@@ -1,5 +1,9 @@
 # History
 
+## 7.1.1
+
+- Fix bug where param handlers were run out of order (#282)
+
 ## 7.1.0
 
 - Backports: merge 5.4 work into the 7.x upstream. See 5.4.0 updates for more details.
@@ -26,7 +30,7 @@
 - Register multiple routes with array of paths [#203](https://github.com/alexmingoia/koa-router/issue/143).
 - Improved router.url() [#143](https://github.com/alexmingoia/koa-router/pull/143)
 - Adds support for named routes and regular expressions
-  [#152](https://github.com/alexmingoia/koa-router/pulls/152)
+  [#152](https://github.com/alexmingoia/koa-router/pull/152)
 - Add support for custom throw functions for 405 and 501 responses [#206](https://github.com/alexmingoia/koa-router/pull/206)
 
 ## 5.2.3
