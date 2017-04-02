@@ -233,4 +233,24 @@ describe('Layer', function() {
       url.should.equal('/programming/how%20to%20node');
     });
   });
+
+  describe('Layer#setPrefix()', function() {
+    it('strips trailing slashes from paths before joining', function() {
+      var route = new Layer('/baz', ['get'], [function* () {}]);
+      route.setPrefix('/foo/bar/')
+      route.path.should.equal('/foo/bar/baz')
+    })
+
+    it('prefixes a string path', function() {
+      var route = new Layer('/abc/def', ['get'], [function* () {}]);;
+      route.setPrefix('/foo/bar')
+      route.match('/foo/bar/abc/def').should.be.ok
+    })
+
+    it('prefixes a regex path', function() {
+      var route = new Layer(/\/foo\/bar\d+?/, ['get'], [function* () {}]);;
+      route.setPrefix('/api/v1.0')
+      route.match('/api/v1.0/foo/bar12').should.be.ok
+    })
+  })
 });
