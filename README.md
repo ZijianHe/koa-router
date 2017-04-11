@@ -282,8 +282,8 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const Boom = require('boom');
 
-var app = new Koa();
-var router = new Router();
+const app = new Koa();
+const router = new Router();
 
 app.use(router.routes());
 app.use(router.allowedMethods({
@@ -396,7 +396,7 @@ Generate URL from url pattern and given `params`.
 
 **Example**
 ```javascript
-var url = Router.url('/users/:id', {id: 1});
+const url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
 ```
 ## Contributing
