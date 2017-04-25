@@ -1057,7 +1057,7 @@ describe('Router', function () {
   });
 
   describe('Router#url()', function () {
-    it('generates URL for given route', function (done) {
+    it('generates URL for given route name', function (done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -1070,6 +1070,29 @@ describe('Router', function () {
       url.should.equal('/programming/how%20to%20node');
       done();
     });
+
+    it('generates URL for given route name within embedded routers', function (done) {
+        var app = new Koa();
+        var router = new Router({
+          prefix: "/books"
+        });
+
+        var embeddedRouter = new Router({
+          prefix: "/chapters"
+        });
+        embeddedRouter.get('chapters', '/:chapterName/:pageNumber', function (ctx) {
+          console.log(ctx.params);
+          ctx.status = 204;
+        });
+        router.use(embeddedRouter.routes());
+        app.use(router.routes());
+        var url = router.url('chapters', { chapterName: 'Learning ECMA6', pageNumber: 123 });
+        url.should.equal('/books/chapters/Learning%20ECMA6/123');
+        url = router.url('chapters', 'Learning ECMA6', 123);
+        url.should.equal('/books/chapters/Learning%20ECMA6/123');
+        done();
+    });
+
   });
 
   describe('Router#param()', function () {
