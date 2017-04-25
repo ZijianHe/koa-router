@@ -78,6 +78,25 @@ describe('Router', function () {
       });
   });
 
+  it('router can be accecced with ctx', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      router.get('home', '/', function (ctx) {
+          ctx.body = {
+            url: ctx.router.url('home')
+          };
+      });
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+          .get('/')
+          .expect(200)
+          .end(function (err, res) {
+              if (err) return done(err);
+              expect(res.body.url).to.eql("/");
+              done();
+          });
+  });
+
   it('registers multiple middleware for one route', function(done) {
     var app = new Koa();
     var router = new Router();
