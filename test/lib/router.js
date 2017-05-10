@@ -1100,7 +1100,6 @@ describe('Router', function () {
           prefix: "/chapters"
         });
         embeddedRouter.get('chapters', '/:chapterName/:pageNumber', function (ctx) {
-          console.log(ctx.params);
           ctx.status = 204;
         });
         router.use(embeddedRouter.routes());
