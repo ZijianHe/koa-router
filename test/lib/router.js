@@ -78,6 +78,25 @@ describe('Router', function () {
       });
   });
 
+  it('router can be accecced with ctx', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      router.get('home', '/', function (ctx) {
+          ctx.body = {
+            url: ctx.router.url('home')
+          };
+      });
+      app.use(router.routes());
+      request(http.createServer(app.callback()))
+          .get('/')
+          .expect(200)
+          .end(function (err, res) {
+              if (err) return done(err);
+              expect(res.body.url).to.eql("/");
+              done();
+          });
+  });
+
   it('registers multiple middleware for one route', function(done) {
     var app = new Koa();
     var router = new Router();
@@ -1057,7 +1076,7 @@ describe('Router', function () {
   });
 
   describe('Router#url()', function () {
-    it('generates URL for given route', function (done) {
+    it('generates URL for given route name', function (done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -1070,6 +1089,28 @@ describe('Router', function () {
       url.should.equal('/programming/how%20to%20node');
       done();
     });
+
+    it('generates URL for given route name within embedded routers', function (done) {
+        var app = new Koa();
+        var router = new Router({
+          prefix: "/books"
+        });
+
+        var embeddedRouter = new Router({
+          prefix: "/chapters"
+        });
+        embeddedRouter.get('chapters', '/:chapterName/:pageNumber', function (ctx) {
+          ctx.status = 204;
+        });
+        router.use(embeddedRouter.routes());
+        app.use(router.routes());
+        var url = router.url('chapters', { chapterName: 'Learning ECMA6', pageNumber: 123 });
+        url.should.equal('/books/chapters/Learning%20ECMA6/123');
+        url = router.url('chapters', 'Learning ECMA6', 123);
+        url.should.equal('/books/chapters/Learning%20ECMA6/123');
+        done();
+    });
+
   });
 
   describe('Router#param()', function () {
