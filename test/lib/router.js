@@ -1379,6 +1379,42 @@ describe('Router', function () {
         done();
       });
     });
+
+    it('places a `_matchedRouteName` value on the context for a named route', function(done) {
+      var app = new Koa();
+      var router = new Router();
+
+      router.get('users#show', '/users/:id', function (ctx, next) {
+        expect(ctx._matchedRouteName).to.be('users#show')
+        ctx.status = 200
+      });
+
+      request(http.createServer(app.use(router.routes()).callback()))
+      .get('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
+
+    it('does not place a `_matchedRouteName` value on the context for unnamed routes', function(done) {
+      var app = new Koa();
+      var router = new Router();
+
+      router.get('/users/:id', function (ctx, next) {
+        expect(ctx._matchedRouteName).to.be(undefined)
+        ctx.status = 200
+      });
+
+      request(http.createServer(app.use(router.routes()).callback()))
+      .get('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        done();
+      });
+    });
   });
 
   describe('If no HEAD method, default to GET', function () {
