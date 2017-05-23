@@ -115,6 +115,68 @@ describe('Router', function() {
       });
   });
 
+  it('supports mixed promises and generators', function (done) {
+    var app = koa();
+    app.experimental = true;
+    var router = Router();
+
+    var middleware = function* (next) {
+      this.body = [];
+      this.body.push('middleware before');
+      yield next;
+      this.body.push('middleware after');
+    };
+
+    var controller = function (next) {
+      var ctx = this;
+      return new Promise(function (resolve, reject) {
+        ctx.body.push('controller');
+        resolve();
+      });
+    };
+
+    router.get('/async', middleware, controller);
+
+    app.use(router.routes()).use(router.allowedMethods());
+    request(http.createServer(app.callback()))
+      .get('/async')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.eql([ 'middleware before', 'controller', 'middleware after' ]);
+        done();
+      });
+  });
+
+  it('supports mixed common function and generators', function (done) {
+    var app = koa();
+    app.experimental = true;
+    var router = Router();
+
+    var middleware = function* (next) {
+      this.body = [];
+      this.body.push('middleware before');
+      yield next;
+      this.body.push('middleware after');
+    };
+
+    var controller = function () {
+      this.body.push('controller');
+    };
+
+    router.get('/common', middleware, controller);
+
+    app.use(router.routes()).use(router.allowedMethods());
+    request(http.createServer(app.callback()))
+      .get('/common')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err);
+        expect(res.body).to.eql([ 'middleware before', 'controller', 'middleware after' ]);
+        done();
+      });
+  });
+
   it('matches middleware only if route was matched (gh-182)', function (done) {
     var app = koa();
     var router = new Router();
