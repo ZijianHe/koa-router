@@ -29,7 +29,7 @@
     "gulp": "^3.8.11",
     "gulp-mocha": "^2.0.0",
     "jsdoc-to-markdown": "^1.1.1",
-    "koa": "^2.0.0-alpha.3",
+    "koa": "2.2.0",
     "mocha": "^2.0.1",
     "should": "^6.0.3",
     "supertest": "^1.0.1"

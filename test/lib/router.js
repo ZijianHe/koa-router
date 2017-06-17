@@ -542,9 +542,10 @@ describe('Router', function () {
       router.put('/users', function (ctx, next) {});
       request(http.createServer(app.callback()))
       .options('/users')
-      .expect(204)
+      .expect(200)
       .end(function (err, res) {
         if (err) return done(err);
+        res.header.should.have.property('content-length', '0');
         res.header.should.have.property('allow', 'HEAD, GET, PUT');
         done();
       });
