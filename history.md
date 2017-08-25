@@ -1,8 +1,17 @@
 # History
 
+## 7.2.1
+
+- Respond to CORS preflights with 200, 0 length body [#359](https://github.com/alexmingoia/koa-router/issues/359)
+
+## 7.2.0
+
+- Fix a bug in Router#url and append Router object to ctx. [#350](https://github.com/alexmingoia/koa-router/pull/350)
+- Adds `_matchedRouteName` to context [#337](https://github.com/alexmingoia/koa-router/pull/337)
+
 ## 7.1.1
 
-- Fix bug where param handlers were run out of order (#282)
+- Fix bug where param handlers were run out of order [#282](https://github.com/alexmingoia/koa-router/pull/282)
 
 ## 7.1.0
 
