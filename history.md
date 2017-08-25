@@ -8,7 +8,7 @@
 
 - Fix a bug in Router#url and append Router object to ctx. [#350](https://github.com/alexmingoia/koa-router/pull/350)
 - Adds `_matchedRouteName` to context [#337](https://github.com/alexmingoia/koa-router/pull/337)
-- Respond to CORS preflights with 200, 0 length body (#359)
+- Respond to CORS preflights with 200, 0 length body [#359](https://github.com/alexmingoia/koa-router/issues/359)
 
 ## 7.1.1
 
