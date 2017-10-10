@@ -796,6 +796,11 @@ describe('Router', function () {
         router[method](/^\/\w$/i, function () {}).should.equal(router);
       });
     });
+	
+    it('registers route with with a given name when using .all()', function() {
+      var router = new Router();
+      router.all('name', /^\/$/i, function () {}).should.equal(router);
+    });
 
     it('registers route with a given name', function () {
       var router = new Router();
