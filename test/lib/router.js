@@ -754,6 +754,28 @@ describe('Router', function () {
         done();
       });
     });
+
+    it('sets the allowed methods to a single Allow header #273', function (done) {
+      // https://tools.ietf.org/html/rfc7231#section-7.4.1
+      var app = new Koa();
+      var router = new Router();
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+
+      router.get('/', function (ctx, next) {});
+
+      request(http.createServer(app.callback()))
+        .options('/')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          res.header.should.have.property('allow', 'HEAD, GET');
+          let allowHeaders = res.res.rawHeaders.filter((item) => item == 'Allow');
+          expect(allowHeaders.length).to.eql(1);
+          done();
+        });
+    });
+
   });
 
   it('supports custom routing detect path: ctx.routerPath', function (done) {
