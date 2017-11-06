@@ -211,12 +211,15 @@ describe('Router', function() {
     router
       .get('user_page', '/user/(.*).jsx', function *(next) {
         this.body = { order: 1 };
+        yield next;
       })
       .all('app', '/app/(.*).jsx', function *(next) {
         this.body = { order: 2 };
+        yield next;
       })
       .all('view', '(.*).jsx', function *(next) {
         this.body = { order: 3 };
+        yield next;
       });
 
     request(http.createServer(app.use(router.routes()).callback()))
