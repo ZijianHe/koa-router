@@ -1661,4 +1661,18 @@ describe('Router', function () {
       url.should.equal('/programming/how%20to%20node');
     });
   });
+
+  describe('Router#verifyPathReachable()', function () {
+    it('should return true for a reachable path', function () {
+      var router = new Router();
+      router.get('/objects', function (ctx, next) {});
+      expect(router.verifyPathReachable('/objects/list')).to.be.true;
+    });
+
+    it('should return false for an unreachable path', function () {
+      var router = new Router();
+      router.get('/objects/:id', function (ctx, next) {});
+      expect(router.verifyPathReachable('/objects/list')).to.be.false;
+    });
+  });
 });
