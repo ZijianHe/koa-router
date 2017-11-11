@@ -355,6 +355,7 @@ Generate URL for route. Takes a route name and map of named `params`.
 | params | <code>Object</code> | url parameters |
 | [options] | <code>Object</code> | options parameter |
 | [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
+
 **Example**  
 ```javascript
 router.get('user', '/users/:id', function (ctx, next) {
