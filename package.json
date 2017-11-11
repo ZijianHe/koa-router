@@ -22,7 +22,8 @@
     "http-errors": "^1.3.1",
     "koa-compose": "^3.0.0",
     "methods": "^1.0.1",
-    "path-to-regexp": "^1.1.1"
+    "path-to-regexp": "^1.1.1",
+    "urijs": "^1.19.0"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
