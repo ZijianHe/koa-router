@@ -1134,6 +1134,42 @@ describe('Router', function () {
         done();
     });
 
+    it('generates URL for given route name with params and query params', function(done) {
+        var app = new Koa();
+        var router = new Router();
+        router.get('books', '/books/:category/:id', function (ctx) {
+          ctx.status = 204;
+        });
+        var url = router.url('books', 'programming', 4, {
+          query: { page: 3, limit: 10 }
+        });
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        var url = router.url('books',
+          { category: 'programming', id: 4 },
+          { query: { page: 3, limit: 10 }}
+        );
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        var url = router.url('books',
+          { category: 'programming', id: 4 },
+          { query: 'page=3&limit=10' }
+        );
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        done();
+    })
+
+
+    it('generates URL for given route name without params and query params', function(done) {
+        var app = new Koa();
+        var router = new Router();
+        router.get('category', '/category', function (ctx) {
+          ctx.status = 204;
+        });
+        var url = router.url('category', {
+          query: { page: 3, limit: 10 }
+        });
+        url.should.equal('/category?page=3&limit=10');
+        done();
+    })
   });
 
   describe('Router#param()', function () {
