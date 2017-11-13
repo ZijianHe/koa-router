@@ -1,5 +1,9 @@
 # History
 
+## 7.3.0
+
+- Router#url() now accepts query parameters to add to generated urls [#396](https://github.com/alexmingoia/koa-router/pull/396)
+
 ## 7.2.1
 
 - Respond to CORS preflights with 200, 0 length body [#359](https://github.com/alexmingoia/koa-router/issues/359)
