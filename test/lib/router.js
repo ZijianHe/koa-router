@@ -1696,5 +1696,31 @@ describe('Router', function () {
       var url = Router.url('/:category/:title', { category: 'programming', title: 'how to node' });
       url.should.equal('/programming/how%20to%20node');
     });
+
+    it('generates route URL with params and query params', function(done) {
+        var url = Router.url('/books/:category/:id', 'programming', 4, {
+          query: { page: 3, limit: 10 }
+        });
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        var url = Router.url('/books/:category/:id',
+          { category: 'programming', id: 4 },
+          { query: { page: 3, limit: 10 }}
+        );
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        var url = Router.url('/books/:category/:id',
+          { category: 'programming', id: 4 },
+          { query: 'page=3&limit=10' }
+        );
+        url.should.equal('/books/programming/4?page=3&limit=10');
+        done();
+    });
+
+    it('generates router URL without params and with with query params', function(done) {
+        var url = Router.url('/category', {
+          query: { page: 3, limit: 10 }
+        });
+        url.should.equal('/category?page=3&limit=10');
+        done();
+    });
   });
 });
