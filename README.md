@@ -74,7 +74,7 @@ const Router = require('koa-router');
 const app = new Koa();
 const router = new Router();
 
-router.get('/', function (ctx, next) {
+router.get('/', (ctx, next) => {
   // ctx.router available
 });
 
@@ -95,19 +95,19 @@ Additionaly, `router.all()` can be used to match against all methods.
 
 ```javascript
 router
-  .get('/', function (ctx, next) {
+  .get('/', (ctx, next) => {
     ctx.body = 'Hello World!';
   })
-  .post('/users', function (ctx, next) {
+  .post('/users', (ctx, next) => {
     // ...
   })
-  .put('/users/:id', function (ctx, next) {
+  .put('/users/:id', (ctx, next) => {
     // ...
   })
-  .del('/users/:id', function (ctx, next) {
+  .del('/users/:id', (ctx, next) => {
     // ...
   })
-  .all('/users/:id', function (ctx, next) {
+  .all('/users/:id', (ctx, next) => {
     // ...
   });
 ```
@@ -126,7 +126,7 @@ Routes can optionally have names. This allows generation of URLs and easy
 renaming of URLs during development.
 
 ```javascript
-router.get('user', '/users/:id', function (ctx, next) {
+router.get('user', '/users/:id', (ctx, next) => {
  // ...
 });
 
@@ -141,13 +141,13 @@ Multiple middleware may be given:
 ```javascript
 router.get(
   '/users/:id',
-  function (ctx, next) {
-    return User.findOne(ctx.params.id).then(function(user) {
+  (ctx, next) => {
+    return User.findOne(ctx.params.id).then((user) => {
       ctx.user = user;
       return next();
     });
   },
-  function (ctx) {
+  (ctx) => {
     console.log(ctx.user);
     // => { id: 17, name: "Alex" }
   }
@@ -162,8 +162,8 @@ Nesting routers is supported:
 const forums = new Router();
 const posts = new Router();
 
-posts.get('/', function (ctx, next) {...});
-posts.get('/:pid', function (ctx, next) {...});
+posts.get('/', (ctx, next) => {...});
+posts.get('/:pid', (ctx, next) => {...});
 forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
@@ -188,7 +188,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 Named route parameters are captured and added to `ctx.params`.
 
 ```javascript
-router.get('/:category/:title', function (ctx, next) {
+router.get('/:category/:title', (ctx, next) => {
   console.log(ctx.params);
   // => { category: 'programming', title: 'how-to-node' }
 });
@@ -358,7 +358,7 @@ Generate URL for route. Takes a route name and map of named `params`.
 
 **Example**  
 ```javascript
-router.get('user', '/users/:id', function (ctx, next) {
+router.get('user', '/users/:id', (ctx, next) => {
   // ...
 });
 
@@ -374,7 +374,7 @@ router.url('user', { id: 3 }, { query: { limit: 1 } });
 router.url('user', { id: 3 }, { query: "limit=1" });
 // => "/users/3?limit=1"
 
-router.use(function (ctx, next) {
+router.use((ctx, next) => {
   // redirect to named route
   ctx.redirect(ctx.router.url('sign-in'));
 })
@@ -395,16 +395,16 @@ validation.
 **Example**  
 ```javascript
 router
-  .param('user', function (id, ctx, next) {
+  .param('user', (id, ctx, next) => {
     ctx.user = users[id];
     if (!ctx.user) return ctx.status = 404;
     return next();
   })
-  .get('/users/:user', function (ctx) {
+  .get('/users/:user', (ctx) => {
     ctx.body = ctx.user;
   })
-  .get('/users/:user/friends', function (ctx) {
-    return ctx.user.getFriends().then(function(friends) {
+  .get('/users/:user/friends', (ctx) => {
+    return ctx.user.getFriends().then(friends => {
       ctx.body = friends;
     });
   })
