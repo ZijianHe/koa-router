@@ -32,7 +32,7 @@ npm install koa-router
 ```
 
 ## API Reference
-
+  
 * [koa-router](#module_koa-router)
     * [Router](#exp_module_koa-router--Router) ⏏
         * [new Router([opts])](#new_module_koa-router--Router_new)
@@ -42,9 +42,9 @@ npm install koa-router
             * [.use([path], middleware)](#module_koa-router--Router+use) ⇒ <code>Router</code>
             * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
             * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
-            * [.redirect(source, destination, code)](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
+            * [.redirect(source, destination, [code])](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
             * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
-            * [.url(name, params [, options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
+            * [.url(name, params)](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
             * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
         * _static_
             * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
@@ -68,13 +68,13 @@ Create a new router.
 Basic usage:
 
 ```javascript
-const Koa = require('koa');
-const Router = require('koa-router');
+var Koa = require('koa');
+var Router = require('koa-router');
 
-const app = new Koa();
-const router = new Router();
+var app = new Koa();
+var router = new Router();
 
-router.get('/', function (ctx, next) {
+router.get('/', (ctx, next) => {
   // ctx.router available
 });
 
@@ -95,19 +95,19 @@ Additionaly, `router.all()` can be used to match against all methods.
 
 ```javascript
 router
-  .get('/', function (ctx, next) {
+  .get('/', (ctx, next) => {
     ctx.body = 'Hello World!';
   })
-  .post('/users', function (ctx, next) {
+  .post('/users', (ctx, next) => {
     // ...
   })
-  .put('/users/:id', function (ctx, next) {
+  .put('/users/:id', (ctx, next) => {
     // ...
   })
-  .del('/users/:id', function (ctx, next) {
+  .del('/users/:id', (ctx, next) => {
     // ...
   })
-  .all('/users/:id', function (ctx, next) {
+  .all('/users/:id', (ctx, next) => {
     // ...
   });
 ```
@@ -126,7 +126,7 @@ Routes can optionally have names. This allows generation of URLs and easy
 renaming of URLs during development.
 
 ```javascript
-router.get('user', '/users/:id', function (ctx, next) {
+router.get('user', '/users/:id', (ctx, next) => {
  // ...
 });
 
@@ -141,13 +141,13 @@ Multiple middleware may be given:
 ```javascript
 router.get(
   '/users/:id',
-  function (ctx, next) {
+  (ctx, next) => {
     return User.findOne(ctx.params.id).then(function(user) {
       ctx.user = user;
-      return next();
+      next();
     });
   },
-  function (ctx) {
+  ctx => {
     console.log(ctx.user);
     // => { id: 17, name: "Alex" }
   }
@@ -159,11 +159,11 @@ router.get(
 Nesting routers is supported:
 
 ```javascript
-const forums = new Router();
-const posts = new Router();
+var forums = new Router();
+var posts = new Router();
 
-posts.get('/', function (ctx, next) {...});
-posts.get('/:pid', function (ctx, next) {...});
+posts.get('/', (ctx, next) => {...});
+posts.get('/:pid', (ctx, next) => {...});
 forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
@@ -188,7 +188,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 Named route parameters are captured and added to `ctx.params`.
 
 ```javascript
-router.get('/:category/:title', function (ctx, next) {
+router.get('/:category/:title', (ctx, next) => {
   console.log(ctx.params);
   // => { category: 'programming', title: 'how-to-node' }
 });
@@ -224,9 +224,9 @@ sequentially, requests start at the first middleware and work their way
 
 | Param | Type |
 | --- | --- |
-| [path] | <code>String</code> |
-| middleware | <code>function</code> |
-| [...] | <code>function</code> |
+| [path] | <code>String</code> | 
+| middleware | <code>function</code> | 
+| [...] | <code>function</code> | 
 
 **Example**  
 ```javascript
@@ -252,7 +252,7 @@ Set the path prefix for a Router instance that was already initialized.
 
 | Param | Type |
 | --- | --- |
-| prefix | <code>String</code> |
+| prefix | <code>String</code> | 
 
 **Example**  
 ```javascript
@@ -276,11 +276,11 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
 **Example**  
 ```javascript
-const Koa = require('koa');
-const Router = require('koa-router');
+var Koa = require('koa');
+var Router = require('koa-router');
 
-const app = new Koa();
-const router = new Router();
+var app = new Koa();
+var router = new Router();
 
 app.use(router.routes());
 app.use(router.allowedMethods());
@@ -289,12 +289,12 @@ app.use(router.allowedMethods());
 **Example with [Boom](https://github.com/hapijs/boom)**
 
 ```javascript
-const Koa = require('koa');
-const Router = require('koa-router');
-const Boom = require('boom');
+var Koa = require('koa');
+var Router = require('koa-router');
+var Boom = require('boom');
 
-const app = new Koa();
-const router = new Router();
+var app = new Koa();
+var router = new Router();
 
 app.use(router.routes());
 app.use(router.allowedMethods({
@@ -305,7 +305,7 @@ app.use(router.allowedMethods({
 ```
 <a name="module_koa-router--Router+redirect"></a>
 
-#### router.redirect(source, destination, code) ⇒ <code>Router</code>
+#### router.redirect(source, destination, [code]) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
 
 Both `source` and `destination` can be route names.
@@ -317,7 +317,7 @@ router.redirect('/login', 'sign-in');
 This is equivalent to:
 
 ```javascript
-router.all('/login', function (ctx) {
+router.all('/login', ctx => {
   ctx.redirect('/sign-in');
   ctx.status = 301;
 });
@@ -329,7 +329,7 @@ router.all('/login', function (ctx) {
 | --- | --- | --- |
 | source | <code>String</code> | URL or route name. |
 | destination | <code>String</code> | URL or route name. |
-| code | <code>Number</code> | HTTP status code (default: 301). |
+| [code] | <code>Number</code> | HTTP status code (default: 301). |
 
 <a name="module_koa-router--Router+route"></a>
 
@@ -340,11 +340,11 @@ Lookup route with given `name`.
 
 | Param | Type |
 | --- | --- |
-| name | <code>String</code> |
+| name | <code>String</code> | 
 
 <a name="module_koa-router--Router+url"></a>
 
-#### router.url(name, params [, options]) ⇒ <code>String</code> &#124; <code>Error</code>
+#### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes a route name and map of named `params`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -353,12 +353,10 @@ Generate URL for route. Takes a route name and map of named `params`.
 | --- | --- | --- |
 | name | <code>String</code> | route name |
 | params | <code>Object</code> | url parameters |
-| [options] | <code>Object</code> | options parameter |
-| [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
 **Example**  
 ```javascript
-router.get('user', '/users/:id', function (ctx, next) {
+router.get('user', '/users/:id', (ctx, next) => {
   // ...
 });
 
@@ -368,13 +366,7 @@ router.url('user', 3);
 router.url('user', { id: 3 });
 // => "/users/3"
 
-router.url('user', { id: 3 }, { query: { limit: 1 } });
-// => "/users/3?limit=1"
-
-router.url('user', { id: 3 }, { query: "limit=1" });
-// => "/users/3?limit=1"
-
-router.use(function (ctx, next) {
+router.use((ctx, next) => {
   // redirect to named route
   ctx.redirect(ctx.router.url('sign-in'));
 })
@@ -389,21 +381,21 @@ validation.
 
 | Param | Type |
 | --- | --- |
-| param | <code>String</code> |
-| middleware | <code>function</code> |
+| param | <code>String</code> | 
+| middleware | <code>function</code> | 
 
 **Example**  
 ```javascript
 router
-  .param('user', function (id, ctx, next) {
+  .param('user', (id, ctx, next) => {
     ctx.user = users[id];
     if (!ctx.user) return ctx.status = 404;
     return next();
   })
-  .get('/users/:user', function (ctx) {
+  .get('/users/:user', ctx => {
     ctx.body = ctx.user;
   })
-  .get('/users/:user/friends', function (ctx) {
+  .get('/users/:user/friends', ctx => {
     return ctx.user.getFriends().then(function(friends) {
       ctx.body = friends;
     });
@@ -425,7 +417,7 @@ Generate URL from url pattern and given `params`.
 
 **Example**  
 ```javascript
-const url = Router.url('/users/:id', {id: 1});
+var url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
 ```
 ## Contributing
