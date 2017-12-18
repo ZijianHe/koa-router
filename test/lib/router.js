@@ -1134,6 +1134,28 @@ describe('Router', function () {
         done();
     });
 
+    it('generates URL for given route name within two embedded routers', function (done) {
+      var app = new Koa();
+      var router = new Router({
+        prefix: "/books"
+      });
+      var embeddedRouter = new Router({
+        prefix: "/chapters"
+      });
+      var embeddedRouter2 = new Router({
+        prefix: "/:chapterName/pages"
+      });
+      embeddedRouter2.get('chapters', '/:pageNumber', function (ctx) {
+        ctx.status = 204;
+      });
+      embeddedRouter.use(embeddedRouter2.routes());
+      router.use(embeddedRouter.routes());
+      app.use(router.routes());
+      var url = router.url('chapters', { chapterName: 'Learning ECMA6', pageNumber: 123 });
+      url.should.equal('/books/chapters/Learning%20ECMA6/pages/123');
+      done();
+    });
+
     it('generates URL for given route name with params and query params', function(done) {
         var app = new Koa();
         var router = new Router();
