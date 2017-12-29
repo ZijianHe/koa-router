@@ -299,8 +299,8 @@ var router = new Router();
 app.use(router.routes());
 app.use(router.allowedMethods({
   throw: true,
-  notImplemented: () => new Boom.notImplemented(),
-  methodNotAllowed: () => new Boom.methodNotAllowed()
+  notImplemented: Boom.notImplemented(),
+  methodNotAllowed: Boom.methodNotAllowed()
 }));
 ```
 <a name="module_koa-router--Router+redirect"></a>
