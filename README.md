@@ -44,7 +44,7 @@ npm install koa-router
             * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
             * [.redirect(source, destination, [code])](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
             * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
-            * [.url(name, params)](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
+            * [.url(name, params, [options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
             * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
         * _static_
             * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
@@ -344,7 +344,7 @@ Lookup route with given `name`.
 
 <a name="module_koa-router--Router+url"></a>
 
-#### router.url(name, params) ⇒ <code>String</code> &#124; <code>Error</code>
+#### router.url(name, params, [options]) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes a route name and map of named `params`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -353,6 +353,8 @@ Generate URL for route. Takes a route name and map of named `params`.
 | --- | --- | --- |
 | name | <code>String</code> | route name |
 | params | <code>Object</code> | url parameters |
+| [options] | <code>Object</code> | options parameter |
+| [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
 **Example**  
 ```javascript
@@ -370,6 +372,12 @@ router.use((ctx, next) => {
   // redirect to named route
   ctx.redirect(ctx.router.url('sign-in'));
 })
+
+router.url('user', { id: 3 }, { query: { limit: 1 } });
+// => "/users/3?limit=1"
+
+router.url('user', { id: 3 }, { query: "limit=1" });
+// => "/users/3?limit=1"
 ```
 <a name="module_koa-router--Router+param"></a>
 
