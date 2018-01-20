@@ -1,5 +1,11 @@
 # History
 
+## 7.4.0
+
+- Fix router.url() for multiple nested routers [#407](https://github.com/alexmingoia/koa-router/pull/407)
+- `layer.name` added to `ctx` at `ctx.routerName` during routing [#412](https://github.com/alexmingoia/koa-router/pull/412)
+- Router.use() was erroneously settings `(.*)` as a prefix to all routers nested with .use that did not pass an explicit prefix string as the first argument. This resulted in routes being matched that should not have been, included the running of multiple route handlers in error. [#369](https://github.com/alexmingoia/koa-router/issues/369) and [#410](https://github.com/alexmingoia/koa-router/issues/410) include information on this issue.
+
 ## 7.3.0
 
 - Router#url() now accepts query parameters to add to generated urls [#396](https://github.com/alexmingoia/koa-router/pull/396)
