@@ -1038,6 +1038,38 @@ describe('Router', function () {
           done();
         });
     });
+
+    it('does not add an erroneous (.*) to unprefiexed nested routers - gh-369 gh-410', function (done) {
+      var app = new Koa();
+      var router = new Router();
+      var nested = new Router();
+      var called = 0;
+
+      nested
+        .get('/', (ctx, next) => {
+          ctx.body = 'root';
+          called += 1;
+          return next();
+        })
+        .get('/test', (ctx, next) => {
+          ctx.body = 'test';
+          called += 1;
+          return next();
+        });
+
+      router.use(nested.routes());
+      app.use(router.routes());
+
+      request(app.callback())
+        .get('/test')
+        .expect(200)
+        .expect('test')
+        .end(function (err, res) {
+          if (err) return done(err);
+          expect(called).to.eql(1, 'too many routes matched');
+          done();
+        });
+    });
   });
 
   describe('Router#register()', function () {
