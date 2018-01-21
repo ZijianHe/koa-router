@@ -34,7 +34,7 @@
     "supertest": "^1.0.1"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha test/**/*.js",
+    "test": "NODE_ENV=test mocha --recursive",
     "docs": "jsdoc2md -f lib/**/*.js -t doc/README.template.hbs > README.md"
   },
   "engines": {
