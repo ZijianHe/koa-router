@@ -38,7 +38,7 @@
     "docs": "jsdoc2md -f lib/**/*.js -t doc/README.template.hbs > README.md"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">= 7"
   },
   "license": "MIT"
 }
