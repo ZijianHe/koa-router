@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "gulp": "^3.8.11",
     "jsdoc-to-markdown": "^1.1.1",
     "koa": "2.2.0",
     "mocha": "^2.0.1",
@@ -36,7 +35,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha test/**/*.js",
-    "docs": "NODE_ENV=test node node_modules/gulp/bin/gulp.js docs"
+    "docs": "NODE_ENV=test jsdoc2md -t ./lib/README_tpl.hbs --src ./lib/*.js  >| README.md"
   },
   "engines": {
     "node": ">= 4"
