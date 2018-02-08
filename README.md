@@ -64,9 +64,6 @@ Create a new router.
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
-**Example**  
-Basic usage:
-
 ```javascript
 var Koa = require('koa');
 var Router = require('koa-router');
@@ -228,7 +225,6 @@ sequentially, requests start at the first middleware and work their way
 | middleware | <code>function</code> | 
 | [...] | <code>function</code> | 
 
-**Example**  
 ```javascript
 // session middleware will run before authorize
 router
@@ -254,7 +250,6 @@ Set the path prefix for a Router instance that was already initialized.
 | --- | --- |
 | prefix | <code>String</code> | 
 
-**Example**  
 ```javascript
 router.prefix('/things/:thing_id')
 ```
@@ -274,7 +269,6 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 | [options.notImplemented] | <code>function</code> | throw the returned value in place of the default NotImplemented error |
 | [options.methodNotAllowed] | <code>function</code> | throw the returned value in place of the default MethodNotAllowed error |
 
-**Example**  
 ```javascript
 var Koa = require('koa');
 var Router = require('koa-router');
@@ -286,7 +280,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 ```
 
-**Example with [Boom](https://github.com/hapijs/boom)**
+`router.allowedMethods([options])` using [Boom](https://github.com/hapijs/boom)
 
 ```javascript
 var Koa = require('koa');
@@ -356,7 +350,6 @@ Generate URL for route. Takes a route name and map of named `params`.
 | [options] | <code>Object</code> | options parameter |
 | [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
-**Example**  
 ```javascript
 router.get('user', '/users/:id', (ctx, next) => {
   // ...
@@ -392,7 +385,6 @@ validation.
 | param | <code>String</code> | 
 | middleware | <code>function</code> | 
 
-**Example**  
 ```javascript
 router
   .param('user', (id, ctx, next) => {
@@ -423,7 +415,6 @@ Generate URL from url pattern and given `params`.
 | path | <code>String</code> | url pattern |
 | params | <code>Object</code> | url parameters |
 
-**Example**  
 ```javascript
 var url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
