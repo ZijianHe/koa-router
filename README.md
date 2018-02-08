@@ -83,7 +83,7 @@ app
 
 <a name="module_koa-router--Router+get|put|post|patch|delete|del"></a>
 
-### router.get|put|post|patch|delete|del ⇒ <code>Router</code>
+### router.get|put|post|patch|delete|del([path], [...middleware]) ⇒ <code>Router</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
