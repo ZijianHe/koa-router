@@ -96,7 +96,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 
 <a name="module_koa-router--Router+get|put|post|patch|delete|del"></a>
 
-### router.get|put|post|patch|delete|del([path], [...middleware]) ⇒ <code>Router</code>
+### router.get|put|post|patch|delete|del([name],[path], [...middleware]) ⇒ <code>Router</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -108,7 +108,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 
 Create `router.verb()` methods, where *verb* is one of the [standard HTTP verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) provided by [methods](https://github.com/jshttp/methods). Match *verb* to URL patterns and callback functions or controller actions.
 
-Additionaly, `router.all()` can be used to match against all methods.
+Additionaly, `router.all()` can be used to match against all verbs, including: `get`, `put`, `post`, `patch`, `delete`.
 
 ```javascript
 router
@@ -194,9 +194,6 @@ router.get('/:category/:title', (ctx, next) => {
   // => { category: 'programming', title: 'how-to-node' }
 });
 ```
-
-The [path-to-regexp](https://github.com/pillarjs/path-to-regexp) module is
-used to convert paths to regular expressions.
 
 
 
