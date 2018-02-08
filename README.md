@@ -61,7 +61,7 @@ npm install koa-router
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
-Create a new router.
+#### Create a new router.
 
 ```javascript
 var Koa = require('koa');
@@ -77,6 +77,19 @@ router.get('/', (ctx, next) => {
 app
   .use(router.routes())
   .use(router.allowedMethods());
+```
+
+#### Router prefixes
+
+Route paths can be prefixed at the router level:
+
+```javascript
+var router = new Router({
+  prefix: '/users'
+});
+
+router.get('/', ...); // responds to "/users"
+router.get('/:id', ...); // responds to "/users/:id"
 ```
 
 
@@ -176,19 +189,6 @@ forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
 app.use(forums.routes());
-```
-
-#### Router prefixes
-
-Route paths can be prefixed at the router level:
-
-```javascript
-var router = new Router({
-  prefix: '/users'
-});
-
-router.get('/', ...); // responds to "/users"
-router.get('/:id', ...); // responds to "/users/:id"
 ```
 
 #### URL parameters
