@@ -61,7 +61,7 @@ npm install koa-router
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
-#### Create a new router.
+#### Create a new router
 
 ```javascript
 var Koa = require('koa');
@@ -81,7 +81,7 @@ app
 
 #### Router prefixes
 
-Route paths can be prefixed at the router level:
+Route paths can be prefixed at the router level.
 
 ```javascript
 var router = new Router({
@@ -106,11 +106,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 
-Create `router.verb()` methods, where *verb* is one of the HTTP verbs such
-as `router.get()` or `router.post()`.
-
-Match URL patterns to callback functions or controller actions using `router.verb()`,
-where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
+Create `router.verb()` methods, where *verb* is one of the [standard HTTP verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) provided by [methods](https://github.com/jshttp/methods). Match *verb* to URL patterns and callback functions or controller actions.
 
 Additionaly, `router.all()` can be used to match against all methods.
 
@@ -134,12 +130,9 @@ router
 ```
 
 When a route is matched, its path is available at `ctx._matchedRoute` and if named,
-the name is available at `ctx._matchedRouteName`
+the name is available at `ctx._matchedRouteName`.
 
-Route paths will be translated to regular expressions using
-[path-to-regexp](https://github.com/pillarjs/path-to-regexp).
-
-Query strings will not be considered when matching requests.
+Route paths will be translated to regular expressions using [path-to-regexp](https://github.com/pillarjs/path-to-regexp). Query strings will not be considered when matching requests.
 
 #### Named routes
 
@@ -157,7 +150,7 @@ router.url('user', 3);
 
 #### Multiple middleware
 
-Multiple middleware may be given:
+Multiple middleware may be given.
 
 ```javascript
 router.get(
@@ -177,7 +170,7 @@ router.get(
 
 #### Nested routers
 
-Nesting routers is supported:
+Nesting routers is supported.
 
 ```javascript
 var forums = new Router();
