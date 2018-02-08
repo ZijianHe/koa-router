@@ -32,22 +32,21 @@ npm install koa-router
 ```
 
 ## API Reference
-  
-* [koa-router](#module_koa-router)
-    * [Router](#exp_module_koa-router--Router)
-        * [new Router([opts])](#new_module_koa-router--Router_new)
-        * _instance_
-            * [.get|put|post|patch|delete|del](#module_koa-router--Router+get|put|post|patch|delete|del) ⇒ <code>Router</code>
-            * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
-            * [.use([path], middleware)](#module_koa-router--Router+use) ⇒ <code>Router</code>
-            * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
-            * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
-            * [.redirect(source, destination, [code])](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
-            * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
-            * [.url(name, params, [options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
-            * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
-        * _static_
-            * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
+
+* [Router](#exp_module_koa-router--Router)
+    * [new Router([opts])](#new_module_koa-router--Router_new)
+    * _instance_
+        * [.get|put|post|patch|delete|del](#module_koa-router--Router+get|put|post|patch|delete|del) ⇒ <code>Router</code>
+        * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
+        * [.use([path], middleware)](#module_koa-router--Router+use) ⇒ <code>Router</code>
+        * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
+        * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
+        * [.redirect(source, destination, [code])](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
+        * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
+        * [.url(name, params, [options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
+        * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
+    * _static_
+        * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
 
 <a name="exp_module_koa-router--Router"></a>
 
