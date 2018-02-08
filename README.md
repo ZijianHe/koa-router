@@ -34,7 +34,7 @@ npm install koa-router
 ## API Reference
   
 * [koa-router](#module_koa-router)
-    * [Router](#exp_module_koa-router--Router) ⏏
+    * [Router](#exp_module_koa-router--Router)
         * [new Router([opts])](#new_module_koa-router--Router_new)
         * _instance_
             * [.get|put|post|patch|delete|del](#module_koa-router--Router+get|put|post|patch|delete|del) ⇒ <code>Router</code>
@@ -51,8 +51,8 @@ npm install koa-router
 
 <a name="exp_module_koa-router--Router"></a>
 
-### Router ⏏
-**Kind**: Exported class  
+### Router
+**Kind**: Exported class
 <a name="new_module_koa-router--Router_new"></a>
 
 #### new Router([opts])
