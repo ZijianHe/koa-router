@@ -100,6 +100,7 @@ router.get('/:id', ...); // responds to "/users/:id"
 
 | Param | Type | Description |
 | --- | --- | --- |
+| name | <code>String</code> | optional |
 | path | <code>String</code> |  |
 | [middleware] | <code>function</code> | route middleware(s) |
 | callback | <code>function</code> | route callback |
