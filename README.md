@@ -54,7 +54,7 @@ npm install koa-router
 **Kind**: Exported class
 <a name="new_module_koa-router--Router_new"></a>
 
-#### new Router([opts])
+### new Router([opts])
 Create a new router.
 
 
@@ -80,7 +80,7 @@ app
 ```
 <a name="module_koa-router--Router+get|put|post|patch|delete|del"></a>
 
-#### router.get|put|post|patch|delete|del ⇒ <code>Router</code>
+### router.get|put|post|patch|delete|del ⇒ <code>Router</code>
 Create `router.verb()` methods, where *verb* is one of the HTTP verbs such
 as `router.get()` or `router.post()`.
 
@@ -150,7 +150,7 @@ router.get(
 );
 ```
 
-### Nested routers
+#### Nested routers
 
 Nesting routers is supported:
 
@@ -203,13 +203,13 @@ used to convert paths to regular expressions.
 
 <a name="module_koa-router--Router+routes"></a>
 
-#### router.routes ⇒ <code>function</code>
+### router.routes ⇒ <code>function</code>
 Returns router middleware which dispatches a route matching the request.
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 <a name="module_koa-router--Router+use"></a>
 
-#### router.use([path], middleware) ⇒ <code>Router</code>
+### router.use([path], middleware) ⇒ <code>Router</code>
 Use given middleware.
 
 Middleware run in the order they are defined by `.use()`. They are invoked
@@ -240,7 +240,7 @@ app.use(router.routes());
 ```
 <a name="module_koa-router--Router+prefix"></a>
 
-#### router.prefix(prefix) ⇒ <code>Router</code>
+### router.prefix(prefix) ⇒ <code>Router</code>
 Set the path prefix for a Router instance that was already initialized.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -254,7 +254,7 @@ router.prefix('/things/:thing_id')
 ```
 <a name="module_koa-router--Router+allowedMethods"></a>
 
-#### router.allowedMethods([options]) ⇒ <code>function</code>
+### router.allowedMethods([options]) ⇒ <code>function</code>
 Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
 with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
@@ -298,7 +298,7 @@ app.use(router.allowedMethods({
 ```
 <a name="module_koa-router--Router+redirect"></a>
 
-#### router.redirect(source, destination, [code]) ⇒ <code>Router</code>
+### router.redirect(source, destination, [code]) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
 
 Both `source` and `destination` can be route names.
@@ -326,7 +326,7 @@ router.all('/login', ctx => {
 
 <a name="module_koa-router--Router+route"></a>
 
-#### router.route(name) ⇒ <code>Layer</code> &#124; <code>false</code>
+### router.route(name) ⇒ <code>Layer</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -337,7 +337,7 @@ Lookup route with given `name`.
 
 <a name="module_koa-router--Router+url"></a>
 
-#### router.url(name, params, [options]) ⇒ <code>String</code> &#124; <code>Error</code>
+### router.url(name, params, [options]) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes a route name and map of named `params`.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -373,7 +373,7 @@ router.url('user', { id: 3 }, { query: "limit=1" });
 ```
 <a name="module_koa-router--Router+param"></a>
 
-#### router.param(param, middleware) ⇒ <code>Router</code>
+### router.param(param, middleware) ⇒ <code>Router</code>
 Run middleware for named route parameters. Useful for auto-loading or
 validation.
 
@@ -404,7 +404,7 @@ router
 ```
 <a name="module_koa-router--Router.url"></a>
 
-#### Router.url(path, params) ⇒ <code>String</code>
+### Router.url(path, params) ⇒ <code>String</code>
 Generate URL from url pattern and given `params`.
 
 **Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>  
