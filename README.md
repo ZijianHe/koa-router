@@ -219,8 +219,6 @@ Returns router middleware which dispatches a route matching the request.
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
-Use given middleware.
-
 Middleware run in the order they are defined by `.use()`. They are invoked
 sequentially, requests start at the first middleware and work their way
 "down" the middleware stack.
@@ -252,7 +250,7 @@ app.use(router.routes());
 
 **Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>
 
-Set the path prefix for a Router instance that was already initialized.
+Set the path prefix for a Router instance that was already [initialized](#new_module_koa-router--Router_new).
 
 ```javascript
 router.prefix('/things/:thing_id')
@@ -288,7 +286,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 ```
 
-`router.allowedMethods([options])` using [Boom](https://github.com/hapijs/boom)
+`router.allowedMethods()` using [Boom](https://github.com/hapijs/boom).
 
 ```javascript
 var Koa = require('koa');
