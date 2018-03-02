@@ -44,15 +44,15 @@ This readme has two main parts:
 
 * [Router](#router-) ⏏
 * [new Router(\[opts\])](#new-routeropts)
-* [#\[get|put|post|patch|delete|del\]](#getputpostpatchdeletedel--router) ⇒ <code>Router</code>
+* [#\[get|put|post|patch|delete|del\]](#getputpostpatchdeletedelpath--router) ⇒ <code>Router</code>
 * [#routes](#routes--function) ⇒ <code>function</code>
 * [#use(\[path\], middleware)](#usepath-middleware--router) ⇒ <code>Router</code>
 * [#prefix(prefix)](#prefixprefix--router) ⇒ <code>Router</code>
 * [#allowedMethods(\[options\])](#allowedmethodsoptions--function) ⇒ <code>function</code>
 * [#redirect(source, destination, \[code\])](#redirectsource-destination-code--router) ⇒ <code>Router</code>
-* [#route(name)](#routerroutename--layer--false) ⇒ <code>Layer</code> | <code>false</code>
-* [#url(name, params, \[options\])](#routerurlname-params-options--string--error) ⇒ <code>String</code> | <code>Error</code>
-* [#param(param, middleware)](#routerparamparam-middleware--router) ⇒ <code>Router</code>
+* [#route(name)](#routename--layer--false) ⇒ <code>Layer</code> | <code>false</code>
+* [#url(name, params, \[options\])](#urlname-params-options--string--error) ⇒ <code>String</code> | <code>Error</code>
+* [#param(param, middleware)](#paramparam-middleware--router) ⇒ <code>Router</code>
 * [Router.url(path, params)](#routerurlpath-params--string) ⇒ <code>String</code>
 
 ### Router ⏏
@@ -64,14 +64,14 @@ The exported class of the `koa-router` package.
 var Router = require('koa-router');
 ```
 
-### new Router([opts])
+### new Router(\[opts\])
 
 Create a new router.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| [opts] | `Object` |  |
-| [opts.prefix] | `String` | prefix router paths |
+| \[opts\] | `Object` |  |
+| \[opts.prefix\] | `String` | prefix router paths |
 
 #### Example
 ```javascript
@@ -90,11 +90,20 @@ app
   .use(router.allowedMethods());
 ```
 
-### #[get|put|post|patch|delete|del] ⇒ `Router`
+### #\[get|put|post|patch|delete|del\](path) ⇒ `Router`
 
-Create `router.verb()` methods, where *verb* is one of the HTTP verbs such as `router.get()` or `router.post()`.
+Creates a route to match requests made using a particular HTTP verb.
 
-Match URL patterns to callback functions or controller actions using `router.verb()`, where **verb** is one of the HTTP verbs such as `router.get()` or `router.post()`.
+The supported verbs are:
+* `GET`
+* `PUT`
+* `POST`
+* `PATCH`
+* `DELETE`
+
+To match requests made to `path`, define the route by calling `#{verb}(path)`, where `{verb}` is the lowercase form of the HTTP verb. (ex. For a `GET` request to `/my-page`, you must call `#get('/my-page')`)
+
+> A route to match a `DELETE` request can be written using the `#delete()` or `#del()` methods.
 
 When a route is matched, its path is available at `ctx._matchedRoute` and if named, the name is available at `ctx._matchedRouteName`
 
@@ -102,7 +111,7 @@ Route paths will be translated to regular expressions using [`path-to-regexp`](h
 
 Query strings will not be considered when matching requests.
 
-#### Example
+#### Examples
 ```javascript
 router
   .get('/', (ctx, next) => {
@@ -121,12 +130,11 @@ router
 
 ### #all ⇒ `Router`
 
-Can be used to match any HTTP request made using a [supported verb](#getputpostpatchdeletedel--router).
+Creates a route to match requests made using _any_ supported HTTP verb ([see above](#getputpostpatchdeletedelpath--router)).
 
 #### Example
 ```javascript
 router
-  [...]
   .all('/users/:id', (ctx, next) => {
     // ...
   });
@@ -136,7 +144,7 @@ router
 
 Returns router middleware which dispatches a route matching the request. 
 
-### #use([path], middleware) ⇒ `Router`
+### #use(\[path\], middleware) ⇒ `Router`
 
 Use given middleware.
 
@@ -144,9 +152,9 @@ Middleware run in the order they are defined by `.use()`. They are invoked seque
 
 | Param | Type |
 | --- | --- |
-| [path] | `String` | 
+| \[path\] | `String` | 
 | middleware | `function` | 
-| [...] | `function` | 
+| \[...\] | `function` | 
 
 #### Example  
 ```javascript
@@ -177,16 +185,16 @@ Set the path prefix for a `Router` instance that was already initialized.
 router.prefix('/things/:thing_id')
 ```
 
-### #allowedMethods([options]) ⇒ `function`
+### #allowedMethods(\[options\]) ⇒ `function`
 
 Returns separate middleware for responding to `OPTIONS` requests with an `Allow` header containing the allowed methods, as well as responding with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| [options] | `Object` |  |
-| [options.throw] | `Boolean` | throw error instead of setting status and header |
-| [options.notImplemented] | `function` | throw the returned value in place of the default NotImplemented error |
-| [options.methodNotAllowed] | `function` | throw the returned value in place of the default MethodNotAllowed error |
+| \[options\] | `Object` |  |
+| \[options.throw\] | `Boolean` | throw error instead of setting status and header |
+| \[options.notImplemented\] | `function` | throw the returned value in place of the default `NotImplemented` error |
+| \[options.methodNotAllowed\] | `function` | throw the returned value in place of the default `MethodNotAllowed` error |
 
 #### Example
 ```javascript
@@ -217,7 +225,7 @@ app.use(router.allowedMethods({
 }));
 ```
 
-### #redirect(source, destination, [code]) ⇒ `Router`
+### #redirect(source, destination, \[code\]) ⇒ `Router`
 
 Redirect `source` to `destination` URL with optional 30x status `code`.
 
@@ -225,7 +233,7 @@ Redirect `source` to `destination` URL with optional 30x status `code`.
 | --- | --- | --- |
 | source | `String` | URL or route name. |
 | destination | `String` | URL or route name. |
-| [code] | `Number` | HTTP status code (default: 301). |
+| \[code\] | `Number` | HTTP status code (default: 301). |
 
 Both `source` and `destination` can be route names.
 
@@ -251,7 +259,7 @@ Lookup route with given `name`.
 | --- | --- |
 | name | `String` |
 
-### #url(name, params, [options]) ⇒ `String` | `Error`
+### #url(name, params, \[options\]) ⇒ `String` | `Error`
 
 Generate URL for route. Takes a route name and map of named `params`.
 
@@ -259,8 +267,8 @@ Generate URL for route. Takes a route name and map of named `params`.
 | --- | --- | --- |
 | name | `String` | route name |
 | params | `Object` | url parameters |
-| [options] | `Object` | options parameter |
-| [options.query] | `Object` \| `String` | query options |
+| \[options\] | `Object` | options parameter |
+| \[options.query\] | `Object` \| `String` | query options |
 
 #### Example 
 ```javascript
@@ -412,7 +420,7 @@ used to convert paths to regular expressions.
 | Param | Type | Description |
 | --- | --- | --- |
 | path | `String` |  |
-| [middleware] | `function` | route middleware(s) |
+| \[middleware\] | `function` | route middleware(s) |
 | callback | `function` | route callback |
 
 ## Contributing
