@@ -170,7 +170,7 @@ describe('Router', function () {
   it('supports promises for async/await', function (done) {
     var app = new Koa();
     app.experimental = true;
-    var router = Router();
+    var router = new Router();
     router.get('/async', function (ctx, next) {
       return new Promise(function (resolve, reject) {
         setTimeout(function() {
@@ -366,7 +366,7 @@ describe('Router', function () {
 
   it('runs subrouter middleware after parent', function (done) {
     var app = new Koa();
-    var subrouter = Router()
+    var subrouter = new Router()
       .use(function (ctx, next) {
         ctx.msg = 'subrouter';
         return next();
@@ -374,7 +374,7 @@ describe('Router', function () {
       .get('/', function (ctx) {
         ctx.body = { msg: ctx.msg };
       });
-    var router = Router()
+    var router = new Router()
       .use(function (ctx, next) {
         ctx.msg = 'router';
         return next();
@@ -392,11 +392,11 @@ describe('Router', function () {
 
   it('runs parent middleware for subrouter routes', function (done) {
     var app = new Koa();
-    var subrouter = Router()
+    var subrouter = new Router()
       .get('/sub', function (ctx) {
         ctx.body = { msg: ctx.msg };
       });
-    var router = Router()
+    var router = new Router()
       .use(function (ctx, next) {
         ctx.msg = 'router';
         return next();
@@ -1122,10 +1122,10 @@ describe('Router', function () {
   describe('Router#route()', function () {
     it('inherits routes from nested router', function () {
       var app = new Koa();
-      var subrouter = Router().get('child', '/hello', function (ctx) {
+      var subrouter = new Router().get('child', '/hello', function (ctx) {
         ctx.body = { hello: 'world' };
       });
-      var router = Router().use(subrouter.routes());
+      var router = new Router().use(subrouter.routes());
       expect(router.route('child')).to.have.property('name', 'child');
     });
   });
@@ -1615,14 +1615,14 @@ describe('Router', function () {
 
   describe('Router#prefix', function () {
     it('should set opts.prefix', function () {
-      var router = Router();
+      var router = new Router();
       expect(router.opts).to.not.have.key('prefix');
       router.prefix('/things/:thing_id');
       expect(router.opts.prefix).to.equal('/things/:thing_id');
     });
 
     it('should prefix existing routes', function () {
-      var router = Router();
+      var router = new Router();
       router.get('/users/:id', function (ctx) {
         ctx.body = 'test';
       })
@@ -1673,7 +1673,7 @@ describe('Router', function () {
 
         before(function () {
           var app = new Koa();
-          var router = Router();
+          var router = new Router();
 
           router.use(function (ctx, next) {
             middlewareCount++;
