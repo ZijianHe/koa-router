@@ -2,6 +2,8 @@
  * Router tests
  */
 
+const inspect = require('../../lib/inspect');
+
 var fs = require('fs')
   , http = require('http')
   , Koa = require('koa')
@@ -14,6 +16,7 @@ var fs = require('fs')
   , should = require('should');
 
 describe('Router', function () {
+
   it('creates new router with koa app', function (done) {
     var app = new Koa();
     var router = new Router();
@@ -21,7 +24,109 @@ describe('Router', function () {
     done();
   });
 
-  it('shares context between routers (gh-205)', function (done) {
+  it('does not capture params for unamtched routes', (done) => { // #292
+    let params;
+    var app = new Koa();
+    var router = new Router();
+    router
+      .get('/new', function (ctx, next) {
+        ctx.body = {ran: '/new'};
+        return next();
+      })
+      .get('/:id', function (ctx, next) {
+        ctx.body.ran += '/:id';
+        return next();
+      })
+      .use(function(ctx, next) {
+        params = ctx.params;
+        return next();
+      });
+
+    app.use(router.routes());
+
+    request(http.createServer(app.callback()))
+      .get('/new')
+      .expect(200)
+      .end(function (err, res) {
+        expect(res.body.ran).to.eql('/new');
+        expect(params).not.to.have.property('id');
+        done(err);
+      });
+  });
+
+  it('prefix does not greedy match', () => { // #415
+    const app = new Koa();
+    const parentRouter = new Router()
+    const router = new Router({prefix: '/countries'})
+
+    router.get('/', async (ctx) => {
+      ctx.body = 'countries';
+    });
+    parentRouter.use(router.routes());
+    app.use(parentRouter.routes());
+    const agent = request.agent(http.createServer(app.callback()));
+
+    agent
+      .get('/countries')
+      .expect('countries')
+      .end((err) => {
+        if (err) return done(err);
+        agent
+          .get('/some_route_1/countries')
+          .expect(404, done)
+      });
+  });
+
+  it('trims trailing / on nestings', () => { // #335
+
+  });
+
+  it('executes all middleware without a route match', () => { // #257
+    // even for nested routers?
+  });
+
+  it('matches routes FIFO', () => {
+
+  });
+
+  it("retains ordering of nested routers' routes", () => {
+
+  });
+
+  it('wildcard after and before prefix matches correctly', (done) => { // #438
+    const app = new Koa();
+    const router = new Router();
+    const nestedRouter = new Router();
+    nestedRouter.get('*', (ctx) => {
+      ctx.body = 'admin';
+    });
+    router.nest('/admin', nestedRouter);
+    router.get('*', (ctx) => {
+      ctx.body = 'public'
+    });
+    app.use(router.routes());
+    const agent = request.agent(http.createServer(app.callback()));
+
+    console.log(router.toString(true));
+
+    agent
+      .get('/')
+      .expect('public')
+      .end((err, res) => {
+        if (err) return done(err);
+        agent
+          .get('/admin')
+          .expect('admin')
+          .end((err, res) => {
+            if (err) return done(err);
+            agent
+              .get('/adminlol')
+              .expect('public', done)
+          });
+      })
+  });
+
+  it('shares context between routers', function (done) { // #205
     var app = new Koa();
     var router1 = new Router();
     var router2 = new Router();
@@ -45,7 +150,7 @@ describe('Router', function () {
       });
   });
 
-  it('does not register middleware more than once (gh-184)', function (done) {
+  it('does not register middleware more than once', function (done) { // #184
     var app = new Koa();
     var parentRouter = new Router();
     var nestedRouter = new Router();
@@ -78,7 +183,7 @@ describe('Router', function () {
       });
   });
 
-  it('router can be accecced with ctx', function (done) {
+  it('router can be accessed with ctx', function (done) {
       var app = new Koa();
       var router = new Router();
       router.get('home', '/', function (ctx) {
@@ -169,7 +274,6 @@ describe('Router', function () {
 
   it('supports promises for async/await', function (done) {
     var app = new Koa();
-    app.experimental = true;
     var router = new Router();
     router.get('/async', function (ctx, next) {
       return new Promise(function (resolve, reject) {
@@ -193,7 +297,7 @@ describe('Router', function () {
       });
   });
 
-  it('matches middleware only if route was matched (gh-182)', function (done) {
+  it('matches middleware only if route was matched', function (done) { // #182
     var app = new Koa();
     var router = new Router();
     var otherRouter = new Router();
@@ -264,13 +368,8 @@ describe('Router', function () {
 
   it('nests routers with prefixes at root', function (done) {
     var app = new Koa();
-    var api = new Router();
-    var forums = new Router({
-      prefix: '/forums'
-    });
-    var posts = new Router({
-      prefix: '/:fid/posts'
-    });
+    var forums = new Router({prefix: '/forums'});
+    var posts = new Router({prefix: '/:fid/posts'});
     var server;
 
     posts
@@ -283,7 +382,7 @@ describe('Router', function () {
         return next();
       });
 
-    forums.use(posts.routes());
+    forums.nest(posts);
 
     server = http.createServer(app.use(forums.routes()).callback());
 
@@ -315,13 +414,8 @@ describe('Router', function () {
 
   it('nests routers with prefixes at path', function (done) {
     var app = new Koa();
-    var api = new Router();
-    var forums = new Router({
-      prefix: '/api'
-    });
-    var posts = new Router({
-      prefix: '/posts'
-    });
+    var forums = new Router({prefix: '/api'});
+    var posts = new Router({prefix: '/posts'});
     var server;
 
     posts
@@ -334,7 +428,7 @@ describe('Router', function () {
         return next();
       });
 
-    forums.use('/forums/:fid', posts.routes());
+    forums.nest('/forums/:fid', posts);
 
     server = http.createServer(app.use(forums.routes()).callback());
 
@@ -379,7 +473,7 @@ describe('Router', function () {
         ctx.msg = 'router';
         return next();
       })
-      .use(subrouter.routes());
+      .nest(subrouter);
     request(http.createServer(app.use(router.routes()).callback()))
       .get('/')
       .expect(200)
@@ -401,7 +495,7 @@ describe('Router', function () {
         ctx.msg = 'router';
         return next();
       })
-      .use('/parent', subrouter.routes());
+      .nest('/parent', subrouter);
     request(http.createServer(app.use(router.routes()).callback()))
       .get('/parent/sub')
       .expect(200)
@@ -415,7 +509,7 @@ describe('Router', function () {
   it('matches corresponding requests', function (done) {
     var app = new Koa();
     var router = new Router();
-    app.use(router.routes());
+
     router.get('/:category/:title', function (ctx) {
       ctx.should.have.property('params');
       ctx.params.should.have.property('category', 'programming');
@@ -427,37 +521,40 @@ describe('Router', function () {
       ctx.params.should.have.property('category', 'programming');
       ctx.status = 204;
     });
-	  router.put('/:category/not-a-title', function (ctx) {
-		  ctx.should.have.property('params');
-		  ctx.params.should.have.property('category', 'programming');
-		  ctx.params.should.not.have.property('title');
-		  ctx.status = 204;
-	  });
+    router.put('/:category/not-a-title', function (ctx) {
+      ctx.should.have.property('params');
+      ctx.params.should.have.property('category', 'programming');
+      ctx.params.should.not.have.property('title');
+      ctx.status = 204;
+    });
+
+    app.use(router.routes());
+
     var server = http.createServer(app.callback());
     request(server)
-    .get('/programming/how-to-node')
-    .expect(204)
-    .end(function (err, res) {
-      if (err) return done(err);
-      request(server)
-      .post('/programming')
+      .get('/programming/how-to-node')
       .expect(204)
       .end(function (err, res) {
         if (err) return done(err);
-	      request(server)
-		      .put('/programming/not-a-title')
-		      .expect(204)
-		      .end(function (err, res) {
-			      done(err);
-		      });
-      });
+        request(server)
+        .post('/programming')
+        .expect(204)
+        .end(function (err, res) {
+          if (err) return done(err);
+          request(server)
+            .put('/programming/not-a-title')
+            .expect(204)
+            .end(function (err, res) {
+              done(err);
+            });
+        });
     });
   });
 
   it('executes route middleware using `app.context`', function (done) {
     var app = new Koa();
     var router = new Router();
-    app.use(router.routes());
+
     router.use(function (ctx, next) {
       ctx.bar = 'baz';
       return next();
@@ -474,19 +571,22 @@ describe('Router', function () {
       ctx.status = 204;
       done();
     });
+
+    app.use(router.routes());
+
     request(http.createServer(app.callback()))
-    .get('/match/this')
-    .expect(204)
-    .end(function (err) {
-      if (err) return done(err);
-    });
+      .get('/match/this')
+      .expect(204)
+      .end(function (err) {
+        if (err) return done(err);
+      });
   });
 
   it('does not match after ctx.throw()', function (done) {
     var app = new Koa();
     var counter = 0;
     var router = new Router();
-    app.use(router.routes());
+
     router.get('/', function (ctx) {
       counter++;
       ctx.throw(403);
@@ -494,6 +594,9 @@ describe('Router', function () {
     router.get('/', function () {
       counter++;
     });
+
+    app.use(router.routes());
+
     var server = http.createServer(app.callback());
       request(server)
       .get('/')
@@ -508,7 +611,7 @@ describe('Router', function () {
   it('supports promises for route middleware', function (done) {
     var app = new Koa();
     var router = new Router();
-    app.use(router.routes());
+
     var readVersion = function () {
       return new Promise(function (resolve, reject) {
         var packagePath = path.join(__dirname, '..', '..', 'package.json');
@@ -526,29 +629,34 @@ describe('Router', function () {
           ctx.status = 204;
         });
       });
+
+    app.use(router.routes());
+
     request(http.createServer(app.callback()))
-    .get('/')
-    .expect(204)
-    .end(done);
+      .get('/')
+      .expect(204)
+      .end(done);
   });
 
   describe('Router#allowedMethods()', function () {
     it('responds to OPTIONS requests', function (done) {
       var app = new Koa();
       var router = new Router();
-      app.use(router.routes());
-      app.use(router.allowedMethods());
       router.get('/users', function (ctx, next) {});
       router.put('/users', function (ctx, next) {});
+
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+
       request(http.createServer(app.callback()))
-      .options('/users')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        res.header.should.have.property('content-length', '0');
-        res.header.should.have.property('allow', 'HEAD, GET, PUT');
-        done();
-      });
+        .options('/users')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          res.header.should.have.property('content-length', '0');
+          res.header.should.have.property('allow', 'HEAD, GET, PUT');
+          done();
+        });
     });
 
     it('responds with 405 Method Not Allowed', function (done) {
@@ -778,27 +886,6 @@ describe('Router', function () {
 
   });
 
-  it('supports custom routing detect path: ctx.routerPath', function (done) {
-    var app = new Koa();
-    var router = new Router();
-    app.use(function (ctx, next) {
-      // bind helloworld.example.com/users => example.com/helloworld/users
-      var appname = ctx.request.hostname.split('.', 1)[0];
-      ctx.routerPath = '/' + appname + ctx.path;
-      return next();
-    });
-    app.use(router.routes());
-    router.get('/helloworld/users', function (ctx) {
-      ctx.body = ctx.method + ' ' + ctx.url;
-    });
-
-    request(http.createServer(app.callback()))
-    .get('/users')
-    .set('Host', 'helloworld.example.com')
-    .expect(200)
-    .expect('GET /users', done);
-  });
-
   describe('Router#[verb]()', function () {
     it('registers route specific to HTTP verb', function () {
       var app = new Koa();
@@ -840,7 +927,7 @@ describe('Router', function () {
       });
     });
 
-    it('registers array of paths (gh-203)', function () {
+    it('registers array of paths', function () { // #203
       var router = new Router();
       router.get(['/one', '/two'], function (ctx, next) {
         return next();
@@ -1014,7 +1101,7 @@ describe('Router', function () {
         });
     });
 
-    it('without path, does not set params.0 to the matched path - gh-247', function (done) {
+    it('without path, does not set params.0 to the matched path', function (done) { // #247
       var app = new Koa();
       var router = new Router();
 
@@ -1039,7 +1126,7 @@ describe('Router', function () {
         });
     });
 
-    it('does not add an erroneous (.*) to unprefiexed nested routers - gh-369 gh-410', function (done) {
+    it('does not add an erroneous (.*) to unprefiexed nested routers', function (done) { // #369 #410
       var app = new Koa();
       var router = new Router();
       var nested = new Router();
@@ -1128,6 +1215,18 @@ describe('Router', function () {
       var router = new Router().use(subrouter.routes());
       expect(router.route('child')).to.have.property('name', 'child');
     });
+  });
+
+  it('', () => { // #432
+
+  });
+
+  describe('Router#routes()', () => {
+
+    it('returns a function that has a _name property', () => { // #386
+
+    });
+
   });
 
   describe('Router#url()', function () {
@@ -1614,27 +1713,22 @@ describe('Router', function () {
   });
 
   describe('Router#prefix', function () {
-    it('should set opts.prefix', function () {
-      var router = new Router();
-      expect(router.opts).to.not.have.key('prefix');
-      router.prefix('/things/:thing_id');
-      expect(router.opts.prefix).to.equal('/things/:thing_id');
-    });
 
     it('should prefix existing routes', function () {
-      var router = new Router();
+      const app = new Koa();
+      const router = new Router();
       router.get('/users/:id', function (ctx) {
         ctx.body = 'test';
-      })
+      });
       router.prefix('/things/:thing_id');
-      var route = router.stack[0];
-      expect(route.path).to.equal('/things/:thing_id/users/:id');
-      expect(route.paramNames).to.have.length(2);
-      expect(route.paramNames[0]).to.have.property('name', 'thing_id');
-      expect(route.paramNames[1]).to.have.property('name', 'id');
+      app.use(router.routes());
+
+      request(http.createServer(app.callback()))
+        .get('/things/1/users/2')
+        .expect('test');
     });
 
-    describe('when used with .use(fn) - gh-247', function () {
+    describe('when used with .use(fn)', function () { // #247
       it('does not set params.0 to the matched path', function (done) {
         var app = new Koa();
         var router = new Router();
@@ -1674,20 +1768,18 @@ describe('Router', function () {
         before(function () {
           var app = new Koa();
           var router = new Router();
-
           router.use(function (ctx, next) {
             middlewareCount++;
             ctx.thing = 'worked';
             return next();
           });
-
           router.get('/', function (ctx) {
             middlewareCount++;
             ctx.body = { name: ctx.thing };
           });
-
           router.prefix(prefix);
-          server = http.createServer(app.use(router.routes()).callback());
+          app.use(router.routes());
+          server = http.createServer(app.callback());
         });
 
         after(function () {
@@ -1700,41 +1792,41 @@ describe('Router', function () {
 
         it('should support root level router middleware', function (done) {
           request(server)
-          .get(prefix)
-          .expect(200)
-          .end(function (err, res) {
-            if (err) return done(err);
-            expect(middlewareCount).to.equal(2);
-            expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('name', 'worked');
-            done();
-          });
+            .get(prefix)
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+              expect(middlewareCount).to.equal(2);
+              expect(res.body).to.be.an('object');
+              expect(res.body).to.have.property('name', 'worked');
+              done();
+            });
         });
 
         it('should support requests with a trailing path slash', function (done) {
           request(server)
-          .get('/admin/')
-          .expect(200)
-          .end(function (err, res) {
-            if (err) return done(err);
-            expect(middlewareCount).to.equal(2);
-            expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('name', 'worked');
-            done();
-          });
+            .get('/admin/')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+              expect(middlewareCount).to.equal(2);
+              expect(res.body).to.be.an('object');
+              expect(res.body).to.have.property('name', 'worked');
+              done();
+            });
         });
 
         it('should support requests without a trailing path slash', function (done) {
           request(server)
-          .get('/admin')
-          .expect(200)
-          .end(function (err, res) {
-            if (err) return done(err);
-            expect(middlewareCount).to.equal(2);
-            expect(res.body).to.be.an('object');
-            expect(res.body).to.have.property('name', 'worked');
-            done();
-          });
+            .get('/admin')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+              expect(middlewareCount).to.equal(2);
+              expect(res.body).to.be.an('object');
+              expect(res.body).to.have.property('name', 'worked');
+              done();
+            });
         });
       }
     }
