@@ -17,13 +17,6 @@ var fs = require('fs')
 
 describe('Router', function () {
 
-  it('creates new router with koa app', function (done) {
-    var app = new Koa();
-    var router = new Router();
-    router.should.be.instanceOf(Router);
-    done();
-  });
-
   it('does not capture params for unamtched routes', (done) => { // #292
     let params;
     var app = new Koa();
@@ -81,14 +74,6 @@ describe('Router', function () {
 
   });
 
-  it('executes all middleware without a route match', () => { // #257
-    // even for nested routers?
-  });
-
-  it('matches routes FIFO', () => {
-
-  });
-
   it("retains ordering of nested routers' routes", () => {
 
   });
@@ -126,31 +111,7 @@ describe('Router', function () {
       })
   });
 
-  it('shares context between routers', function (done) { // #205
-    var app = new Koa();
-    var router1 = new Router();
-    var router2 = new Router();
-    router1.get('/', function (ctx, next) {
-      ctx.foo = 'bar';
-      return next();
-    });
-    router2.get('/', function (ctx, next) {
-      ctx.baz = 'qux';
-      ctx.body = { foo: ctx.foo };
-      return next();
-    });
-    app.use(router1.routes()).use(router2.routes());
-    request(http.createServer(app.callback()))
-      .get('/')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('foo', 'bar');
-        done();
-      });
-  });
-
-  it('does not register middleware more than once', function (done) { // #184
+  it.skip('does not register middleware more than once', function (done) { // #184
     var app = new Koa();
     var parentRouter = new Router();
     var nestedRouter = new Router();
@@ -181,25 +142,6 @@ describe('Router', function () {
         expect(res.body).to.have.property('n', 1);
         done();
       });
-  });
-
-  it('router can be accessed with ctx', function (done) {
-      var app = new Koa();
-      var router = new Router();
-      router.get('home', '/', function (ctx) {
-          ctx.body = {
-            url: ctx.router.url('home')
-          };
-      });
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-          .get('/')
-          .expect(200)
-          .end(function (err, res) {
-              if (err) return done(err);
-              expect(res.body.url).to.eql("/");
-              done();
-          });
   });
 
   it('registers multiple middleware for one route', function(done) {
@@ -259,111 +201,6 @@ describe('Router', function () {
     app.use(parentRouter.routes());
     app.should.be.ok;
     done();
-  });
-
-  it('exposes middleware factory', function (done) {
-    var app = new Koa();
-    var router = new Router();
-    router.should.have.property('routes');
-    router.routes.should.be.type('function');
-    var middleware = router.routes();
-    should.exist(middleware);
-    middleware.should.be.type('function');
-    done();
-  });
-
-  it('supports promises for async/await', function (done) {
-    var app = new Koa();
-    var router = new Router();
-    router.get('/async', function (ctx, next) {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function() {
-          ctx.body = {
-            msg: 'promises!'
-          };
-          resolve();
-        }, 1);
-      });
-    });
-
-    app.use(router.routes()).use(router.allowedMethods());
-    request(http.createServer(app.callback()))
-      .get('/async')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('msg', 'promises!');
-        done();
-      });
-  });
-
-  it('matches middleware only if route was matched', function (done) { // #182
-    var app = new Koa();
-    var router = new Router();
-    var otherRouter = new Router();
-
-    router.use(function (ctx, next) {
-      ctx.body = { bar: 'baz' };
-      return next();
-    });
-
-    otherRouter.get('/bar', function (ctx) {
-      ctx.body = ctx.body || { foo: 'bar' };
-    });
-
-    app.use(router.routes()).use(otherRouter.routes());
-
-    request(http.createServer(app.callback()))
-      .get('/bar')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('foo', 'bar');
-        expect(res.body).to.not.have.property('bar');
-        done();
-      })
-  });
-
-  it('matches first to last', function (done) {
-    var app = new Koa();
-    var router = new Router();
-
-    router
-      .get('user_page', '/user/(.*).jsx', function (ctx) {
-        ctx.body = { order: 1 };
-      })
-      .all('app', '/app/(.*).jsx', function (ctx) {
-        ctx.body = { order: 2 };
-      })
-      .all('view', '(.*).jsx', function (ctx) {
-        ctx.body = { order: 3 };
-      });
-
-    request(http.createServer(app.use(router.routes()).callback()))
-      .get('/user/account.jsx')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('order', 1);
-        done();
-      })
-  });
-
-  it('does not run subsequent middleware without calling next', function (done) {
-    var app = new Koa();
-    var router = new Router();
-
-    router
-      .get('user_page', '/user/(.*).jsx', function (ctx) {
-        // no next()
-      }, function (ctx) {
-        ctx.body = { order: 1 };
-      });
-
-    request(http.createServer(app.use(router.routes()).callback()))
-      .get('/user/account.jsx')
-      .expect(404)
-      .end(done)
   });
 
   it('nests routers with prefixes at root', function (done) {
@@ -455,130 +292,6 @@ describe('Router', function () {
                 done();
               });
           });
-      });
-  });
-
-  it('runs subrouter middleware after parent', function (done) {
-    var app = new Koa();
-    var subrouter = new Router()
-      .use(function (ctx, next) {
-        ctx.msg = 'subrouter';
-        return next();
-      })
-      .get('/', function (ctx) {
-        ctx.body = { msg: ctx.msg };
-      });
-    var router = new Router()
-      .use(function (ctx, next) {
-        ctx.msg = 'router';
-        return next();
-      })
-      .nest(subrouter);
-    request(http.createServer(app.use(router.routes()).callback()))
-      .get('/')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('msg', 'subrouter');
-        done();
-      });
-  });
-
-  it('runs parent middleware for subrouter routes', function (done) {
-    var app = new Koa();
-    var subrouter = new Router()
-      .get('/sub', function (ctx) {
-        ctx.body = { msg: ctx.msg };
-      });
-    var router = new Router()
-      .use(function (ctx, next) {
-        ctx.msg = 'router';
-        return next();
-      })
-      .nest('/parent', subrouter);
-    request(http.createServer(app.use(router.routes()).callback()))
-      .get('/parent/sub')
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return done(err);
-        expect(res.body).to.have.property('msg', 'router');
-        done();
-      });
-  });
-
-  it('matches corresponding requests', function (done) {
-    var app = new Koa();
-    var router = new Router();
-
-    router.get('/:category/:title', function (ctx) {
-      ctx.should.have.property('params');
-      ctx.params.should.have.property('category', 'programming');
-      ctx.params.should.have.property('title', 'how-to-node');
-      ctx.status = 204;
-    });
-    router.post('/:category', function (ctx) {
-      ctx.should.have.property('params');
-      ctx.params.should.have.property('category', 'programming');
-      ctx.status = 204;
-    });
-    router.put('/:category/not-a-title', function (ctx) {
-      ctx.should.have.property('params');
-      ctx.params.should.have.property('category', 'programming');
-      ctx.params.should.not.have.property('title');
-      ctx.status = 204;
-    });
-
-    app.use(router.routes());
-
-    var server = http.createServer(app.callback());
-    request(server)
-      .get('/programming/how-to-node')
-      .expect(204)
-      .end(function (err, res) {
-        if (err) return done(err);
-        request(server)
-        .post('/programming')
-        .expect(204)
-        .end(function (err, res) {
-          if (err) return done(err);
-          request(server)
-            .put('/programming/not-a-title')
-            .expect(204)
-            .end(function (err, res) {
-              done(err);
-            });
-        });
-    });
-  });
-
-  it('executes route middleware using `app.context`', function (done) {
-    var app = new Koa();
-    var router = new Router();
-
-    router.use(function (ctx, next) {
-      ctx.bar = 'baz';
-      return next();
-    });
-    router.get('/:category/:title', function (ctx, next) {
-      ctx.foo = 'bar';
-      return next();
-    }, function (ctx) {
-      ctx.should.have.property('bar', 'baz');
-      ctx.should.have.property('foo', 'bar');
-      ctx.should.have.property('app');
-      ctx.should.have.property('req');
-      ctx.should.have.property('res');
-      ctx.status = 204;
-      done();
-    });
-
-    app.use(router.routes());
-
-    request(http.createServer(app.callback()))
-      .get('/match/this')
-      .expect(204)
-      .end(function (err) {
-        if (err) return done(err);
       });
   });
 
@@ -887,118 +600,21 @@ describe('Router', function () {
   });
 
   describe('Router#[verb]()', function () {
-    it('registers route specific to HTTP verb', function () {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      methods.forEach(function (method) {
-        router.should.have.property(method);
-        router[method].should.be.type('function');
-        router[method]('/', function () {});
-      });
-      router.stack.should.have.length(methods.length);
-    });
 
-    it('registers route with a regexp path', function () {
-      var router = new Router();
-      methods.forEach(function (method) {
-        router[method](/^\/\w$/i, function () {}).should.equal(router);
-      });
-    });
-
-    it('registers route with a given name', function () {
-      var router = new Router();
-      methods.forEach(function (method) {
-        router[method](method, '/', function () {}).should.equal(router);
-      });
-    });
-
-    it('registers route with with a given name and regexp path', function () {
-      var router = new Router();
-      methods.forEach(function (method) {
-        router[method](method, /^\/$/i, function () {}).should.equal(router);
-      });
-    });
-
-    it('enables route chaining', function () {
-      var router = new Router();
-      methods.forEach(function (method) {
-        router[method]('/', function () {}).should.equal(router);
-      });
-    });
-
-    it('registers array of paths', function () { // #203
-      var router = new Router();
-      router.get(['/one', '/two'], function (ctx, next) {
-        return next();
-      });
-      expect(router.stack).to.have.property('length', 2);
-      expect(router.stack[0]).to.have.property('path', '/one');
-      expect(router.stack[1]).to.have.property('path', '/two');
-    });
-
-    it('resolves non-parameterized routes without attached parameters', function(done) {
-      var app = new Koa();
-      var router = new Router();
-
-      router.get('/notparameter', function (ctx, next) {
-        ctx.body = {
-          param: ctx.params.parameter,
-        };
-      });
-
-      router.get('/:parameter', function (ctx, next) {
-        ctx.body = {
-          param: ctx.params.parameter,
-        };
-      });
-
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/notparameter')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-
-          expect(res.body.param).to.equal(undefined);
-          done();
-        });
-    });
+    // it('registers array of paths', function () { // #203
+    //   var router = new Router();
+    //   router.get(['/one', '/two'], function (ctx, next) {
+    //     return next();
+    //   });
+    //   expect(router.stack).to.have.property('length', 2);
+    //   expect(router.stack[0]).to.have.property('path', '/one');
+    //   expect(router.stack[1]).to.have.property('path', '/two');
+    // });
 
   });
 
   describe('Router#use()', function (done) {
-    it('uses router middleware without path', function (done) {
-      var app = new Koa();
-      var router = new Router();
 
-      router.use(function (ctx, next) {
-        ctx.foo = 'baz';
-        return next();
-      });
-
-      router.use(function (ctx, next) {
-        ctx.foo = 'foo';
-        return next();
-      });
-
-      router.get('/foo/bar', function (ctx) {
-        ctx.body = {
-          foobar: ctx.foo + 'bar'
-        };
-      });
-
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/foo/bar')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-
-          expect(res.body).to.have.property('foobar', 'foobar');
-          done();
-        });
-    });
 
     it('uses router middleware at given path', function (done) {
       var app = new Koa();
@@ -1027,79 +643,46 @@ describe('Router', function () {
         });
     });
 
-    it('runs router middleware before subrouter middleware', function (done) {
-      var app = new Koa();
-      var router = new Router();
-      var subrouter = new Router();
 
-      router.use(function (ctx, next) {
-        ctx.foo = 'boo';
-        return next();
-      });
+    // it('assigns middleware to array of paths', function (done) {
+    //   var app = new Koa();
+    //   var router = new Router();
 
-      subrouter
-        .use(function (ctx, next) {
-          ctx.foo = 'foo';
-          return next();
-        })
-        .get('/bar', function (ctx) {
-          ctx.body = {
-            foobar: ctx.foo + 'bar'
-          };
-        });
+    //   router.use(['/foo', '/bar'], function (ctx, next) {
+    //     ctx.foo = 'foo';
+    //     ctx.bar = 'bar';
+    //     return next();
+    //   });
 
-      router.use('/foo', subrouter.routes());
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/foo/bar')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
+    //   router.get('/foo', function (ctx, next) {
+    //     ctx.body = {
+    //       foobar: ctx.foo + 'bar'
+    //     };
+    //   });
 
-          expect(res.body).to.have.property('foobar', 'foobar');
-          done();
-        });
-    });
+    //   router.get('/bar', function (ctx) {
+    //     ctx.body = {
+    //       foobar: 'foo' + ctx.bar
+    //     };
+    //   });
 
-    it('assigns middleware to array of paths', function (done) {
-      var app = new Koa();
-      var router = new Router();
-
-      router.use(['/foo', '/bar'], function (ctx, next) {
-        ctx.foo = 'foo';
-        ctx.bar = 'bar';
-        return next();
-      });
-
-      router.get('/foo', function (ctx, next) {
-        ctx.body = {
-          foobar: ctx.foo + 'bar'
-        };
-      });
-
-      router.get('/bar', function (ctx) {
-        ctx.body = {
-          foobar: 'foo' + ctx.bar
-        };
-      });
-
-      app.use(router.routes());
-      request(http.createServer(app.callback()))
-        .get('/foo')
-        .expect(200)
-        .end(function (err, res) {
-          if (err) return done(err);
-          expect(res.body).to.have.property('foobar', 'foobar');
-          request(http.createServer(app.callback()))
-            .get('/bar')
-            .expect(200)
-            .end(function (err, res) {
-              if (err) return done(err);
-              expect(res.body).to.have.property('foobar', 'foobar');
-              done();
-            });
-        });
-    });
+    //   app.use(router.routes());
+    //   request(http.createServer(app.callback()))
+    //     .get('/foo')
+    //     .expect(200)
+    //     .end(function (err, res) {
+    //       if (err) return done(err);
+    //       expect(res.body).to.have.property('foobar', 'foobar');
+    //       request(http.createServer(app.callback()))
+    //         .get('/bar')
+    //         .expect(200)
+    //         .end(function (err, res) {
+    //           if (err) return done(err);
+    //           expect(res.body).to.have.property('foobar', 'foobar');
+    //           done();
+    //         });
+    //     });
+    // });
 
     it('without path, does not set params.0 to the matched path', function (done) { // #247
       var app = new Koa();
@@ -1843,4 +1426,9 @@ describe('Router', function () {
       url.should.equal('/programming/how%20to%20node');
     });
   });
+
 });
+
+function create(...args) {
+  return new Router(...args);
+}

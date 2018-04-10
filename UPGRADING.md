@@ -94,3 +94,102 @@ app.use(adminRouter.routes());
 Changes to a router after calling routes() will not have an effect on the middleware previously returned by routes().
 
 When a router is nested, changes can still be made to it. Changes to a router are ignored after calling routes() on that router or any ancestor.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Nesting with nest():
+
+let parent Router:
+let parent.middleware = a, b, c
+
+let child1 Router
+let child1.middleware = d, e, f
+
+let child2 Router
+let child2.middleware = g, h, i
+
+parent.nest(child2)
+parent.nest(child1)
+
+dispatch always happens on the parent (the one that .routes) gets called on
+request passes through all the middleware of the parent and nesteds and then the dispatch for route matching occurs
+
+.routes() =>
+
+=== stage I
+
+- from parent router
+middleware a
+middleware b
+middleware c
+- from child2, nested first
+middleware g
+middleware h
+middleware i
+- from child1, nested second
+middleware d
+middleware e
+middleware f
+
+=== stage II
+
+- from parent router
+params middleware
+- from child2
+params middleware
+- from child1
+params middleware
+
+=== stage III
+
+- from parent router
+dispatch
+
+  - from parent router
+  routes
+  - from child2
+  routes
+  - from child1
+  routes
+
+
+Compose stack:
+
+params handlers first?
+middleware
+dispatch (LIFO? FIFO?)
+
+
+## Nesting with use():
+
+
+
+
+var forums = new Router();
+var posts = new Router();
+
+posts.get('/', (ctx, next) => {...});
+posts.get('/:pid', (ctx, next) => {...});
+forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
+
+// responds to "/forums/123/posts" and "/forums/123/posts/123"
+app.use(forums.routes());
+
