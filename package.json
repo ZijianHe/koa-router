@@ -1,6 +1,7 @@
 {
   "name": "koa-router",
   "description": "Router middleware for koa. Provides RESTful resource routing.",
+  "author": "Alex Mingoia <talk@alexmingoia.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/alexmingoia/koa-router.git"
@@ -9,7 +10,13 @@
   "files": [
     "lib"
   ],
-  "author": "Alex Mingoia <talk@alexmingoia.com>",
+  "scripts": {
+    "start": "yarn test -- -w",
+    "test": "nyc --cache ava",
+    "coverage": "nyc report --reporter=html",
+    "lint": "eslint lib",
+    "docs": "jsdoc2md -f lib/**/*.js -t doc/README.template.hbs > README.md"
+  },
   "version": "7.4.0",
   "keywords": [
     "koa",
@@ -22,7 +29,7 @@
     "http-errors": "^1.3.1",
     "koa-compose": "^3.0.0",
     "methods": "^1.0.1",
-    "path-to-regexp": "0.1.7",
+    "path-to-regexp": "1.7",
     "urijs": "^1.19.0"
   },
   "devDependencies": {
@@ -35,18 +42,13 @@
     "nyc": "^11.6.0",
     "supertest": "^2.0"
   },
-  "scripts": {
-    "test": "nyc --cache ava",
-    "coverage": "nyc report --reporter=html",
-    "lint": "eslint lib/**/{router,inspect}.js",
-    "docs": "jsdoc2md -f lib/**/*.js -t doc/README.template.hbs > README.md"
-  },
   "engines": {
     "node": ">= 7"
   },
   "license": "MIT",
   "ava": {
     "verbose": true,
-    "timeout": "10s"
+    "timeout": "10s",
+    "snapshotDir": "test/fixtures"
   }
 }

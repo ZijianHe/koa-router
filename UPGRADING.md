@@ -96,6 +96,17 @@ Changes to a router after calling routes() will not have an effect on the middle
 When a router is nested, changes can still be made to it. Changes to a router are ignored after calling routes() on that router or any ancestor.
 
 
+---
+
+```js
+router.use('*', ...)
+```
+
+becomes
+
+```js
+router.use(...);
+```
 
 
 
@@ -171,11 +182,16 @@ dispatch
   routes
 
 
-Compose stack:
+ORDERING / Compose Stack:
 
-params handlers first?
+find matched route or not (FIFO)
+  set ctx.params, matchedRoute, etc
+param handlers
 middleware
-dispatch (LIFO? FIFO?)
+invoke route
+  invoke route middleware specific to route
+  invoke route handler itself
+
 
 
 ## Nesting with use():
