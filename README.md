@@ -63,6 +63,8 @@ Create a new router.
 | --- | --- | --- |
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
+| [opts.sensitive] | <code>Boolean</code> | case sensitive (default: false) |
+| [opts.strict] | <code>Boolean</code> | require the trailing slash (default: false) |
 
 **Example**  
 Basic usage:

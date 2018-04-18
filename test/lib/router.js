@@ -1421,6 +1421,26 @@ describe('Router', function () {
         done();
       });
     });
+
+    it('responds with 404 when has a trailing slash', function (done) {
+      var app = new Koa();
+      var router = new Router({
+        sensitive: true
+      });
+      router.get('/info', function (ctx) {
+          ctx.body = 'hello';
+      });
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+        .get('/Info')
+        .expect(404)
+        .end(function (err, res) {
+          if (err) return done(err);
+          done();
+        });
+    });
   });
 
   describe('use middleware with opts', function () {
