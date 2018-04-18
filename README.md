@@ -413,7 +413,7 @@ router
 ```
 <a name="module_koa-router--Router.url"></a>
 
-#### Router.url(path, params) ⇒ <code>String</code>
+#### Router.url(path, params [, options]) ⇒ <code>String</code>
 Generate URL from url pattern and given `params`.
 
 **Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -422,11 +422,16 @@ Generate URL from url pattern and given `params`.
 | --- | --- | --- |
 | path | <code>String</code> | url pattern |
 | params | <code>Object</code> | url parameters |
+| [options] | <code>Object</code> | options parameter |
+| [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
 **Example**  
 ```javascript
 var url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
+
+const url = Router.url('/users/:id', {id: 1}, {query: { active: true }});
+// => "/users/1?active=true"
 ```
 ## Contributing
 
