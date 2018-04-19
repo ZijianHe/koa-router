@@ -73,3 +73,41 @@ test('passes the provided context to handlers', async t => {
 
   t.is(body, 'value');
 });
+
+// #444
+test('ctx._matchedRoute has the correct route when matched', async t => {
+  const router = create();
+  const subRouter = create();
+  subRouter.get('/:id', () => {});
+  subRouter.get('/', () => {});
+  router.nest('/sub', subRouter);
+  router.get('/', () => {});
+  const agent = request(router.routes());
+  let matched;
+
+  ({ _matchedRoute: matched } = await agent.get('/'));
+  t.is(matched, '/');
+  ({ _matchedRoute: matched } = await agent.get('/sub'));
+  t.is(matched, '/sub/');
+  ({ _matchedRoute: matched } = await agent.get('/sub/1'));
+  t.is(matched, '/sub/:id');
+});
+
+// #292, #246
+test('does not capture params for preempted routes', async t => {
+  const router = create();
+  let collector = '';
+  router.get('/new', (ctx, next) => {
+    collector += 'new';
+    if (ctx.params.id) {
+      t.fail();
+    }
+    return next();
+  });
+  router.get('/:id', () => collector += 'id');
+
+  await request(router.routes()).get('/new');
+
+  t.is(collector, 'new');
+});
+

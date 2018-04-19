@@ -7,13 +7,13 @@ test('inspect prints out the router details in a human-readable format', t => {
 
   publicRouter.get('/one', () => {});
 
-  publicRouter.param('lang', (ctx, next) => {
+  publicRouter.param('lang', (lang, ctx, next) => {
     return next();
   });
 
   const adminRouter = create({ prefix: '/:lang/admin', name: 'admin' });
 
-  adminRouter.param('lang', (ctx, next) => {
+  adminRouter.param('lang', (lang, ctx, next) => {
     return next();
   });
 
@@ -44,7 +44,7 @@ test('inspect prints out the router details in a human-readable format', t => {
     return next();
   });
 
-  userRouter.param('id', (ctx, next) => {
+  userRouter.param('id', (id, ctx, next) => {
     return next();
   });
 

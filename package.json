@@ -43,7 +43,7 @@
     "supertest": "^2.0"
   },
   "engines": {
-    "node": ">= 7"
+    "node": ">= 8"
   },
   "license": "MIT",
   "ava": {

@@ -35,7 +35,7 @@ test('silently passes through malformed param uri components', async t => {
 test('invokes param handlers for route captures', async t => {
   const router = create();
   let order = '';
-  router.param('id', (ctx, next) => {
+  router.param('id', (id, ctx, next) => {
     order += 'A';
     return next();
   });
@@ -53,11 +53,11 @@ test('invokes param handlers for route captures in order of definition', async t
   const router = create();
   let order = '';
 
-  router.param('slug', (ctx, next) => {
+  router.param('slug', (slug, ctx, next) => {
     order += 'A';
     return next();
   });
-  router.param('id', (ctx, next) => {
+  router.param('id', (id, ctx, next) => {
     order += 'B';
     return next();
   });
@@ -75,7 +75,7 @@ test('invokes param handlers from nested routers for route captures', async t =>
   const parentRouter = create();
   const childRouter = create();
   let order = '';
-  childRouter.param('id', (ctx, next) => {
+  childRouter.param('id', (id, ctx, next) => {
     order += 'A';
     return next();
   });
@@ -92,11 +92,11 @@ test('invokes param handlers from nested routers for route captures', async t =>
 
 test('does not invoke param handlers for missing params', async t => {
   const router = create();
-  router.param('slug', (ctx, next) => {
+  router.param('slug', (slug, ctx, next) => {
     t.pass();
     return next();
   });
-  router.param('id', (ctx, next) => {
+  router.param('id', (id, ctx, next) => {
     t.fail();
     return next();
   });
@@ -116,4 +116,22 @@ test('parses and exposes params before invoking middleware', async t => {
   });
 
   await request(router.routes()).get('/oscar');
+});
+
+test('captures params for prefixed route', async t => {
+  const router = create({ prefix: '/api/v1' });
+  router.get('company', '/companies/:id', ({ params }) => t.is(params.id, '1234abcd'));
+
+  await request(router.routes()).get('/api/v1/companies/1234abcd');
+});
+
+// #413
+test('param captures', t => {
+  const router = create();
+  router.get('company', '/companies/:id', () => {});
+  const route = router.route('company').compile({ prefix: '/api/v1' });
+
+  const matches = route.capture('/api/v1/companies/1234abcd');
+
+  t.deepEqual(matches, [ '1234abcd' ]);
 });

@@ -50,3 +50,12 @@ test('prefix + root wildcard does not greedily match', async t => {
   ({ body } = await agent.get('/administration'));
   t.is(body, 'public', '/administration should not match /admin (prefix) + /* (root wildcard)');
 });
+
+// #422
+test('captures and handles params declared in prefix', async t => {
+  const router = create({ prefix: '/users/:id' });
+  router.param('id', (id) => t.is(id, '1'));
+  router.get('/', () => {});
+
+  await request(router.routes()).get('/users/1');
+});
