@@ -1,6 +1,4 @@
-# Upgrading to 8.0
-
----
+# Upgrading from 7 to 8
 
 ```js
 router.use('/nested/path', otherRouter.routes())
@@ -108,6 +106,38 @@ becomes
 router.use(...);
 ```
 
+---
+
+runs parameter middleware in order of URL appearance
+
+becomes
+
+it runs in the order of `param(` calls
+
+---
+
+```js
+router.get('users-index', '/users', () => { ... });
+router.url('users-index', {}, { query: { page: 1 } });
+// => /users?page=1
+```
+
+becomes
+
+```js
+router.get('users-index', '/users', () => { ... });
+router.url('users-index', { page: 1 });
+// => /users?page=1
+```
+
+
+
+
+
+
+
+
+
 
 
 
@@ -208,4 +238,5 @@ forums.use('/forums/:fid/posts', posts.routes(), posts.allowedMethods());
 
 // responds to "/forums/123/posts" and "/forums/123/posts/123"
 app.use(forums.routes());
+
 

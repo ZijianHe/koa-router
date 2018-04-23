@@ -57,38 +57,6 @@
     //     });
     // });
 
-  describe('Router#redirect()', function () {
-    it('registers redirect routes', function (done) {
-      var app = new Koa();
-      var router = new Router();
-      router.should.have.property('redirect');
-      router.redirect.should.be.type('function');
-      router.redirect('/source', '/destination', 302);
-      app.use(router.routes());
-      router.stack.should.have.property('length', 1);
-      router.stack[0].should.be.instanceOf(Layer);
-      router.stack[0].should.have.property('path', '/source');
-      done();
-    });
-
-    it('redirects using route names', function (done) {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      router.get('home', '/', function () {});
-      router.get('sign-up-form', '/sign-up-form', function () {});
-      router.redirect('home', 'sign-up-form');
-      request(http.createServer(app.callback()))
-        .post('/')
-        .expect(301)
-        .end(function (err, res) {
-          if (err) return done(err);
-          res.header.should.have.property('location', '/sign-up-form');
-          done();
-        });
-    });
-  });
-
   describe('Router#route()', function () {
     it('inherits routes from nested router', function () {
       var app = new Koa();
