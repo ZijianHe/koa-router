@@ -11,11 +11,11 @@
     "lib"
   ],
   "scripts": {
-    "start": "yarn test -- -w",
+    "start": "yarn test --watch",
     "test": "nyc --cache ava",
     "coverage": "nyc report --reporter=html",
     "lint": "eslint lib",
-    "docs": "jsdoc2md -f lib/**/*.js -t doc/README.template.hbs > README.md"
+    "docs": "jsdoc2md -f lib/**/*.js -t docs/templates/API.hbs > docs/API.md"
   },
   "version": "7.4.0",
   "keywords": [
@@ -37,7 +37,7 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "12.1.0",
     "eslint-plugin-import": "2.10.0",
-    "jsdoc-to-markdown": "^1.1.1",
+    "jsdoc-to-markdown": "^4.0.1",
     "koa": "2.2.0",
     "nyc": "^11.6.0",
     "supertest": "^2.0"

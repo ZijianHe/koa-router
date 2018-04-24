@@ -3,7 +3,7 @@ const { create, request } = require('./_helper');
 
 test('defaults to "" when called with undefined', async t => {
   const router = create();
-  router.setPrefix();
+  router.prefix = '';
   router.get('/', () => t.pass());
 
   await request(router.routes()).get('/');
@@ -11,7 +11,7 @@ test('defaults to "" when called with undefined', async t => {
 
 test('allows setting the prefix after construction', async t => {
   const router = create();
-  router.setPrefix('/a-prefix');
+  router.prefix = '/a-prefix';
 
   t.is(router.prefix, '/a-prefix');
 });

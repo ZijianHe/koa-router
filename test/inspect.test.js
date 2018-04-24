@@ -1,5 +1,5 @@
 const test = require('ava');
-const inspect = require('../lib/inspect');
+const { inspect } = require('../lib/utils');
 const { create, request } = require('./_helper');
 
 test('inspect prints out the router details in a human-readable format', t => {
