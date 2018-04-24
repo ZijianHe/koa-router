@@ -68,11 +68,11 @@ Create a new router.
 Basic usage:
 
 ```javascript
-var Koa = require('koa');
-var Router = require('koa-router');
+const Koa = require('koa');
+const Router = require('koa-router');
 
-var app = new Koa();
-var router = new Router();
+const app = new Koa();
+const router = new Router();
 
 router.get('/', (ctx, next) => {
   // ctx.router available
