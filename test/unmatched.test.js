@@ -10,3 +10,12 @@ test('router always invokes middleware regardless of a route match', async t => 
 
   await request(router.routes()).get('/');
 });
+
+test('strict: true - does not match a trailing slash', async t => {
+  const router = create({ strict: true })
+    .get('/hello', () => t.fail());
+
+  await request(router.routes()).get('/hello/');
+
+  t.pass();
+});

@@ -111,3 +111,9 @@ test('does not capture params for preempted routes', async t => {
   t.is(collector, 'new');
 });
 
+test('trailing slash is optional', async t => {
+  const router = create()
+    .get('/hello', () => t.pass());
+
+  await request(router.routes()).get('/hello/');
+});

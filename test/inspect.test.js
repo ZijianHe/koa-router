@@ -11,7 +11,7 @@ test('inspect prints out the router details in a human-readable format', t => {
     return next();
   });
 
-  const adminRouter = create({ prefix: '/:lang/admin', name: 'admin' });
+  const adminRouter = create({prefix: '/:lang/admin', name: 'admin'});
 
   adminRouter.param('lang', (lang, ctx, next) => {
     return next();
@@ -48,9 +48,9 @@ test('inspect prints out the router details in a human-readable format', t => {
     return next();
   });
 
-  userRouter.get('/:id', (ctx) => {});
+  userRouter.get('user-path', '/:id', (ctx) => {});
 
-  userRouter.post('/:id', () => {});
+  userRouter.post('create-user-path', '/:id', () => {});
 
   userRouter.get('', () => {});
 
@@ -59,7 +59,7 @@ test('inspect prints out the router details in a human-readable format', t => {
 
   const photosRouter = create({name: 'photo'});
 
-  photosRouter.get('/:id', function photoIndex(ctx, next) {
+  photosRouter.get('photos-path', '/:id', function photoIndex(ctx, next) {
     return next();
   });
 

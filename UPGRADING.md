@@ -131,7 +131,26 @@ router.url('users-index', { page: 1 });
 ```
 
 
+---
 
+redirecting a named route:
+
+the get handler for oldpage is defined first, so it is matched first. When defining a redirect, its really just another handler that falls in line for matching. Instead of redirecting this way, redirect within your handler.
+
+```js
+const router = create()
+    .get('newpage', '/newpage', () => {})
+    .get('oldpage', '/oldpage', () => {})
+    .redirect('oldpage', 'newpage');
+```
+
+becomes
+
+```js
+const router = create()
+    .get('newpage', '/newpage', () => {})
+    .get('oldpage', '/oldpage', (ctx) => ctx.redirect(ctx.router.path('oldpage')));
+```
 
 
 

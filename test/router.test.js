@@ -12,13 +12,6 @@ test('router has a method for all http methods', t => {
   });
 });
 
-test.skip('router builds urls from named routes (.url)', t => {
-  const router = create();
-  router.get('rr', '/a-route', (ctx) => ctx.body = 'hit me');
-
-  t.is(router.url('rr'), '/a-route');
-});
-
 test('generates a url with interpolated params', t => {
   const url = Router.url('/:lang/users/:id', { lang: 'en', id: 10 });
 
@@ -30,6 +23,14 @@ test('.routes() returns a _named function', t => {
   const dispatch = router.routes();
 
   t.is(dispatch._name, 'koa-router');
+});
+
+test('registers array of paths', async t => { // #203
+  t.plan(2);
+  const router = create().get(['/one', '/two'], () => t.is(1, 1));
+
+  await request(router.routes()).get('/one');
+  await request(router.routes()).get('/two');
 });
 
 test('runs the stack in order', async t => {
