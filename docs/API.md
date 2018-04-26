@@ -145,11 +145,13 @@ Use it to declare your routes, add middleware, and map requests to handler funct
         * [.prefix](#Router+prefix) ⇒ <code>string</code>
         * [.prefix=](#Router+prefix=) ⇒ <code>string</code>
         * [.get|head|options|patch|post|put|delete|all](#Router+get|head|options|patch|post|put|delete|all) ⇒ [<code>Router</code>](#Router)
+        * [.all](#Router+all)
+        * [.del](#Router+del)
         * [.use(...functions)](#Router+use) ⇒ [<code>Router</code>](#Router)
         * [.nest([prefix], child)](#Router+nest) ⇒ [<code>Router</code>](#Router)
         * [.param(name, handler)](#Router+param) ⇒ [<code>Router</code>](#Router)
         * [.path(name, ...args)](#Router+path) ⇒ <code>string</code>
-        * [.routes(options)](#Router+routes) ⇒ <code>function</code>
+        * [.routes()](#Router+routes) ⇒ <code>function</code>
         * [.redirect(fromPath, toPathOrName, [code])](#Router+redirect) ⇒ [<code>Router</code>](#Router)
     * _static_
         * [.path(path, ...args)](#Router.path) ⇒ <code>string</code>
@@ -261,12 +263,14 @@ acl, bind, checkout, connect, copy, delete, get, head, link, lock,
 m-search, merge, mkactivity, mkcalendar, mkcol, move, notify, options,
 patch, post, propfind, proppatch, purge, put, rebind, report, search,
 subscribe, trace, unbind, unlink, unlock, unsubscribe
+<a name="Router+all"></a>
 
-Aliases:
+### router.all
+**Kind**: instance property of [<code>Router</code>](#Router)  
+<a name="Router+del"></a>
 
-Router#* -> Router#all
-
-Router#del -> Router#del
+### router.del
+**Kind**: instance property of [<code>Router</code>](#Router)  
 <a name="Router+use"></a>
 
 ### router.use(...functions) ⇒ [<code>Router</code>](#Router)
@@ -442,20 +446,12 @@ router.path('user-photos', 1, 'me');
 ```
 <a name="Router+routes"></a>
 
-### router.routes(options) ⇒ <code>function</code>
+### router.routes() ⇒ <code>function</code>
 creates a middleware function to mount on a koa2 application that handles
 dispatching to routes:
 
 **Kind**: instance method of [<code>Router</code>](#Router)  
 **Returns**: <code>function</code> - router middleware function that handles dispatching and invocation  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| options | <code>object</code> |  |  |
-| [options.allowedMethods] | <code>boolean</code> \| <code>string</code> | <code>false</code> | add allowedMethods and notImplemented                                                 middleware to the returned routing function                                                 when `true`, the middleware is added and                                                 405, 501, and OPTIONS responses are handled                                                 for you. When `'throw'`, 405 and 501 responses                                                 are handled by throwing an error |
-| [options.methodNotAllowed] | <code>function</code> |  | a function that returns an error to be thrown                                              when a 405 should be returned to the client                                              note: allowedMethods must be set to 'throw' |
-| [options.notImplemented] | <code>function</code> |  | a function that returns an error to be thrown                                            when a 501 should be returned to the client                                            note: allowedMethods must be set to 'throw' |
-
 **Example**  
 Mount routes on a koa application:
 

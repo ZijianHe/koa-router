@@ -1,10 +1,13 @@
 const test = require('ava');
-const { create, request } = require('./_helper');
+const Koa = require('koa');
+const { request } = require('./_helper');
+const Router = require('../lib/router');
 
 test('invokes all nested middleware in order of nesting regardless of a route match', async t => {
-  const parentRouter = create();
-  const childRouter = create();
-  const grandchildRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
+  const grandchildRouter = new Router();
   let order = '';
   parentRouter.use(async (ctx, next) => {
     order += 'A';
@@ -23,16 +26,18 @@ test('invokes all nested middleware in order of nesting regardless of a route ma
   });
   childRouter.nest(grandchildRouter);
   parentRouter.nest(childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-route');
+  await request(app).get('/a-route');
 
   t.is(order, 'ABCEFG');
 });
 
 test('invokes all nested middleware in order of nesting when a route is matched', async t => {
-  const parentRouter = create();
-  const childRouter = create();
-  const grandchildRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
+  const grandchildRouter = new Router();
   let order = '';
   parentRouter.use(async (ctx, next) => {
     order = '';
@@ -55,58 +60,70 @@ test('invokes all nested middleware in order of nesting when a route is matched'
   });
   childRouter.nest(grandchildRouter)
   parentRouter.nest(childRouter);
-  await request(parentRouter.routes()).get('/a-route');
+  app.use(parentRouter.routes());
+
+  await request(app).get('/a-route');
 
   t.is(order, 'ABCDEFG');
 });
 
 test('invokes a matched route handler when that route is from a nested router', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   childRouter.get('/a-route', () => t.pass());
   parentRouter.nest(childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-route');
+  await request(app).get('/a-route');
 });
 
 test('invokes a matched router handler when that route is from a nested, prefixed router', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   childRouter.get('/a-route', () => t.pass());
   parentRouter.nest('/a-prefix', childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-prefix/a-route');
+  await request(app).get('/a-prefix/a-route');
 });
 
 test('invokes root path at prefixed, nested router', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   childRouter.get('/', () => t.pass());
   parentRouter.nest('/a-prefix', childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-prefix');
+  await request(app).get('/a-prefix');
 });
 
 test('invokes wildcard path at prefixed, nested router', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   childRouter.get('*', () => t.pass());
   parentRouter.nest('/a-prefix', childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-prefix/test');
+  await request(app).get('/a-prefix/test');
 });
 
 test('invokes path/* path at prefixed, nested router', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   childRouter.get('/test*', () => t.pass());
   parentRouter.nest('/a-prefix', childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-prefix/test');
+  await request(app).get('/a-prefix/test');
 });
 
 test('throws when the arg list contains multiple functions', t => {
-  const router = create();
+  const router = new Router();
 
   t.throws(() => {
     router.nest('/a-prefix', () => {}, () => {});
@@ -115,13 +132,16 @@ test('throws when the arg list contains multiple functions', t => {
 
 // #438
 test('preserves specificity when the parnet has a wildcard', async t => {
-  const router = create();
-  const adminRouter = create();
+  const app = new Koa();
+  const router = new Router();
+  const adminRouter = new Router();
   let collector = '';
   adminRouter.get('*', () => collector += 'A');
   router.nest('/admin', adminRouter);
   router.get('*', () => collector += 'B');
-  const agent = request(router.routes());
+  app.use(router.routes());
+
+  const agent = request(app);
 
   await agent.get('/');
   await agent.get('/admin');
@@ -132,11 +152,13 @@ test('preserves specificity when the parnet has a wildcard', async t => {
 
 // #415
 test('prefix does not greedily match', async t => {
-  const router = create({ prefix: '/countries' });
-  const parentRouter = create();
+  const app = new Koa();
+  const router = new Router({ prefix: '/countries' });
+  const parentRouter = new Router();
   router.get('/', () => t.fail());
   parentRouter.nest(router);
-  const agent = request(parentRouter.routes());
+  app.use(parentRouter.routes());
+  const agent = request(app);
 
   await agent.get('/some_other/countries');
   await agent.get('/some_other/route/countries');
@@ -147,14 +169,16 @@ test('prefix does not greedily match', async t => {
 
 // #244
 test('nesting a router does not mutate it', async t => {
-  const nested = create();
-  const router = create();
+  const app = new Koa();
+  const nested = new Router();
+  const router = new Router();
   let collector = '';
   nested.get('/hello', () => collector += 'A');
   router.nest(nested);
   router.nest('/foo', nested);
   router.nest('/bar', nested);
-  const agent = request(router.routes());
+  app.use(router.routes());
+  const agent = request(app);
 
   await agent.get('/hello');
   await agent.get('/foo/hello');

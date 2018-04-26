@@ -1,39 +1,46 @@
 const test = require('ava');
-const { create, request } = require('./_helper');
+const Koa = require('koa');
+const { request } = require('./_helper');
+const Router = require('../lib/router');
 
 test('provides params in ctx.params', async t => {
-  const router = create();
-  router.get('/:someparam', (_, next) => next());
+  const app = new Koa();
+  const router = new Router();
+  router.get('/:someparam', ctx => {
+    t.is(ctx.params.someparam, '123');
+  });
+  app.use(router.routes());
 
-  const { params } = await request(router.routes()).get('/123');
-
-  t.is(params.someparam, '123');
+  await request(app).get('/123');
 });
 
 test('decodes param uri components', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   const param = '%40%23%24%25~%F0%9F%8D%95';
+  router.get('/:encoded', ctx => {
+    t.is(ctx.params.encoded, '@#$%~🍕');
+  });
+  app.use(router.routes());
 
-  router.get('/:encoded', () => {});
-
-  const { params } = await request(router.routes()).get(`/${param}`);
-
-  t.is(params.encoded, '@#$%~🍕');
+  await request(app).get(`/${param}`);
 });
 
 test('silently passes through malformed param uri components', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   const param = '%92%5e%1b%94%98yx%f3%97%ea%db%fa%10d%be%fe%0a5%8c%0a';
+  router.get('/:encoded', ctx => {
+    t.is(ctx.params.encoded, param);
+  });
+  app.use(router.routes());
 
-  router.get('/:encoded', () => {});
-
-  const { params } = await request(router.routes()).get(`/${param}`);
-
-  t.is(params.encoded, param);
+  await request(app).get(`/${param}`);
 });
 
 test('invokes param handlers for route captures', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   let order = '';
   router.param('id', (id, ctx, next) => {
     order += 'A';
@@ -43,16 +50,17 @@ test('invokes param handlers for route captures', async t => {
     order += 'B';
     return next();
   });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/1');
+  await request(app).get('/1');
 
   t.is(order, 'AB');
 });
 
 test('invokes param handlers for route captures in order of definition', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   let order = '';
-
   router.param('slug', (slug, ctx, next) => {
     order += 'A';
     return next();
@@ -65,15 +73,17 @@ test('invokes param handlers for route captures in order of definition', async t
     order += 'C';
     return next();
   });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/1/hello-world');
+  await request(app).get('/1/hello-world');
 
   t.is(order, 'ABC');
 });
 
 test('invokes param handlers from nested routers for route captures', async t => {
-  const parentRouter = create();
-  const childRouter = create();
+  const app = new Koa();
+  const parentRouter = new Router();
+  const childRouter = new Router();
   let order = '';
   childRouter.param('id', (id, ctx, next) => {
     order += 'A';
@@ -84,14 +94,16 @@ test('invokes param handlers from nested routers for route captures', async t =>
     return next();
   });
   parentRouter.nest('/a-prefix', childRouter);
+  app.use(parentRouter.routes());
 
-  await request(parentRouter.routes()).get('/a-prefix/1');
+  await request(app).get('/a-prefix/1');
 
   t.is(order, 'AB');
 });
 
 test('does not invoke param handlers for missing params', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   router.param('slug', (slug, ctx, next) => {
     t.pass();
     return next();
@@ -100,38 +112,59 @@ test('does not invoke param handlers for missing params', async t => {
     t.fail();
     return next();
   });
-
   router.get('/:slug', (ctx, next) => {
     return next();
   });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/home');
+  await request(app).get('/home');
 });
 
 test('parses and exposes params before invoking middleware', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   router.get('/:name', () => {});
   router.use((ctx, next) => {
     t.is(ctx.params.name, 'oscar');
   });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/oscar');
+  await request(app).get('/oscar');
 });
 
 test('captures params for prefixed route', async t => {
-  const router = create({ prefix: '/api/v1' });
-  router.get('company', '/companies/:id', ({ params }) => t.is(params.id, '1234abcd'));
+  const app = new Koa();
+  const router = new Router({ prefix: '/api/v1' });
+  router.get('company', '/companies/:id', ({ params }) => {
+    t.is(params.id, '1234abcd')
+  });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/api/v1/companies/1234abcd');
+  await request(app).get('/api/v1/companies/1234abcd');
 });
 
 // #413
 test('param captures', t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   router.get('company', '/companies/:id', () => {});
   const route = router.route('company').compile({ prefix: '/api/v1' });
 
   const matches = route.capture('/api/v1/companies/1234abcd');
 
   t.deepEqual(matches, [ '1234abcd' ]);
+});
+
+test('captures params declared in prefix', async t => {
+  const app = new Koa();
+  const router = new Router();
+  const tagsRouter = new Router();
+  tagsRouter.get('/:name', ctx => {
+    t.is(ctx.params.id, '123');
+    t.is(ctx.params.name, 'me');
+  });
+  router.nest('/photos/:id/tags', tagsRouter);
+  app.use(router.routes());
+
+  await request(app).get('/photos/123/tags/me');
 });

@@ -1,10 +1,13 @@
 const test = require('ava');
+const Koa = require('koa');
 const compose = require('koa-compose');
-const { create, request } = require('./_helper');
+const { request } = require('./_helper');
+const Router = require('../lib/router');
 
 test('yields to downstream middleware', async t => {
   t.plan(2);
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   router.use((ctx, next) => {
     t.is(1, 1);
     return next();
@@ -13,25 +16,31 @@ test('yields to downstream middleware', async t => {
     t.is(1, 1);
     return next();
   };
-  const app = compose([router.routes(), downstream]);
+  app.use(router.routes());
+  app.use(downstream);
 
   await request(app).get('/');
 });
 
-test('passes upstream context to middleware', async t => {
-  const router = create();
-  const context = { secret: 'value' };
-  router.use((ctx) => ctx.body = ctx.secret);
-  router.get('/', () => () => {});
+test('passes the upstream context to handlers', async t => {
+  const app = new Koa();
+  const router = new Router();
+  const token = '12345';
+  app.use((ctx, next) => {
+    ctx.state.token = token;
+    return next();
+  });
+  router.get('/', ctx => ctx.body = ctx.state.token);
+  app.use(router.routes());
 
-  const { body } = await request(router.routes()).get('/', context);
+  const res = await request(app).get('/');
 
-  t.is(body, 'value');
+  t.is(res.text, token);
 });
 
 // @TODO deprecation helper text output?
 test('.use throws when given a prefix (*)', t => {
-  const router = create();
+  const router = new Router();
 
   t.throws(() => {
     router.use('*', () => {});
@@ -40,7 +49,7 @@ test('.use throws when given a prefix (*)', t => {
 
 // @TODO deprecation helper text output?
 test('.use throws when given a prefix', t => {
-  const router = create();
+  const router = new Router();
 
   t.throws(() => {
     router.use('/some-prefix', () => {});
@@ -48,7 +57,8 @@ test('.use throws when given a prefix', t => {
 });
 
 test('invokes all middleware passed during route definition', async t => {
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   let order = '';
   router.get(
     '/',
@@ -65,8 +75,9 @@ test('invokes all middleware passed during route definition', async t => {
       return next();
     },
   );
+  app.use(router.routes());
 
-  await request(router.routes()).get('/');
+  await request(app).get('/');
 
   t.is(order, 'ABC');
 });

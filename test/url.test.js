@@ -1,9 +1,8 @@
 const test = require('ava');
 const Router = require('../lib/router');
-const { create, request } = require('./_helper');
 
 test('builds a path from the named route', t => {
-  const router = create().get('gen-path', '/generated', () => {});
+  const router = new Router().get('gen-path', '/generated', () => {});
 
   const path = router.path('gen-path');
 
@@ -11,7 +10,7 @@ test('builds a path from the named route', t => {
 });
 
 test('allows query params to be passed in', t => {
-  const router = create().get('test-path', '/test', () => {});
+  const router = new Router().get('test-path', '/test', () => {});
 
   const path = router.path('test-path', { param: 1 });
 
@@ -19,7 +18,7 @@ test('allows query params to be passed in', t => {
 });
 
 test('path-encodes path parameters when necessary', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-category-path', '/users/:id/:category', () => {});
 
   const path = router.path('users-category-path', { id: 2, category: 'koa router' });
@@ -28,7 +27,7 @@ test('path-encodes path parameters when necessary', t => {
 });
 
 test('places unmatched captures as query params', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-path', '/users/:id', () => {});
 
   const path = router.path('users-path', { id: 1, page: 2, per_page: 100 });
@@ -37,7 +36,7 @@ test('places unmatched captures as query params', t => {
 });
 
 test('places unmatched captures as path-encoded query params', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-path', '/users/:id', () => {});
 
   const path = router.path('users-path', { id: 1, letter: 'é' });
@@ -48,7 +47,7 @@ test('places unmatched captures as path-encoded query params', t => {
 // @todo url tests w/ host
 
 test('allows params passed as positional arguments', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-category-path', '/users/:id/:category', () => {});
 
   const path = router.path('users-category-path', 2, 'koa router');
@@ -57,14 +56,14 @@ test('allows params passed as positional arguments', t => {
 });
 
 test('throws when not enough arguments are passed', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-category-path', '/users/:id/:category', () => {});
 
   t.throws(() => router.path('users-category-path', 2), /wrong number.*1 for 2/i);
 });
 
 test('throws when params is missing required keys', t => {
-  const router = create();
+  const router = new Router();
   router.get('users-category-path', '/users/:id/:category', () => {});
 
   t.throws(() => {
@@ -73,7 +72,7 @@ test('throws when params is missing required keys', t => {
 });
 
 test('throws when the named route cannot be found', t => {
-  const router = create();
+  const router = new Router();
 
   t.throws(() => {
     router.path('doesntexist');
@@ -105,7 +104,7 @@ test('static - produces a url', t => {
 });
 
 test('.url is an alias for .path', t => {
-  const router = create();
+  const router = new Router();
   const args = [1, 2, 3];
   router.path = (...got) => t.deepEqual(args, got);
 
@@ -113,8 +112,8 @@ test('.url is an alias for .path', t => {
 });
 
 test('nested routes are available', t => {
-  const router = create();
-  const child = create();
+  const router = new Router();
+  const child = new Router();
   child.get('photos', '/photos', () => {});
   router.nest(child);
 
@@ -124,9 +123,9 @@ test('nested routes are available', t => {
 });
 
 test('nested nested routes are available', t => {
-  const router = create();
-  const child = create();
-  const grandchild = create();
+  const router = new Router();
+  const child = new Router();
+  const grandchild = new Router();
   grandchild.get('photos', '/photos', () => {});
   child.nest(grandchild);
   router.nest(child);

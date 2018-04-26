@@ -1,21 +1,34 @@
 const test = require('ava');
-const { create, request } = require('./_helper');
+const Koa = require('koa');
+const Router = require('../lib/router');
+const { request } = require('./_helper');
 
 test('router always invokes middleware regardless of a route match', async t => { // #257
-  const router = create();
+  const app = new Koa();
+  const router = new Router();
   router.use((ctx, next) => {
-    t.pass();
+    t.falsy(ctx.matchedRoute);
     return next();
   });
+  app.use(router.routes());
 
-  await request(router.routes()).get('/');
+  await request(app).get('/nomatch');
 });
 
-test('strict: true - does not match a trailing slash', async t => {
-  const router = create({ strict: true })
-    .get('/hello', () => t.fail());
+test('strict - does not match a trailing slash', async t => {
+  const app = new Koa();
+  const router = new Router({ strict: true });
+  router.get('/hello', () => t.fail());
 
-  await request(router.routes()).get('/hello/');
+  await request(app).get('/hello/');
+  t.pass();
+});
 
+test('sensitive - does not match wrong case paths', async t => {
+  const app = new Koa();
+  const router = new Router({ sensitive: true });
+  router.get('/hello', () => t.fail());
+
+  await request(app).get('/HELLO');
   t.pass();
 });

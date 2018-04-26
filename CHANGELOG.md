@@ -1,5 +1,21 @@
 # History
 
+<a name="8x"></a>
+## 8.0-alpha (rewrite)
+
+[UPGRADING](docs/UPGRADING.md#7x-8x)
+
+- Always run middleware regardless of route match
+- Deprecate use('/path', ...)
+- Add .nest method for nesting routers
+- Don't mutate router when nesting
+- Snapshot routes when calling .routes() so router modifications after that point have no effect on previously exported routes
+- Run parameter middleware in order of declared param handlers
+- Router#redirect() no longer acceps a route name for the first argument. It must be a path
+- Params are available at the start of the execution stack (including middleware)
+- Param handlers are added to middleware stack, not called during param parsing from the path
+- Nested routers' middleware, param handlers, routes are ordered and composed during the routes() snapshot phase. see readme for execution order.
+
 ## 7.4.0
 
 - Fix router.url() for multiple nested routers [#407](https://github.com/alexmingoia/koa-router/pull/407)

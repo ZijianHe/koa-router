@@ -1,9 +1,10 @@
 const test = require('ava');
+const { request } = require('./_helper');
+const Router = require('../lib/router');
 const { inspect } = require('../lib/utils');
-const { create, request } = require('./_helper');
 
 test('inspect prints out the router details in a human-readable format', t => {
-  const publicRouter = create({ prefix: '/:lang?' });
+  const publicRouter = new Router({ prefix: '/:lang?' });
 
   publicRouter.get('/one', () => {});
 
@@ -11,7 +12,7 @@ test('inspect prints out the router details in a human-readable format', t => {
     return next();
   });
 
-  const adminRouter = create({prefix: '/:lang/admin', name: 'admin'});
+  const adminRouter = new Router({prefix: '/:lang/admin', name: 'admin'});
 
   adminRouter.param('lang', (lang, ctx, next) => {
     return next();
@@ -27,7 +28,7 @@ test('inspect prints out the router details in a human-readable format', t => {
     return next();
   });
 
-  const userRouter = create({
+  const userRouter = new Router({
     name: 'user',
     prefix: '/users'
   });
@@ -57,7 +58,7 @@ test('inspect prints out the router details in a human-readable format', t => {
   publicRouter.nest(userRouter);
   adminRouter.nest(userRouter);
 
-  const photosRouter = create({name: 'photo'});
+  const photosRouter = new Router({name: 'photo'});
 
   photosRouter.get('photos-path', '/:id', function photoIndex(ctx, next) {
     return next();
@@ -66,12 +67,12 @@ test('inspect prints out the router details in a human-readable format', t => {
   userRouter.nest('/photos', photosRouter);
   adminRouter.nest('/userphotos', photosRouter);
 
-  const router = create();
+  const router = new Router();
 
   router.nest('/public', publicRouter);
   router.nest('/private', adminRouter);
 
-  const noRoutesRouter = create();
+  const noRoutesRouter = new Router();
 
   noRoutesRouter.use(() => {});
 

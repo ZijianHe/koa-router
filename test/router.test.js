@@ -1,15 +1,41 @@
 const test = require('ava');
+const Koa = require('koa');
 const methods = require('methods');
 const Router = require('../lib/router');
-const { create, request } = require('./_helper');
+const { request } = require('./_helper');
 
 test('router has a method for all http methods', t => {
-  const router = create();
+  const router = new Router();
 
   t.truthy(methods.indexOf('get') > -1);
   methods.forEach((method) => {
     t.truthy(typeof router[method] === 'function');
   });
+});
+
+test('accepts an array of paths when declaring route', async t => {
+  let collector = [];
+  const app = new Koa();
+  const router = new Router();
+  router.get(['/one', '/two', '/three/four'], (ctx) => {
+    collector.push(ctx.matchedRoute.path)
+  });
+  app.use(router.routes());
+  const agent = request(app);
+
+  await agent.get('/one');
+  await agent.get('/two');
+  await agent.get('/three/four');
+
+  t.deepEqual(collector, ['/one', '/two', '/three/four']);
+});
+
+test('throws when an invalid signature is used', t => {
+  const router = new Router();
+
+  t.throws(() => {
+    router.get('named', ['/one', '/two', '/three'], () => {});
+  }, /arguments/);
 });
 
 test('generates a url with interpolated params', t => {
@@ -19,7 +45,7 @@ test('generates a url with interpolated params', t => {
 });
 
 test('.routes() returns a _named function', t => {
-  const router = create();
+  const router = new Router();
   const dispatch = router.routes();
 
   t.is(dispatch._name, 'koa-router');
@@ -27,16 +53,21 @@ test('.routes() returns a _named function', t => {
 
 test('registers array of paths', async t => { // #203
   t.plan(2);
-  const router = create().get(['/one', '/two'], () => t.is(1, 1));
+  const app = new Koa();
+  const router = new Router();
+  router.get(['/one', '/two'], () => t.is(1, 1));
+  app.use(router.routes());
+  const agent = request(app);
 
-  await request(router.routes()).get('/one');
-  await request(router.routes()).get('/two');
+  await agent.get('/one');
+  await agent.get('/two');
 });
 
 test('runs the stack in order', async t => {
-  const router = create();
-  const nested1 = create();
-  const nested2 = create();
+  const app = new Koa();
+  const router = new Router();
+  const nested1 = new Router();
+  const nested2 = new Router();
   let collector = [];
   router.use((ctx, next) => {
     collector.push('root mw1');
@@ -95,8 +126,9 @@ test('runs the stack in order', async t => {
   );
   nested1.nest('/:slug', nested2);
   router.nest('/:lang/:id', nested1);
+  app.use(router.routes());
 
-  await request(router.routes()).get('/lang/id/slug/category');
+  await request(app).get('/lang/id/slug/category');
 
   t.deepEqual(collector, [
     'root mw1',
