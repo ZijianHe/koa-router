@@ -17,7 +17,7 @@
     "lint": "eslint lib",
     "docs": "jsdoc2md -f lib/**/*.js -t docs/templates/API.hbs > docs/API.md"
   },
-  "version": "7.4.0",
+  "version": "8.0.0-alpha.1",
   "keywords": [
     "koa",
     "middleware",
