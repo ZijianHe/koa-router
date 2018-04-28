@@ -79,9 +79,9 @@ const bookRouter = new Router();
 bookRouter.get('/', (ctx) => ...);
 authorRouter.get('/:id', (ctx) => ...);
 
-authorRouter.nest('/:id/books', bookRouter());
-rootRouter.nest('/books', bookRouter.routes());
-rootRouter.nest('/authors', authorRouter.routes());
+authorRouter.nest('/:id/books', bookRouter);
+rootRouter.nest('/books', bookRouter);
+rootRouter.nest('/authors', authorRouter);
 
 rootRouter.routes();
 // =>
