@@ -85,6 +85,12 @@ test('static - produces a path', t => {
   t.is(path, '/users');
 });
 
+test('static - produces a path with query paramaters', t => {
+  const path = Router.path('/users', { role: 'admin', limit: '10' });
+
+  t.is(path, '/users?role=admin&limit=10');
+});
+
 test('static - produces a path with params', t => {
   const path = Router.path('/users/:id/photos/:tag', { id: 1, tag: 'me' });
 
