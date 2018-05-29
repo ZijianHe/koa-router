@@ -103,12 +103,6 @@ test('static - produces a path with positional params', t => {
   t.is(path, '/users/1/photos/me');
 });
 
-test('static - produces a url', t => {
-  const path = Router.url('/users/:id/photos/:tag', { id: 1, tag: 'me' });
-
-  t.is(path, '/users/1/photos/me');
-});
-
 test('.url is an alias for .path', t => {
   const router = new Router();
   const args = [1, 2, 3];
