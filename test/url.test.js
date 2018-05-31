@@ -111,7 +111,7 @@ test('.url is an alias for .path', t => {
   router.url(...args);
 });
 
-test('nested routes are available', t => {
+test('produces a path for a nested route', t => {
   const router = new Router();
   const child = new Router();
   child.get('photos', '/photos', () => {});
@@ -122,7 +122,7 @@ test('nested routes are available', t => {
   t.is(path, '/photos');
 });
 
-test('nested nested routes are available', t => {
+test('produces a path for a nested nested route', t => {
   const router = new Router();
   const child = new Router();
   const grandchild = new Router();
