@@ -14,7 +14,7 @@ Express-like HTTP routing for [koa](https://github.com/koajs/koa)
 
 [Changelog](CHANGELOG.md)
 
-[UPGRADING.md](UPGRADING.md)
+[UPGRADING.md](docs/UPGRADING.md)
 
 ## Installation
 
@@ -109,7 +109,7 @@ _Koa Router version 7 and 8 are only compatible with koa 2 and do not work with 
 
 ## Upgrading from 7.x to 8.x
 
-See the [UPGRADING.md](./UPGRADING.md)
+See the [UPGRADING.md](./docs/UPGRADING.md)
 
 ## Contributing
 
