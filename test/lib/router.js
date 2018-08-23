@@ -15,13 +15,28 @@ var fs = require('fs')
 
 describe('Router', function () {
   it('creates new router with koa app', function (done) {
-    var app = new Koa();
     var router = new Router();
     router.should.be.instanceOf(Router);
     done();
   });
 
-  it('shares context between routers (gh-205)', function (done) {
+    it('creates new router with name', function (done) {
+        var router = new Router();
+        var middlewareName = 'test_middleware';
+        var middleware = router.routes(middlewareName);
+        expect(middleware.name).to.be(middlewareName);
+        done();
+    });
+
+    it('creates new router with default name', function (done) {
+        var router = new Router();
+        var defaultMiddlewareName = 'dispatch';
+        var middleware = router.routes();
+        expect(middleware.name).to.be(defaultMiddlewareName);
+        done();
+    });
+
+    it('shares context between routers (gh-205)', function (done) {
     var app = new Koa();
     var router1 = new Router();
     var router2 = new Router();

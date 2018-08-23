@@ -207,11 +207,17 @@ used to convert paths to regular expressions.
 
 <a name="module_koa-router--Router+routes"></a>
 
-#### router.routes ⇒ <code>function</code>
-Returns router middleware which dispatches a route matching the request.
+#### router.routes(name) ⇒ <code>function</code>
+Returns router middleware which dispatches a route matching the request,
+name is optional
 
 **Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
 <a name="module_koa-router--Router+use"></a>
+
+| Param | Type |
+| --- | --- |
+| name | <code>String</code> |  
+
 
 #### router.use([path], middleware) ⇒ <code>Router</code>
 Use given middleware.
