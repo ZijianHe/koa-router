@@ -850,6 +850,16 @@ describe('Router', function () {
       expect(router.stack[1]).to.have.property('path', '/two');
     });
 
+    it('registers array of paths with name', function () {
+      var router = new Router();
+      router.get('name', ['/one', '/two'], function (ctx, next) {
+        return next();
+      });
+      expect(router.stack).to.have.property('length', 2);
+      expect(router.stack[0]).to.have.property('path', '/one');
+      expect(router.stack[1]).to.have.property('path', '/two');
+    });
+
     it('resolves non-parameterized routes without attached parameters', function(done) {
       var app = new Koa();
       var router = new Router();
