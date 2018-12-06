@@ -71,91 +71,11 @@ describe('Layer', function () {
         .end(done)
     })
 
-<<<<<<< HEAD
-    it('populates ctx.captures with regexp captures', function(done) {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      router.get(/^\/api\/([^\/]+)\/?/i, function (ctx, next) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.instanceOf(Array);
-        ctx.captures.should.have.property(0, '1');
-        return next();
-      }, function (ctx) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.instanceOf(Array);
-        ctx.captures.should.have.property(0, '1');
-        ctx.status = 204;
-      });
-      request(http.createServer(app.callback()))
-      .get('/api/1')
-      .expect(204)
-      .end(function(err) {
-        if (err) return done(err);
-        done();
-      });
-    });
-
-    it('return orginal ctx.captures when decodeURIComponent throw error', function(done) {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      router.get(/^\/api\/([^\/]+)\/?/i, function (ctx, next) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.type('object');
-        ctx.captures.should.have.property(0, '101%');
-        return next();
-      }, function (ctx, next) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.type('object');
-        ctx.captures.should.have.property(0, '101%');
-        ctx.status = 204;
-      });
-      request(http.createServer(app.callback()))
-      .get('/api/101%')
-      .expect(204)
-      .end(function(err) {
-        if (err) return done(err);
-        done();
-      });
-    });
-
-    it('populates ctx.captures with regexp captures include undefiend', function(done) {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      router.get(/^\/api(\/.+)?/i, function (ctx, next) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.type('object');
-        ctx.captures.should.have.property(0, undefined);
-        return next();
-      }, function (ctx) {
-        ctx.should.have.property('captures');
-        ctx.captures.should.be.type('object');
-        ctx.captures.should.have.property(0, undefined);
-        ctx.status = 204;
-      });
-      request(http.createServer(app.callback()))
-      .get('/api')
-      .expect(204)
-      .end(function(err) {
-        if (err) return done(err);
-        done();
-      });
-    });
-
-    it('should throw friendly error message when handle not exists', function() {
-      var app = new Koa();
-      var router = new Router();
-      app.use(router.routes());
-      var notexistHandle = undefined;
-=======
     it('should throw friendly error message when handle not exists', function () {
       var app = new Koa()
       var router = new Router()
       app.use(router.routes())
       var notexistHandle;
->>>>>>> 36d25e9... Added eslint, .eslintrc with JavaScript standard style, and formatted package
       (function () {
         router.get('/foo', notexistHandle)
       }).should.throw('get `/foo`: `middleware` must be a function, not `undefined`');
