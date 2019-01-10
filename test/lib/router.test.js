@@ -857,12 +857,16 @@ describe('test/lib/router.test.js', function () {
       router.get('/notparameter', function (ctx, next) {
         ctx.body = {
           param: ctx.params.parameter,
+          routerName: ctx.routerName,
+          routerPath: ctx.routerPath,
         };
       });
 
       router.get('/:parameter', function (ctx, next) {
         ctx.body = {
           param: ctx.params.parameter,
+          routerName: ctx.routerName,
+          routerPath: ctx.routerPath,
         };
       });
 
@@ -874,6 +878,8 @@ describe('test/lib/router.test.js', function () {
           if (err) return done(err);
 
           expect(res.body.param).to.equal(undefined);
+          expect(res.body.routerName).to.equal(null);
+          expect(res.body.routerPath).to.equal('/notparameter');
           done();
         });
     });
