@@ -1534,6 +1534,62 @@ describe('Router', function () {
       });
     });
 
+    it('places the longest match which is a subrouter route for `_matchedRoute` value on context', function (done) {
+      var app = new Koa();
+      var subrouter = Router()
+        .get('/sub', function (ctx) {
+          ctx.body.route1 = ctx._matchedRoute;
+        });
+      var router = Router()
+        .prefix('/prefix')
+        .use(function (ctx, next) {
+          ctx.body = {};
+          ctx.body.route2 = ctx._matchedRoute;
+          return next();
+        })
+        .use('/parent', subrouter.routes(), subrouter.allowedMethods());
+      request(http.createServer(app.use(router.routes()).callback()))
+        .get('/prefix/parent/sub')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          expect(res.body).to.have.property('route1', '/prefix/parent/sub');
+          expect(res.body).to.have.property('route2', '/prefix/parent/sub');
+          done();
+        });
+    });
+
+    it('uses the longest match for `_matchedRoute` value on context', function(done) {
+      var app = new Koa();
+      var router = new Router();
+
+      router.get('/users/:id', function (ctx, next) {
+        ctx.body = { route1: ctx._matchedRoute };
+        should.exist(ctx.params.id);
+        ctx.status = 200;
+        return next();
+      });
+
+      // Matches (.*) so it will require a tie breaker
+      router.use(function(ctx, next) {
+        ctx.body.route2 = ctx._matchedRoute;
+        return next();
+      });
+
+      request(http.createServer(
+        app
+          .use(router.routes())
+          .callback()))
+      .get('/users/1')
+      .expect(200)
+      .end(function(err, res) {
+        if (err) return done(err);
+        expect(res.body).to.have.property('route1', '/users/:id');
+        expect(res.body).to.have.property('route2', '/users/:id');
+        done();
+      });
+    });
+
     it('places a `_matchedRouteName` value on the context for a named route', function(done) {
       var app = new Koa();
       var router = new Router();

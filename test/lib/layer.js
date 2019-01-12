@@ -10,7 +10,7 @@ var Koa = require('koa')
   , Layer = require('../../lib/layer');
 
 describe('Layer', function() {
-  it('composes multiple callbacks/middlware', function(done) {
+  it('composes multiple callbacks/middleware', function(done) {
     var app = new Koa();
     var router = new Router();
     app.use(router.routes());
@@ -34,7 +34,7 @@ describe('Layer', function() {
     });
   });
 
-  describe('Layer#match()', function() {
+  describe('Layer#matchLength()', function() {
     it('captures URL path parameters', function(done) {
       var app = new Koa();
       var router = new Router();
