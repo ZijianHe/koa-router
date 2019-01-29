@@ -55,7 +55,7 @@ describe('Layer', function() {
       });
     });
 
-    it('return orginal path parameters when decodeURIComponent throw error', function(done) {
+    it('return original path parameters when decodeURIComponent throw error', function(done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
@@ -96,7 +96,7 @@ describe('Layer', function() {
       });
     });
 
-    it('return orginal ctx.captures when decodeURIComponent throw error', function(done) {
+    it('return original ctx.captures when decodeURIComponent throw error', function(done) {
       var app = new Koa();
       var router = new Router();
       app.use(router.routes());
