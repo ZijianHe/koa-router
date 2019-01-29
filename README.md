@@ -1,6 +1,7 @@
 # koa-router
 
-**The NPM package name `koa-router` is for sale. [Email me](mailto:koa-router@alexmingoia.com) with best offer.**
+**The NPM package name `koa-router` is for sale to any organization interested in sponsoring and maintaining the package.
+[Email me](mailto:koa-router@alexmingoia.com) with best offer.**
 
 [![NPM version](https://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](https://img.shields.io/travis/alexmingoia/koa-router.svg?style=flat)](http://travis-ci.org/alexmingoia/koa-router) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/alexmingoia/koa-router/)
 
