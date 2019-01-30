@@ -1,33 +1,34 @@
 # egg-router
 
-> **This repository is a fork of [koa-router](https://github.com/alexmingoia/koa-router).** And thanks for the work of
-@alexmingoia. koa-router is a awesome project.
+Router core component for [Egg.js](https://github.com/eggjs).
 
-> Router core component for [Egg.js](https://github.com/eggjs).
+> **This repository is a fork of [koa-router](https://github.com/alexmingoia/koa-router).** with some additional features.
+
+> And thanks for the greate work of @alexmingoia and the original team.
 
 ## API Reference
-  
-* [koa-router](#module_koa-router)
-    * [Router](#exp_module_koa-router--Router) ⏏
-        * [new Router([opts])](#new_module_koa-router--Router_new)
-        * _instance_
-            * [.get|put|post|patch|delete|del](#module_koa-router--Router+get|put|post|patch|delete|del) ⇒ <code>Router</code>
-            * [.routes](#module_koa-router--Router+routes) ⇒ <code>function</code>
-            * [.use([path], middleware)](#module_koa-router--Router+use) ⇒ <code>Router</code>
-            * [.prefix(prefix)](#module_koa-router--Router+prefix) ⇒ <code>Router</code>
-            * [.allowedMethods([options])](#module_koa-router--Router+allowedMethods) ⇒ <code>function</code>
-            * [.redirect(source, destination, [code])](#module_koa-router--Router+redirect) ⇒ <code>Router</code>
-            * [.route(name)](#module_koa-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
-            * [.url(name, params, [options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
-            * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
-        * _static_
-            * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
 
-<a name="exp_module_koa-router--Router"></a>
+* [egg-router](#module_egg-router)
+    * [Router](#exp_module_egg-router--Router) ⏏
+        * [new Router([opts])](#new_module_egg-router--Router_new)
+        * _instance_
+            * [.get|put|post|patch|delete|del](#module_egg-router--Router+get|put|post|patch|delete|del) ⇒ <code>Router</code>
+            * [.routes](#module_egg-router--Router+routes) ⇒ <code>function</code>
+            * [.use([path], middleware)](#module_egg-router--Router+use) ⇒ <code>Router</code>
+            * [.prefix(prefix)](#module_egg-router--Router+prefix) ⇒ <code>Router</code>
+            * [.allowedMethods([options])](#module_egg-router--Router+allowedMethods) ⇒ <code>function</code>
+            * [.redirect(source, destination, [code])](#module_egg-router--Router+redirect) ⇒ <code>Router</code>
+            * [.route(name)](#module_egg-router--Router+route) ⇒ <code>Layer</code> &#124; <code>false</code>
+            * [.url(name, params, [options])](#module_egg-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
+            * [.param(param, middleware)](#module_egg-router--Router+param) ⇒ <code>Router</code>
+        * _static_
+            * [.url(path, params)](#module_egg-router--Router.url) ⇒ <code>String</code>
+
+<a name="exp_module_egg-router--Router"></a>
 
 ### Router ⏏
-**Kind**: Exported class  
-<a name="new_module_koa-router--Router_new"></a>
+**Kind**: Exported class
+<a name="new_module_egg-router--Router_new"></a>
 
 #### new Router([opts])
 Create a new router.
@@ -38,12 +39,12 @@ Create a new router.
 | [opts] | <code>Object</code> |  |
 | [opts.prefix] | <code>String</code> | prefix router paths |
 
-**Example**  
+**Example**
 Basic usage:
 
 ```javascript
 var Koa = require('koa');
-var Router = require('koa-router');
+var Router = require('egg-router');
 
 var app = new Koa();
 var router = new Router();
@@ -56,7 +57,7 @@ app
   .use(router.routes())
   .use(router.allowedMethods());
 ```
-<a name="module_koa-router--Router+get|put|post|patch|delete|del"></a>
+<a name="module_egg-router--Router+get|put|post|patch|delete|del"></a>
 
 #### router.get|put|post|patch|delete|del ⇒ <code>Router</code>
 Create `router.verb()` methods, where *verb* is one of the HTTP verbs such
@@ -171,7 +172,7 @@ router.get('/:category/:title', (ctx, next) => {
 The [path-to-regexp](https://github.com/pillarjs/path-to-regexp) module is
 used to convert paths to regular expressions.
 
-**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance property of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -179,13 +180,13 @@ used to convert paths to regular expressions.
 | [middleware] | <code>function</code> | route middleware(s) |
 | callback | <code>function</code> | route callback |
 
-<a name="module_koa-router--Router+routes"></a>
+<a name="module_egg-router--Router+routes"></a>
 
 #### router.routes ⇒ <code>function</code>
 Returns router middleware which dispatches a route matching the request.
 
-**Kind**: instance property of <code>[Router](#exp_module_koa-router--Router)</code>  
-<a name="module_koa-router--Router+use"></a>
+**Kind**: instance property of <code>[Router](#exp_module_egg-router--Router)</code>
+<a name="module_egg-router--Router+use"></a>
 
 #### router.use([path], middleware) ⇒ <code>Router</code>
 Use given middleware.
@@ -194,15 +195,15 @@ Middleware run in the order they are defined by `.use()`. They are invoked
 sequentially, requests start at the first middleware and work their way
 "down" the middleware stack.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| [path] | <code>String</code> | 
-| middleware | <code>function</code> | 
-| [...] | <code>function</code> | 
+| [path] | <code>String</code> |
+| middleware | <code>function</code> |
+| [...] | <code>function</code> |
 
-**Example**  
+**Example**
 ```javascript
 // session middleware will run before authorize
 router
@@ -217,29 +218,29 @@ router.use(['/users', '/admin'], userAuth());
 
 app.use(router.routes());
 ```
-<a name="module_koa-router--Router+prefix"></a>
+<a name="module_egg-router--Router+prefix"></a>
 
 #### router.prefix(prefix) ⇒ <code>Router</code>
 Set the path prefix for a Router instance that was already initialized.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| prefix | <code>String</code> | 
+| prefix | <code>String</code> |
 
-**Example**  
+**Example**
 ```javascript
 router.prefix('/things/:thing_id')
 ```
-<a name="module_koa-router--Router+allowedMethods"></a>
+<a name="module_egg-router--Router+allowedMethods"></a>
 
 #### router.allowedMethods([options]) ⇒ <code>function</code>
 Returns separate middleware for responding to `OPTIONS` requests with
 an `Allow` header containing the allowed methods, as well as responding
 with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -248,10 +249,10 @@ with `405 Method Not Allowed` and `501 Not Implemented` as appropriate.
 | [options.notImplemented] | <code>function</code> | throw the returned value in place of the default NotImplemented error |
 | [options.methodNotAllowed] | <code>function</code> | throw the returned value in place of the default MethodNotAllowed error |
 
-**Example**  
+**Example**
 ```javascript
 var Koa = require('koa');
-var Router = require('koa-router');
+var Router = require('egg-router');
 
 var app = new Koa();
 var router = new Router();
@@ -264,7 +265,7 @@ app.use(router.allowedMethods());
 
 ```javascript
 var Koa = require('koa');
-var Router = require('koa-router');
+var Router = require('egg-router');
 var Boom = require('boom');
 
 var app = new Koa();
@@ -277,7 +278,7 @@ app.use(router.allowedMethods({
   methodNotAllowed: () => new Boom.methodNotAllowed()
 }));
 ```
-<a name="module_koa-router--Router+redirect"></a>
+<a name="module_egg-router--Router+redirect"></a>
 
 #### router.redirect(source, destination, [code]) ⇒ <code>Router</code>
 Redirect `source` to `destination` URL with optional 30x status `code`.
@@ -297,7 +298,7 @@ router.all('/login', ctx => {
 });
 ```
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -305,23 +306,23 @@ router.all('/login', ctx => {
 | destination | <code>String</code> | URL or route name. |
 | [code] | <code>Number</code> | HTTP status code (default: 301). |
 
-<a name="module_koa-router--Router+route"></a>
+<a name="module_egg-router--Router+route"></a>
 
 #### router.route(name) ⇒ <code>Layer</code> &#124; <code>false</code>
 Lookup route with given `name`.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| name | <code>String</code> | 
+| name | <code>String</code> |
 
-<a name="module_koa-router--Router+url"></a>
+<a name="module_egg-router--Router+url"></a>
 
 #### router.url(name, params, [options]) ⇒ <code>String</code> &#124; <code>Error</code>
 Generate URL for route. Takes a route name and map of named `params`.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -330,7 +331,7 @@ Generate URL for route. Takes a route name and map of named `params`.
 | [options] | <code>Object</code> | options parameter |
 | [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
-**Example**  
+**Example**
 ```javascript
 router.get('user', '/users/:id', (ctx, next) => {
   // ...
@@ -353,20 +354,20 @@ router.url('user', { id: 3 }, { query: { limit: 1 } });
 router.url('user', { id: 3 }, { query: "limit=1" });
 // => "/users/3?limit=1"
 ```
-<a name="module_koa-router--Router+param"></a>
+<a name="module_egg-router--Router+param"></a>
 
 #### router.param(param, middleware) ⇒ <code>Router</code>
 Run middleware for named route parameters. Useful for auto-loading or
 validation.
 
-**Kind**: instance method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: instance method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type |
 | --- | --- |
-| param | <code>String</code> | 
-| middleware | <code>function</code> | 
+| param | <code>String</code> |
+| middleware | <code>function</code> |
 
-**Example**  
+**Example**
 ```javascript
 router
   .param('user', (id, ctx, next) => {
@@ -385,12 +386,12 @@ router
   // /users/3 => {"id": 3, "name": "Alex"}
   // /users/3/friends => [{"id": 4, "name": "TJ"}]
 ```
-<a name="module_koa-router--Router.url"></a>
+<a name="module_egg-router--Router.url"></a>
 
 #### Router.url(path, params [, options]) ⇒ <code>String</code>
 Generate URL from url pattern and given `params`.
 
-**Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>  
+**Kind**: static method of <code>[Router](#exp_module_egg-router--Router)</code>
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -399,7 +400,7 @@ Generate URL from url pattern and given `params`.
 | [options] | <code>Object</code> | options parameter |
 | [options.query] | <code>Object</code> &#124; <code>String</code> | query options |
 
-**Example**  
+**Example**
 ```javascript
 var url = Router.url('/users/:id', {id: 1});
 // => "/users/1"
@@ -409,7 +410,7 @@ const url = Router.url('/users/:id', {id: 1}, {query: { active: true }});
 ```
 ## Contributing
 
-Please submit all issues and pull requests to the [alexmingoia/koa-router](http://github.com/alexmingoia/koa-router) repository!
+Please submit all issues and pull requests to the [alexmingoia/egg-router](http://github.com/alexmingoia/egg-router) repository!
 
 ## Tests
 
@@ -417,4 +418,4 @@ Run tests using `npm test`.
 
 ## Support
 
-If you have any problem or suggestion please open an issue [here](https://github.com/alexmingoia/koa-router/issues).
+If you have any problem or suggestion please open an issue [here](https://github.com/alexmingoia/egg-router/issues).
