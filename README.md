@@ -408,14 +408,7 @@ var url = Router.url('/users/:id', {id: 1});
 const url = Router.url('/users/:id', {id: 1}, {query: { active: true }});
 // => "/users/1?active=true"
 ```
-## Contributing
-
-Please submit all issues and pull requests to the [alexmingoia/egg-router](http://github.com/alexmingoia/egg-router) repository!
 
 ## Tests
 
 Run tests using `npm test`.
-
-## Support
-
-If you have any problem or suggestion please open an issue [here](https://github.com/alexmingoia/egg-router/issues).
