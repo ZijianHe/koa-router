@@ -43,10 +43,10 @@
     "ci": "egg-bin cov"
   },
   "ci": {
-    "version": "6, 8, 10"
+    "version": "8, 10"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">= 8"
   },
   "license": "MIT"
 }
