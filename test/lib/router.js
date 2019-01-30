@@ -1777,4 +1777,41 @@ describe('Router', function () {
         done();
     });
   });
+
+  describe('Shared Router', function() {
+    it('generates 2 shared router instances', function(done) {
+      const app = new Koa();
+      const rootRouter = new Router();
+      const sharedRouter = new Router();
+      const server = http.createServer(app.callback());
+
+      sharedRouter.get('/hello', (ctx) => {
+          ctx.body = 'Hello World!';
+      });
+
+      rootRouter.use(sharedRouter.routes());
+      rootRouter.use('/foo', sharedRouter.routes());
+      rootRouter.use('/bar', sharedRouter.routes());
+      app.use(rootRouter.routes());
+      request(server)
+        .get('/hello')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          request(server)
+            .get('/foo/hello')
+            .expect(200)
+            .end(function (err, res) {
+              if (err) return done(err);
+              request(server)
+                .get('/bar/hello')
+                .expect(200)
+                .end(function (err, res) {
+                  if (err) return done(err);
+                  done();
+                });
+            });
+        });
+    });
+  });
 });
