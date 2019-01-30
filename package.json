@@ -24,6 +24,7 @@
     "inflection": "^1.12.0",
     "is-type-of": "^1.2.1",
     "koa-compose": "^3.0.0",
+    "koa-convert": "^1.2.0",
     "methods": "^1.0.1",
     "path-to-regexp": "^1.1.1",
     "urijs": "^1.19.0",
