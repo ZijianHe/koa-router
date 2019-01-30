@@ -3,9 +3,11 @@
 ==================
 
 **others**
-  * [[`4814462`](http://github.com/eggjs/egg-router/commit/4814462850443712c7c5dfcb5ef1339e6cfd08fe)] - refactor: rename to egg-router (dead-horse <<dead_horse@qq.com>>),fatal: No names found, cannot describe anything.
+  * [[`d6496e0`](http://github.com/eggjs/egg-router/commit/d6496e09be6b0f91dcb96611f31ec5ab6ad8ac78)] - refactor: rename to @eggjs/router (dead-horse <<dead_horse@qq.com>>)
 
-# History
+-------------------------------
+
+# Release History from koa-router
 
 ## 7.4.0
 
