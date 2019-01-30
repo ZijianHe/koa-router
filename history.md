@@ -1,4 +1,19 @@
 
+1.1.0 / 2019-01-30
+==================
+
+**features**
+  * [[`b318dd5`](http://github.com/eggjs/egg-router/commit/b318dd5ff2eea60013ed62b2a435f803c12bf20f)] - feat: add egg-router (dead-horse <<dead_horse@qq.com>>)
+
+**fixes**
+  * [[`b3db7b4`](http://github.com/eggjs/egg-router/commit/b3db7b41988d3bf1b4e885ed76b3a8165c1d3b1d)] - fix: add missing dependencies koa-convert (dead-horse <<dead_horse@qq.com>>)
+  * [[`c280336`](http://github.com/eggjs/egg-router/commit/c2803368a8256bc9504ae3c821eefeb9d1fcbc4d)] - fix: only support node@8 (dead-horse <<dead_horse@qq.com>>)
+  * [[`7a887a2`](http://github.com/eggjs/egg-router/commit/7a887a252445e602c2ea7e1c6f4cde52a433644d)] - fix: update license (dead-horse <<dead_horse@qq.com>>)
+
+**others**
+  * [[`ae40168`](http://github.com/eggjs/egg-router/commit/ae4016862fb8bdaf30e730a9278fbb1455d8b75d)] - docs: clean doc (dead-horse <<dead_horse@qq.com>>)
+  * [[`e4f21a8`](http://github.com/eggjs/egg-router/commit/e4f21a8ed6dfd72c4d6f4a13bbda9a4e90b0401c)] - chore: fix history (dead-horse <<dead_horse@qq.com>>)
+
 1.0.0 / 2019-01-30
 ==================
 
