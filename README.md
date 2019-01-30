@@ -1,4 +1,4 @@
-# egg-router
+# @eggjs/router
 
 Router core component for [Egg.js](https://github.com/eggjs).
 
@@ -44,7 +44,7 @@ Basic usage:
 
 ```javascript
 var Koa = require('koa');
-var Router = require('egg-router');
+var Router = require('@eggjs/router');
 
 var app = new Koa();
 var router = new Router();

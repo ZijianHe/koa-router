@@ -1,5 +1,5 @@
 {
-  "name": "egg-router",
+  "name": "@eggjs/router",
   "description": "Router middleware for egg/koa. Provides RESTful resource routing.",
   "repository": {
     "type": "git",
