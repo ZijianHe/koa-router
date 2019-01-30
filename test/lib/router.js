@@ -192,6 +192,26 @@ describe('Router', function () {
         done();
       });
   });
+  it('supports generator', function (done){
+    var app = new Koa();
+    app.experimental = true;
+    var router = Router();
+    router.get('/generator', function* (next){
+      this.body = {
+        msg: 'generator!'
+      }
+      yield next;
+    })
+    app.use(router.routes()).use(router.allowedMethods());
+    request(http.createServer(app.callback()))
+      .get('/generator')
+      .expect(200)
+      .end(function (err, res){
+        if(err) return done(err);
+        expect(res.body).to.have.property('msg', 'generator!');
+        done();
+      });
+  })
 
   it('matches middleware only if route was matched (gh-182)', function (done) {
     var app = new Koa();
