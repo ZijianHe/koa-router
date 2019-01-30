@@ -9,7 +9,7 @@ var Koa = require('koa')
   , should = require('should')
   , Layer = require('../../lib/layer');
 
-describe('Layer', function() {
+describe('test/lib/layer.test.js', function() {
   it('composes multiple callbacks/middlware', function(done) {
     var app = new Koa();
     var router = new Router();
