@@ -3,12 +3,6 @@
 ==================
 
 **others**
-
-
-1.0.0 / 2019-01-30
-==================
-
-**others**
   * [[`d6496e0`](http://github.com/eggjs/egg-router/commit/d6496e09be6b0f91dcb96611f31ec5ab6ad8ac78)] - refactor: rename to @eggjs/router (dead-horse <<dead_horse@qq.com>>)
 
 -------------------------------
