@@ -13,7 +13,7 @@ var fs = require('fs')
   , expect = require('expect.js')
   , should = require('should');
 
-describe('Router', function () {
+describe('test/lib/router.test.js', function () {
   it('creates new router with koa app', function (done) {
     var app = new Koa();
     var router = new Router();
