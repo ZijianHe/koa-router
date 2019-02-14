@@ -1769,7 +1769,7 @@ describe('Router', function () {
         done();
     });
 
-    it('generates router URL without params and with with query params', function(done) {
+    it('generates router URL without params and with query params', function(done) {
         var url = Router.url('/category', {
           query: { page: 3, limit: 10 }
         });
