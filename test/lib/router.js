@@ -848,7 +848,7 @@ describe('Router', function () {
     })
   })
 
-  it('resolves parameters in nested routes with prefixes', async function () {
+  it('resolves parameters in nested routes with prefixes', function (done) {
     const app = new Koa()
     const router = new Router()
     const childRouter = new Router()
@@ -856,35 +856,37 @@ describe('Router', function () {
     router.prefix('/car/:make')
     childRouter.prefix('/:model')
 
-    childRouter.param('model', async (model, context, next) => {
+    childRouter.param('model', (model, context, next) => {
       context.body = { model }
-      await next()
+      return next()
     })
 
-    childRouter.use(async (context, next) => {
+    childRouter.use((context, next) => {
       context.body.useReached = true
-      await next()
+      return next()
     })
 
-    childRouter.get('/', async (context, next) => {
+    childRouter.get('/', (context, next) => {
       context.body = Object.assign(
         {}, context.body, { make: context.params.make }
       )
-      await next()
+      return next()
     })
 
     router.use(childRouter.routes(), childRouter.allowedMethods())
     app.use(router.routes(), router.allowedMethods())
 
-    const { body } = await request(app.callback())
+    request(app.callback())
       .get('/car/acura/tsx')
       .expect(200)
-
-    expect(body.make).to.equal('acura')
-    expect(body.model).to.equal('tsx')
+      .then(({ body }) => {
+        expect(body.make).to.equal('acura')
+        expect(body.model).to.equal('tsx')
+        done()
+      })
   })
 
-  it('resolves non-parameterized routes without attached parameters', async function () {
+  it('resolves non-parameterized routes without attached parameters', function (done) {
     var app = new Koa()
     var router = new Router()
 
@@ -913,12 +915,14 @@ describe('Router', function () {
 
     app.use(router.routes())
 
-    const { body } = await request(http.createServer(app.callback()))
+    request(http.createServer(app.callback()))
       .get('/notparameter')
       .expect(200)
-
-    expect(body.resolved).to.eql(['/notparameter'])
-    expect(body.param).to.equal(undefined)
+      .then(({ body }) => {
+        expect(body.resolved).to.eql(['/notparameter'])
+        expect(body.param).to.equal(undefined)
+        done()
+      })
   })
 
   describe('Router#use()', function (done) {
