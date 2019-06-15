@@ -848,6 +848,79 @@ describe('Router', function () {
     })
   })
 
+  it('resolves parameters in nested routes with prefixes', async function () {
+    const app = new Koa()
+    const router = new Router()
+    const childRouter = new Router()
+
+    router.prefix('/car/:make')
+    childRouter.prefix('/:model')
+
+    childRouter.param('model', async (model, context, next) => {
+      context.body = { model }
+      await next()
+    })
+
+    childRouter.use(async (context, next) => {
+      context.body.useReached = true
+      await next()
+    })
+
+    childRouter.get('/', async (context, next) => {
+      context.body = Object.assign(
+        {}, context.body, { make: context.params.make }
+      )
+      await next()
+    })
+
+    router.use(childRouter.routes(), childRouter.allowedMethods())
+    app.use(router.routes(), router.allowedMethods())
+
+    const { body } = await request(app.callback())
+      .get('/car/acura/tsx')
+      .expect(200)
+
+    expect(body.make).to.equal('acura')
+    expect(body.model).to.equal('tsx')
+  })
+
+  it('resolves non-parameterized routes without attached parameters', async function () {
+    var app = new Koa()
+    var router = new Router()
+
+    router.use(function (ctx, next) {
+      ctx.resolved = []
+      return next()
+    })
+
+    router.get('/notparameter', function (ctx, next) {
+      ctx.resolved.push('/notparameter')
+
+      ctx.body = {
+        param: ctx.params.parameter,
+        resolved: ctx.resolved
+      }
+    })
+
+    router.get('/:parameter', function (ctx, next) {
+      ctx.resolved.push('/:parameter')
+
+      ctx.body = {
+        param: ctx.params.parameter,
+        resolved: ctx.resolved
+      }
+    })
+
+    app.use(router.routes())
+
+    const { body } = await request(http.createServer(app.callback()))
+      .get('/notparameter')
+      .expect(200)
+
+    expect(body.resolved).to.eql(['/notparameter'])
+    expect(body.param).to.equal(undefined)
+  })
+
   describe('Router#use()', function (done) {
     it('uses router middleware without path', function (done) {
       var app = new Koa()
@@ -1164,12 +1237,12 @@ describe('Router', function () {
         query: { page: 3, limit: 10 }
       })
       url.should.equal('/books/programming/4?page=3&limit=10')
-      url = router.url('books',
+      router.url('books',
         { category: 'programming', id: 4 },
         { query: { page: 3, limit: 10 } }
       )
       url.should.equal('/books/programming/4?page=3&limit=10')
-      url = router.url('books',
+      router.url('books',
         { category: 'programming', id: 4 },
         { query: 'page=3&limit=10' }
       )
@@ -1642,7 +1715,7 @@ describe('Router', function () {
     describe('with trailing slash', testPrefix('/admin/'))
     describe('without trailing slash', testPrefix('/admin'))
 
-    function testPrefix(prefix) {
+    function testPrefix (prefix) {
       return function () {
         var server
         var middlewareCount = 0
@@ -1732,12 +1805,12 @@ describe('Router', function () {
         query: { page: 3, limit: 10 }
       })
       url.should.equal('/books/programming/4?page=3&limit=10')
-      url = Router.url('/books/:category/:id',
+      Router.url('/books/:category/:id',
         { category: 'programming', id: 4 },
         { query: { page: 3, limit: 10 } }
       )
       url.should.equal('/books/programming/4?page=3&limit=10')
-      url = Router.url('/books/:category/:id',
+      Router.url('/books/:category/:id',
         { category: 'programming', id: 4 },
         { query: 'page=3&limit=10' }
       )

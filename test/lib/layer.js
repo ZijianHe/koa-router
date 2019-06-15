@@ -41,6 +41,26 @@ describe('Layer', function () {
       router.get('/:category/:title', function (ctx) {
         ctx.should.have.property('params')
         ctx.params.should.be.type('object')
+        ctx.params.should.have.property('category', 'match')
+        ctx.params.should.have.property('title', 'this')
+        ctx.status = 204
+      })
+      request(http.createServer(app.callback()))
+        .get('/match/this')
+        .expect(204)
+        .end(function (err, res) {
+          if (err) return done(err)
+          done()
+        })
+    })
+
+    it('return orginal path parameters when decodeURIComponent throw error', function (done) {
+      var app = new Koa()
+      var router = new Router()
+      app.use(router.routes())
+      router.get('/:category/:title', function (ctx) {
+        ctx.should.have.property('params')
+        ctx.params.should.be.type('object')
         ctx.params.should.have.property('category', '100%')
         ctx.params.should.have.property('title', '101%')
         ctx.status = 204
