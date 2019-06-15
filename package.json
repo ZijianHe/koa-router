@@ -34,11 +34,11 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "expect.js": "^0.3.1",
-    "jsdoc-to-markdown": "^1.1.1",
+    "jsdoc-to-markdown": "^5.0.0",
     "koa": "2.2.0",
-    "mocha": "^2.0.1",
+    "mocha": "^6.1.4",
     "should": "^6.0.3",
-    "supertest": "^1.0.1"
+    "supertest": "^4.0.2"
   },
   "scripts": {
     "test": "NODE_ENV=test mocha test/**/*.js",
