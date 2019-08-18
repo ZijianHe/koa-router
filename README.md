@@ -1,6 +1,6 @@
 # koa-router
 
-[![NPM version](https://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](https://img.shields.io/travis/alexmingoia/koa-router.svg?style=flat)](http://travis-ci.org/alexmingoia/koa-router) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/alexmingoia/koa-router/)
+[![NPM version](https://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](https://img.shields.io/travis/ZijianHe/koa-router.svg?style=flat)](http://travis-ci.org/ZijianHe/koa-router) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/alexmingoia/koa-router/)
 
 > Router middleware for [koa](https://github.com/koajs/koa)
 
@@ -47,7 +47,7 @@ npm install koa-router
             * [.url(name, params, [options])](#module_koa-router--Router+url) ⇒ <code>String</code> &#124; <code>Error</code>
             * [.param(param, middleware)](#module_koa-router--Router+param) ⇒ <code>Router</code>
         * _static_
-            * [.url(path, params)](#module_koa-router--Router.url) ⇒ <code>String</code>
+            * [.url(path, params, [options])](#module_koa-router--Router.url) ⇒ <code>String</code>
 
 <a name="exp_module_koa-router--Router"></a>
 
@@ -413,7 +413,7 @@ router
 ```
 <a name="module_koa-router--Router.url"></a>
 
-#### Router.url(path, params [, options]) ⇒ <code>String</code>
+#### Router.url(path, params, [options]) ⇒ <code>String</code>
 Generate URL from url pattern and given `params`.
 
 **Kind**: static method of <code>[Router](#exp_module_koa-router--Router)</code>  
@@ -435,7 +435,7 @@ const url = Router.url('/users/:id', {id: 1}, {query: { active: true }});
 ```
 ## Contributing
 
-Please submit all issues and pull requests to the [alexmingoia/koa-router](http://github.com/alexmingoia/koa-router) repository!
+Please submit all issues and pull requests to the [ZijianHe/koa-router](http://github.com/ZijianHe/koa-router) repository!
 
 ## Tests
 
@@ -443,4 +443,4 @@ Run tests using `npm test`.
 
 ## Support
 
-If you have any problem or suggestion please open an issue [here](https://github.com/alexmingoia/koa-router/issues).
+If you have any problem or suggestion please open an issue [here](https://github.com/ZijianHe/koa-router/issues).
