@@ -1,6 +1,6 @@
 # koa-router
 
-[![NPM version](https://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](https://img.shields.io/travis/ZijianHe/koa-router.svg?style=flat)](http://travis-ci.org/ZijianHe/koa-router) [![Tips](https://img.shields.io/gratipay/ZijianHe.svg?style=flat)](https://www.gratipay.com/ZijianHe/) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/ZijianHe/koa-router/)
+[![NPM version](https://img.shields.io/npm/v/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![NPM Downloads](https://img.shields.io/npm/dm/koa-router.svg?style=flat)](https://npmjs.org/package/koa-router) [![Node.js Version](https://img.shields.io/node/v/koa-router.svg?style=flat)](http://nodejs.org/download/) [![Build Status](https://img.shields.io/travis/ZijianHe/koa-router.svg?style=flat)](http://travis-ci.org/ZijianHe/koa-router) [![Gitter Chat](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg?style=flat)](https://gitter.im/alexmingoia/koa-router/)
 
 > Router middleware for [koa](https://github.com/koajs/koa)
 
