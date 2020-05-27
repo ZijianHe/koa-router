@@ -1508,9 +1508,9 @@ describe('Router', function () {
     it('places a `_matchedRoute` value on context', function(done) {
       var app = new Koa();
       var router = new Router();
-      var middleware = function (ctx, next) {
+      var middleware = function (ctx, next) {  
+        next();
         expect(ctx._matchedRoute).to.be('/users/:id')
-        return next();
       };
 
       router.use(middleware);
