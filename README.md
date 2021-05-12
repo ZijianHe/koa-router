@@ -291,7 +291,7 @@ app.use(router.allowedMethods());
 ```javascript
 var Koa = require('koa');
 var Router = require('koa-router');
-var Boom = require('boom');
+var Boom = require('@hapi/boom');
 
 var app = new Koa();
 var router = new Router();
